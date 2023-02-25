@@ -1,0 +1,56 @@
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('Roboto-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto-Bold';
+    src: url('Roboto-Bold.ttf');
+}
+
+
+.menu{
+    -fx-font-family: "Roboto-Bold";
+    -fx-background-color: #8C2D19;
+    -fx-padding: 0.0em;
+}
+
+.menu-app-name-pane{
+    -fx-background-color: #6E0F02;
+}
+.menu-app-name{
+    -fx-font-size: 40;
+    -fx-text-fill: white;
+}
+
+.menu-app-button{
+    -fx-font-size: 20;
+    -fx-text-fill: white;
+    -fx-background-color: #8C2D19;
+    -fx-alignment: baseline-left;
+    -fx-padding: 6.0 0.0 6.0 40.0;
+    -fx-border-width: 0.0 0.0 0.0 10.0;
+    -fx-border-color: #8C2D19;
+
+
+}
+
+.menu-app-button:hover{
+    -fx-background-color: #6E0F02;
+    -fx-border-color: #6E0F02;
+    -fx-transition: background-color 2.0s ease-in-out;
+}
+
+.menu-app-button:pressed{
+    -fx-background-color: #6E0F02;
+    -fx-border-color: white;
+}
+
+
+.text{
+    -fx-font-family: "Roboto";
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
+
