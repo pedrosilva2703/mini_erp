@@ -42,7 +42,19 @@
     -fx-border-color: #6E0F02;
 }
 
-.menu-app-button:focused{
+.menu-app-button-selected{
+    -fx-font-size: 25;
+    -fx-text-fill: white;
+    -fx-background-color: #8C2D19;
+    -fx-alignment: baseline-left;
+    -fx-padding: 10.0 0.0 10.0 45.0;
+    -fx-border-width: 0.0 0.0 0.0 10.0;
+    -fx-pref-width: 260;
+
+    -fx-background-color: #6E0F02;
+    -fx-border-color: white;
+}
+.menu-app-button-selected:hover{
     -fx-background-color: #6E0F02;
     -fx-border-color: white;
 }
