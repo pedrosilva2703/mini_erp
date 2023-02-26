@@ -4,9 +4,9 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.minierp.controllers.SettingsController">
+<AnchorPane prefHeight="520.0" prefWidth="1020.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.minierp.controllers.SettingsController">
    <children>
-      <Text layoutX="192.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0" text="FUNCIONOU" />
-      <Button layoutX="209.0" layoutY="200.0" mnemonicParsing="false" text="Button" />
+      <Text layoutX="936.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="FUNCIONOU" />
+      <Button layoutX="954.0" layoutY="481.0" mnemonicParsing="false" text="Button" />
    </children>
 </AnchorPane>

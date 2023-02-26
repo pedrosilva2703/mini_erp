@@ -50,7 +50,6 @@ public class LayoutController {
     }
     @FXML
     private void onAboutButtonClick(){
-        loadPage("Settings");
         refreshButtonStates(aboutButton);
     }
 
@@ -76,7 +75,6 @@ public class LayoutController {
         // Select clicked button
         selectButton(clickedButton);
     }
-
 
     private void loadPage(String page){
         try {
