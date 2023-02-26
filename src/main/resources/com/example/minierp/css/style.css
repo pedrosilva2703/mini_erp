@@ -42,7 +42,7 @@
     -fx-border-color: #6E0F02;
 }
 
-.menu-app-button:pressed{
+.menu-app-button:focused{
     -fx-background-color: #6E0F02;
     -fx-border-color: white;
 }
