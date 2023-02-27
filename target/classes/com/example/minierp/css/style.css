@@ -9,9 +9,13 @@
     src: url('Roboto-Bold.ttf');
 }
 
+.text{
+    -fx-font-family: "Roboto";
+    -fx-text-fill: black;
+}
 
 .menu{
-    -fx-font-family: "Roboto-Bold";
+    -fx-font-weight: bold;
     -fx-background-color: #8C2D19;
     -fx-padding: 0.0em;
     -fx-pref-width: 260;
@@ -60,15 +64,21 @@
 }
 
 .page-title{
-    -fx-font-family: "Roboto-Bold";
+    -fx-font-weight: bold;
     -fx-text-fill: black;
     -fx-font-size: 50;
     -fx-padding: 0.0 0.0 0.0 45.0;
+}
 
+.sub-title{
+    -fx-font-size: 30;
+    -fx-underline: true;
 }
-.text{
-    -fx-font-family: "Roboto";
-    -fx-text-fill: black;
-    -fx-font-weight: bold;
+
+.normal-text{
+    -fx-font-size: 20;
 }
+
+
+
 
