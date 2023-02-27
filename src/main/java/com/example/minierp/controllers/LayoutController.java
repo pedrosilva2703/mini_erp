@@ -29,6 +29,7 @@ public class LayoutController {
     }
     @FXML
     private void onClientsButtonClick(){
+        loadPage("Clients");
         refreshButtonStates(clientsButton);
     }
     @FXML

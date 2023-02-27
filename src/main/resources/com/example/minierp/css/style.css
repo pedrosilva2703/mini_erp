@@ -79,6 +79,47 @@
     -fx-font-size: 20;
 }
 
+.text-field{
+   -fx-font-family: "Roboto";
+   -fx-font-size: 14;
+}
 
 
+.regular-button{
+    -fx-font-size: 20;
+    -fx-text-fill: white;
+    -fx-background-color: #8C2D19;
+    -fx-padding: 1.0 7.0 1.0 7.0;
+    -fx-background-radius: 5;
+}
 
+.regular-button:hover{
+    -fx-opacity: 0.5;
+}
+
+.confirm-button{
+    -fx-font-size: 20;
+    -fx-text-fill: white;
+    -fx-background-color: green;
+    -fx-padding: 1.0 7.0 1.0 7.0;
+    -fx-background-radius: 5;
+}
+.confirm-button:hover{
+    -fx-opacity: 0.5;
+}
+.cancel-button{
+    -fx-font-size: 20;
+    -fx-text-fill: white;
+    -fx-background-color: red;
+    -fx-padding: 1.0 7.0 1.0 7.0;
+    -fx-background-radius: 5;
+}
+.cancel-button:hover{
+    -fx-opacity: 0.5;
+}
+
+.number-field{
+   -fx-font-family: "Roboto";
+   -fx-font-size: 14;
+   -fx-pref-width: 50;
+}
