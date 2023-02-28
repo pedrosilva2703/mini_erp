@@ -1,6 +1,6 @@
 package com.example.minierp.controllers;
 
-import com.example.minierp.HelloApplication;
+import com.example.minierp.Launcher;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -39,10 +39,12 @@ public class LayoutController {
     }
     @FXML
     private void onSuppliersButtonClick(){
+        loadPage("Suppliers");
         refreshButtonStates(suppliersButton);
     }
     @FXML
     private void onSupplierOrdersButtonClick(){
+        loadPage("SupplierOrders");
         refreshButtonStates(supplierOrdersButton);
     }
     @FXML
@@ -80,7 +82,7 @@ public class LayoutController {
 
     private void loadPage(String page){
         try {
-            FXMLLoader contentLoader = new FXMLLoader(HelloApplication.class.getResource(page+".fxml"));
+            FXMLLoader contentLoader = new FXMLLoader(Launcher.class.getResource(page+".fxml"));
             AnchorPane content = contentLoader.load();
             // Add the navigation menu to the left side of the BorderPane
             mainPane.setCenter(content);

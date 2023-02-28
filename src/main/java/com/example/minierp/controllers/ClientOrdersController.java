@@ -16,14 +16,16 @@ import java.util.ResourceBundle;
 
 public class ClientOrdersController implements Initializable {
 
+    @FXML private AnchorPane anchor_PO;
+    @FXML private TableView<ClientOrder> tv_PO;
     @FXML private TableColumn<ClientOrder, String> tc_PO_name;
     @FXML private TableColumn<ClientOrder, String> tc_PO_type;
     @FXML private TableColumn<ClientOrder, Integer> tc_PO_quantity;
     @FXML private TableColumn<ClientOrder, Double> tc_PO_price;
     @FXML private TableColumn<ClientOrder, Integer> tc_PO_deliveryWeek;
-    @FXML private TableView<ClientOrder> tv_PO;
-    @FXML private AnchorPane anchor_PO;
 
+    @FXML private AnchorPane anchor_CO;
+    @FXML private TableView<ClientOrder> tv_CO;
     @FXML private TableColumn<ClientOrder, String> tc_CO_name;
     @FXML private TableColumn<ClientOrder, String> tc_CO_type;
     @FXML private TableColumn<ClientOrder, Integer> tc_CO_quantity;
@@ -31,12 +33,10 @@ public class ClientOrdersController implements Initializable {
     @FXML private TableColumn<ClientOrder, Integer> tc_CO_deliveryWeek;
     @FXML private TableColumn<ClientOrder, Integer> tc_CO_currentEstimation;
     @FXML private TableColumn<ClientOrder, String> tc_CO_status;
-    @FXML private TableView<ClientOrder> tv_CO;
-    @FXML private AnchorPane anchor_CO;
+
 
     ObservableList<ClientOrder> po_list = FXCollections.observableArrayList(
             new ClientOrder("Cliente1", "BlueProductLid", 20, 100.00, 3, 5, "Delivered"),
-
             new ClientOrder("Cliente1", "BlueProductLid", 20, 100.00, 3, 5, "Delivered"),
             new ClientOrder("Cliente1", "BlueProductLid", 20, 100.00, 3, 5, "Delivered"),
             new ClientOrder("Cliente1", "BlueProductLid", 20, 100.00, 3, 5, "Delivered"),

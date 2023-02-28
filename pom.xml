@@ -60,7 +60,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.example.minierp/com.example.minierp.HelloApplication</mainClass>
+                            <mainClass>com.example.minierp/com.example.minierp.Launcher</mainClass>
                         </configuration>
                     </execution>
                 </executions>

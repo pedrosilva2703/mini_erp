@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1020.0" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.minierp.controllers.SupplierOrdersController">
+   <children>
+      <ScrollPane prefHeight="720.0" prefWidth="1020.0" vbarPolicy="ALWAYS">
+         <content>
+            <AnchorPane prefHeight="720.0" prefWidth="1000.0">
+               <children>
+                  <Text layoutX="40.0" layoutY="68.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="page-title" text="Supplier orders" />
+                  <Text layoutX="40.0" layoutY="128.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Orders overview" />
+                  <AnchorPane layoutX="40.0" layoutY="163.0" prefHeight="101.0" prefWidth="504.0">
+                     <children>
+                        <TableView fx:id="tv_SupplierOrders" fixedCellSize="30.0" prefHeight="51.0" prefWidth="952.0" AnchorPane.bottomAnchor="50.0">
+                          <columns>
+                            <TableColumn fx:id="tc_Name" prefWidth="150.00" text="Name" />
+                            <TableColumn fx:id="tc_MaterialType" minWidth="0.0" prefWidth="150.00" text="Material Type" />
+                              <TableColumn fx:id="tc_Quantity" minWidth="0.0" prefWidth="81.0" text="Quantity" />
+                              <TableColumn fx:id="tc_Price" minWidth="0.0" prefWidth="109.60003662109375" text="Price" />
+                              <TableColumn fx:id="tc_InitDelEst" minWidth="0.0" prefWidth="179.20001220703125" text="Initial Del. Estimation" />
+                              <TableColumn fx:id="tc_Delay" minWidth="0.0" prefWidth="131.199951171875" text="Delay" />
+                              <TableColumn fx:id="tc_Status" minWidth="0.0" prefWidth="109.5999755859375" text="Status" />
+                          </columns>
+                        </TableView>
+                     </children>
+                  </AnchorPane>
+               </children>
+            </AnchorPane>
+         </content>
+      </ScrollPane>
+   </children>
+</AnchorPane>
