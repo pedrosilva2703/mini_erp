@@ -34,6 +34,7 @@ public class LayoutController {
     }
     @FXML
     private void onClientOrdersButtonClick(){
+        loadPage("ClientOrders");
         refreshButtonStates(clientOrdersButton);
     }
     @FXML

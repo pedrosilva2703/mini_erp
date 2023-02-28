@@ -9,11 +9,13 @@
     src: url('Roboto-Bold.ttf');
 }
 
+
 .text{
     -fx-font-family: "Roboto";
     -fx-text-fill: black;
 }
 
+/*************** NAVIGATION MENU ***************/
 .menu{
     -fx-font-weight: bold;
     -fx-background-color: #8C2D19;
@@ -63,6 +65,7 @@
     -fx-border-color: white;
 }
 
+/*************** PAGE TEXT ***************/
 .page-title{
     -fx-font-weight: bold;
     -fx-text-fill: black;
@@ -79,12 +82,24 @@
     -fx-font-size: 20;
 }
 
+/*************** INPUT FIELDS ***************/
 .text-field{
-   -fx-font-family: "Roboto";
-   -fx-font-size: 14;
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14;
 }
 
+.number-field{
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14;
+    -fx-pref-width: 50;
+}
 
+.combo-box{
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14;
+}
+
+/*************** BUTTONS ***************/
 .regular-button{
     -fx-font-size: 20;
     -fx-text-fill: white;
@@ -118,8 +133,51 @@
     -fx-opacity: 0.5;
 }
 
-.number-field{
-   -fx-font-family: "Roboto";
-   -fx-font-size: 14;
-   -fx-pref-width: 50;
+
+/*************** TABLE VIEW ***************/
+//Style of entire tableView
+.table-view{
+    /*-fx-background-color: transparent;*/
+ }
+
+//Style of entire tableView when is getting focused
+.table-view:focused{
+    /*-fx-background-color: transparent;*/
 }
+
+//Style of each column header in the tableView
+.table-view .column-header {
+     -fx-background-color: transparent;
+}
+
+//Style of each column header's background in the tableView
+.table-view .column-header-background{
+    -fx-background-color: linear-gradient(gray 0.0%, darkgray 100.0%);
+    -fx-font-size:17px;
+}
+
+ //Style of each column header's label  in the tableView
+.table-view .column-header-background .label{
+     -fx-background-color: transparent;
+    -fx-font-weight:bold;
+    -fx-text-fill: white;
+}
+
+//Style of each column in the tableView
+.table-view .table-column{
+    -fx-alignment:center-left;
+}
+
+ //Style of each table cell
+.table-view .table-cell{
+    -fx-font-size:15px;           //the font size you asked in the comments below
+}
+
+//Style of each entire row in the table view
+.table-row-cell:selected {
+   /* -fx-border-color:transparent firebrick transparent firebrick  ;
+    -fx-border-width:2.0; */
+}
+
+
+
