@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.minierp.controllers.MainMenuController">
+   <top>
+      <VBox prefHeight="205.0" prefWidth="1280.0" BorderPane.alignment="CENTER">
+         <children>
+            <Pane prefHeight="100.0" prefWidth="1280.0" styleClass="main-menu-title">
+               <children>
+                  <Label alignment="CENTER" layoutY="20.0" prefHeight="60.0" prefWidth="1280.0" styleClass="menu-app-name" text="mini-ERP" />
+               </children>
+            </Pane>
+            <Pane prefHeight="5.0" prefWidth="200.0" />
+            <AnchorPane prefHeight="100.0" prefWidth="1280.0" styleClass="main-menu-bar">
+               <children>
+                  <Button fx:id="internalButton" mnemonicParsing="false" onMouseClicked="#goInternal" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-button" text="Internal Interface" AnchorPane.leftAnchor="0.0" />
+                  <Button fx:id="supplierButton" layoutX="240.0" mnemonicParsing="false" onMouseClicked="#goSupplier" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-button" text="Supplier Interface" />
+                  <Button fx:id="clientButton" layoutX="480.0" mnemonicParsing="false" onMouseClicked="#goClient" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-button" text="Client Interface" />
+                  <Button fx:id="settingsButton" layoutX="980.0" mnemonicParsing="false" onMouseClicked="#goSettings" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-secondary-button" text="Settings" />
+                  <Button fx:id="aboutButton" layoutX="1130.0" mnemonicParsing="false" onMouseClicked="#goAbout" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-secondary-button" text="About" />
+               </children>
+            </AnchorPane>
+         </children>
+      </VBox>
+   </top>
+</BorderPane>

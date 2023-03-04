@@ -17,14 +17,14 @@
             </Pane>
             <Pane prefHeight="79.0" prefWidth="242.0" />
             <Button fx:id="scheduleButton" mnemonicParsing="false" onMouseClicked="#onScheduleButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Schedule" />
-            <Pane prefHeight="79.0" prefWidth="242.0" />
-            <Button fx:id="clientsButton" mnemonicParsing="false" onMouseClicked="#onClientsButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Clients" />
             <Button fx:id="clientOrdersButton" mnemonicParsing="false" onMouseClicked="#onClientOrdersButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Client Orders" />
-            <Button fx:id="suppliersButton" mnemonicParsing="false" onMouseClicked="#onSuppliersButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Suppliers" />
             <Button fx:id="supplierOrdersButton" mnemonicParsing="false" onMouseClicked="#onSupplierOrdersButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Supplier Orders" />
             <Pane prefHeight="79.0" prefWidth="242.0" />
-            <Button fx:id="settingsButton" mnemonicParsing="false" onMouseClicked="#onSettingsButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Settings" />
-            <Button fx:id="aboutButton" mnemonicParsing="false" onMouseClicked="#onAboutButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="About" />
+            <Button fx:id="clientsButton" mnemonicParsing="false" onMouseClicked="#onClientsButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Add Client" />
+            <Button fx:id="suppliersButton" mnemonicParsing="false" onMouseClicked="#onSuppliersButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Add Supplier" />
+            <Pane prefHeight="79.0" prefWidth="260.0" />
+            <Pane prefHeight="79.0" prefWidth="260.0" />
+            <Button fx:id="backButton" mnemonicParsing="false" onMouseClicked="#onBackButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-back-button" text="← Main Menu" />
          </children></VBox>
    </left>
 </BorderPane>

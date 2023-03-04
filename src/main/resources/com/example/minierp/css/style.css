@@ -15,6 +15,42 @@
     -fx-text-fill: black;
 }
 
+/*************** MAIN MENU ***************/
+.main-menu-title{
+    -fx-background-color: #6E0F02;
+}
+.main-menu-bar{
+    -fx-font-weight: bold;
+    -fx-background-color: #8C2D19;
+    -fx-padding: 0.0em;
+}
+.main-menu-button{
+    -fx-font-size: 25;
+    -fx-text-fill: white;
+    -fx-background-color: #8C2D19;
+    -fx-alignment: center;
+    -fx-pref-width: 240;
+    -fx-pref-height: 99;
+    -fx-background-radius: 0;
+}
+.main-menu-button:hover{
+    -fx-background-color: #6E0F02;
+}
+
+.main-menu-secondary-button{
+    -fx-font-size: 25;
+    -fx-text-fill: white;
+    -fx-background-color: #8C2D19;
+    -fx-alignment: center;
+    -fx-pref-width: 150;
+    -fx-pref-height: 99;
+    -fx-background-radius: 0;
+}
+.main-menu-secondary-button:hover{
+    -fx-background-color: #6E0F02;
+}
+
+
 /*************** NAVIGATION MENU ***************/
 .menu{
     -fx-font-weight: bold;
@@ -56,13 +92,24 @@
     -fx-padding: 10.0 0.0 10.0 45.0;
     -fx-border-width: 0.0 0.0 0.0 10.0;
     -fx-pref-width: 260;
-
     -fx-background-color: #6E0F02;
     -fx-border-color: white;
 }
 .menu-app-button-selected:hover{
     -fx-background-color: #6E0F02;
     -fx-border-color: white;
+}
+
+.menu-back-button{
+    -fx-font-size: 25;
+    -fx-text-fill: white;
+    -fx-background-color: #8C2D19;
+    -fx-alignment: baseline-left;
+    -fx-pref-width: 260;
+    -fx-background-radius: 0;
+}
+.menu-back-button:hover{
+    -fx-background-color: #6E0F02;
 }
 
 /*************** PAGE TEXT ***************/

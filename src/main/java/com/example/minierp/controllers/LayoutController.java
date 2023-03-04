@@ -3,9 +3,12 @@ package com.example.minierp.controllers;
 import com.example.minierp.Launcher;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
 
 import java.io.IOException;
@@ -19,8 +22,7 @@ public class LayoutController {
     @FXML private Button clientOrdersButton;
     @FXML private Button suppliersButton;
     @FXML private Button supplierOrdersButton;
-    @FXML private Button settingsButton;
-    @FXML private Button aboutButton;
+    @FXML private Button backButton;
 
 
     @FXML
@@ -48,13 +50,14 @@ public class LayoutController {
         refreshButtonStates(supplierOrdersButton);
     }
     @FXML
-    private void onSettingsButtonClick(){
-        loadPage("Settings");
-        refreshButtonStates(settingsButton);
-    }
-    @FXML
-    private void onAboutButtonClick(){
-        refreshButtonStates(aboutButton);
+    private void onBackButtonClick(){
+        try {
+            Stage stage = (Stage) backButton.getScene().getWindow();
+            Parent root = FXMLLoader.load(Launcher.class.getResource("MainMenu.fxml"));
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void unselectButton(Button b){
@@ -73,8 +76,6 @@ public class LayoutController {
         unselectButton(clientOrdersButton);
         unselectButton(suppliersButton);
         unselectButton(supplierOrdersButton);
-        unselectButton(settingsButton);
-        unselectButton(aboutButton);
 
         // Select clicked button
         selectButton(clickedButton);
