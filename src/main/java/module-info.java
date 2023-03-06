@@ -2,6 +2,9 @@ module com.example.minierp {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.graphics;
+    requires java.sql;
+    requires postgresql;
+    requires java.prefs;
 
 
     opens com.example.minierp to javafx.fxml;
