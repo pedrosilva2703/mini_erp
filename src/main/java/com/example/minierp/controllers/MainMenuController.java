@@ -53,7 +53,7 @@ public class MainMenuController implements Initializable {
     private void goInternal(){changeScene(internalButton, "Layout");}
     @FXML
     private void goSupplier(){
-        changeScene(supplierButton, "S_Layout");
+        changeScene(supplierButton, "SI_Layout");
     }
     @FXML
     private void goClient(){

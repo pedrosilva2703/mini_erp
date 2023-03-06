@@ -34,9 +34,7 @@ public class DatabaseHandler {
 
 
     public static DatabaseHandler getInstance(String url, int port, String databaseName, String schema, String username, String password){
-        if (instance == null) {
-            instance = new DatabaseHandler(url, port, databaseName, schema, username, password);
-        }
+        instance = new DatabaseHandler(url, port, databaseName, schema, username, password);
         return instance;
     }
     public static DatabaseHandler getInstance(){
