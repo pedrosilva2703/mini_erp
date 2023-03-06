@@ -26,7 +26,6 @@
                   <Button fx:id="internalButton" mnemonicParsing="false" onMouseClicked="#goInternal" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-button" text="Internal Interface" AnchorPane.leftAnchor="0.0" />
                   <Button fx:id="supplierButton" layoutX="240.0" mnemonicParsing="false" onMouseClicked="#goSupplier" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-button" text="Supplier Interface" />
                   <Button fx:id="clientButton" layoutX="480.0" mnemonicParsing="false" onMouseClicked="#goClient" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-button" text="Client Interface" />
-                  <Button fx:id="settingsButton" layoutX="980.0" mnemonicParsing="false" onMouseClicked="#goSettings" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-secondary-button" text="Settings" />
                   <Button fx:id="aboutButton" layoutX="1130.0" mnemonicParsing="false" onMouseClicked="#goAbout" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-secondary-button" text="About" />
                </children>
             </AnchorPane>
@@ -36,42 +35,42 @@
    <center>
       <AnchorPane prefHeight="515.0" prefWidth="1280.0">
          <children>
-            <Text layoutX="15.0" layoutY="68.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="page-title" text="Settings" />
-            <Text layoutX="470.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Factory" />
-            <Text layoutX="470.0" layoutY="165.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Single" />
-            <Text layoutX="470.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Multiple" />
-            <Text layoutX="490.0" layoutY="225.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Intermediate" />
-            <Text layoutX="490.0" layoutY="255.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Final" />
-            <RadioButton fx:id="radio_single" layoutX="611.0" layoutY="152.0" mnemonicParsing="false">
+            <Text layoutX="15.0" layoutY="84.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="page-title" text="Settings" />
+            <Text layoutX="470.0" layoutY="146.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Factory" />
+            <Text layoutX="470.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Single" />
+            <Text layoutX="470.0" layoutY="211.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Multiple" />
+            <Text layoutX="490.0" layoutY="241.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Intermediate" />
+            <Text layoutX="490.0" layoutY="271.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Final" />
+            <RadioButton fx:id="radio_single" layoutX="611.0" layoutY="168.0" mnemonicParsing="false">
                <toggleGroup>
                   <ToggleGroup fx:id="mode" />
                </toggleGroup>
             </RadioButton>
-            <RadioButton fx:id="radio_interm" layoutX="611.0" layoutY="212.0" mnemonicParsing="false" toggleGroup="$mode" />
-            <RadioButton fx:id="radio_final" layoutX="611.0" layoutY="242.0" mnemonicParsing="false" toggleGroup="$mode" />
-            <Text layoutX="15.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="PostgreSQL Connection" />
-            <Text layoutX="15.0" layoutY="165.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="URL" />
-            <Text layoutX="15.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Port" />
-            <TextField fx:id="tf_url" layoutX="112.0" layoutY="146.0" prefHeight="25.0" prefWidth="280.0" />
-            <TextField fx:id="tf_port" layoutX="112.0" layoutY="176.0" prefHeight="25.0" prefWidth="280.0" />
-            <Button fx:id="btn_dbConn" layoutX="112.0" layoutY="344.0" mnemonicParsing="false" onMouseClicked="#onDbConnectButtonClicked" styleClass="regular-button" text="Connect" />
-            <Button layoutX="911.0" layoutY="180.0" mnemonicParsing="false" styleClass="regular-button" text="Connect" />
-            <Text layoutX="15.0" layoutY="299.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Username" />
-            <TextField fx:id="tf_username" layoutX="112.0" layoutY="280.0" prefHeight="25.0" prefWidth="280.0" />
-            <Text layoutX="470.0" layoutY="299.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Warehouses capacity" />
-            <Text layoutX="15.0" layoutY="329.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Password" />
-            <TextField fx:id="tf_password" layoutX="112.0" layoutY="310.0" prefHeight="25.0" prefWidth="280.0" />
-            <Text layoutX="470.0" layoutY="329.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Max. weekly production" />
-            <TextField fx:id="tf_prod" editable="true" layoutX="687.0" layoutY="310.0" styleClass="number-field" />
-            <TextField fx:id="tf_wh" editable="true" layoutX="687.0" layoutY="280.0" styleClass="number-field" />
-            <Text layoutX="15.0" layoutY="225.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Name" />
-            <TextField fx:id="tf_name" layoutX="112.0" layoutY="206.0" prefHeight="25.0" prefWidth="280.0" />
-            <Text layoutX="15.0" layoutY="255.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Schema" />
-            <TextField fx:id="tf_schema" layoutX="112.0" layoutY="236.0" prefHeight="25.0" prefWidth="280.0" />
-            <Text layoutX="814.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Intermediate/Final ERP *" />
-            <Text layoutX="814.0" layoutY="165.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Address" />
-            <TextField layoutX="911.0" layoutY="146.0" prefHeight="25.0" prefWidth="280.0" />
-            <Button fx:id="btn_factorySave" layoutX="471.0" layoutY="344.0" mnemonicParsing="false" onMouseClicked="#onFactorySaveButtonClicked" styleClass="regular-button" text="Save" />
+            <RadioButton fx:id="radio_interm" layoutX="611.0" layoutY="228.0" mnemonicParsing="false" toggleGroup="$mode" />
+            <RadioButton fx:id="radio_final" layoutX="611.0" layoutY="258.0" mnemonicParsing="false" toggleGroup="$mode" />
+            <Text layoutX="15.0" layoutY="146.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="PostgreSQL Connection" />
+            <Text layoutX="15.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="URL" />
+            <Text layoutX="15.0" layoutY="211.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Port" />
+            <TextField fx:id="tf_url" layoutX="112.0" layoutY="162.0" prefHeight="25.0" prefWidth="280.0" />
+            <TextField fx:id="tf_port" layoutX="112.0" layoutY="192.0" prefHeight="25.0" prefWidth="280.0" />
+            <Button fx:id="btn_dbConn" layoutX="112.0" layoutY="360.0" mnemonicParsing="false" onMouseClicked="#onDbConnectButtonClicked" styleClass="regular-button" text="Connect" />
+            <Button layoutX="911.0" layoutY="196.0" mnemonicParsing="false" styleClass="regular-button" text="Connect" />
+            <Text layoutX="15.0" layoutY="315.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Username" />
+            <TextField fx:id="tf_username" layoutX="112.0" layoutY="296.0" prefHeight="25.0" prefWidth="280.0" />
+            <Text layoutX="470.0" layoutY="315.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Warehouses capacity" />
+            <Text layoutX="15.0" layoutY="345.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Password" />
+            <TextField fx:id="tf_password" layoutX="112.0" layoutY="326.0" prefHeight="25.0" prefWidth="280.0" />
+            <Text layoutX="470.0" layoutY="345.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Max. weekly production" />
+            <TextField fx:id="tf_prod" editable="true" layoutX="687.0" layoutY="326.0" styleClass="number-field" />
+            <TextField fx:id="tf_wh" editable="true" layoutX="687.0" layoutY="296.0" styleClass="number-field" />
+            <Text layoutX="15.0" layoutY="241.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Name" />
+            <TextField fx:id="tf_name" layoutX="112.0" layoutY="222.0" prefHeight="25.0" prefWidth="280.0" />
+            <Text layoutX="15.0" layoutY="271.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Schema" />
+            <TextField fx:id="tf_schema" layoutX="112.0" layoutY="252.0" prefHeight="25.0" prefWidth="280.0" />
+            <Text layoutX="814.0" layoutY="146.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Intermediate/Final ERP *" />
+            <Text layoutX="814.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Address" />
+            <TextField layoutX="911.0" layoutY="162.0" prefHeight="25.0" prefWidth="280.0" />
+            <Button fx:id="btn_factorySave" layoutX="471.0" layoutY="360.0" mnemonicParsing="false" onMouseClicked="#onFactorySaveButtonClicked" styleClass="regular-button" text="Save" />
          </children>
       </AnchorPane>
    </center>

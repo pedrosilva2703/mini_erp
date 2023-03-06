@@ -3,20 +3,20 @@ package com.example.minierp.controllers;
 import com.example.minierp.Launcher;
 import com.example.minierp.database.DatabaseHandler;
 import com.example.minierp.model.Factory;
+import com.example.minierp.model.Supplier;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import java.util.prefs.Preferences;
@@ -30,7 +30,6 @@ public class MainMenuController implements Initializable {
     @FXML private Button internalButton;
     @FXML private Button supplierButton;
     @FXML private Button clientButton;
-    @FXML private Button settingsButton;
     @FXML private Button aboutButton;
 
     @FXML private TextField tf_url;
@@ -51,9 +50,7 @@ public class MainMenuController implements Initializable {
 
 
     @FXML
-    private void goInternal(){
-        changeScene(internalButton, "Layout");
-    }
+    private void goInternal(){changeScene(internalButton, "Layout");}
     @FXML
     private void goSupplier(){
         changeScene(supplierButton, "S_Layout");
@@ -61,10 +58,6 @@ public class MainMenuController implements Initializable {
     @FXML
     private void goClient(){
         changeScene(clientButton, "CI_Layout");
-    }
-    @FXML
-    private void goSettings(){
-        loadPane("Settings");
     }
     @FXML
     private void goAbout(){
@@ -83,13 +76,13 @@ public class MainMenuController implements Initializable {
             port = Integer.parseInt(tf_port.getText());
         }
         catch (NumberFormatException e){
-            System.out.println("Sò numeros pf");
+            errorAlert("Port value is not an integer!");
             return;
         }
 
         dbHandler = DatabaseHandler.getInstance(url, port, databaseName, schema, username, password);
         if(!dbHandler.setConnection()){
-            System.out.println("Erro na conexao");
+            errorAlert("Connection failed!");
             return;
         }
 
@@ -98,21 +91,23 @@ public class MainMenuController implements Initializable {
         updateInputsState();
     }
 
+
+
     @FXML
     private void onFactorySaveButtonClicked(){
         if( !isInteger(tf_wh) || !isInteger(tf_prod) ){
-            System.out.println("introduza apenas valores inteiros");
+            errorAlert("The value introduced is not an integer");
             return;
         }
 
         int capacity    =   Integer.parseInt(tf_wh.getText());
         int production  =   Integer.parseInt(tf_prod.getText());
         if( capacity < 1 || capacity > 54 ){
-            System.out.println("wh errados");
+            errorAlert("Warehouse capacity needs to be between 1 and 54!");
             return;
         }
         if( production < 1 ){
-            System.out.println(" a producao ta mal");
+            errorAlert("The maximum production needs to be at least 1");
             return;
         }
 
@@ -144,17 +139,25 @@ public class MainMenuController implements Initializable {
         }
         return true;
     }
+    private void errorAlert(String message){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
     // Manage input textfields and buttons
     private void updateInputsState(){
         if(     factory.isWaitingForDbConn() ){
             setFactoryInputs(true);
+            disableNavMenu(true);
         }
         else if( factory.isWaitingForParams() ){
             disableDbInputs();
             dbHandler = DatabaseHandler.getInstance();
             loadFactoryParams();
             setFactoryInputs(false);
+            disableNavMenu(true);
         }
         else if( factory.isSetupDone() ){
             disableDbInputs();
@@ -162,7 +165,13 @@ public class MainMenuController implements Initializable {
             loadFactoryParams();
             setFactoryInputs(true);
             savedFactoryInputs();
+            disableNavMenu(false);
         }
+    }
+    private void disableNavMenu(boolean b){
+        internalButton.setDisable(b);
+        supplierButton.setDisable(b);
+        clientButton.setDisable(b);
     }
     private void disableDbInputs(){
         tf_url.setDisable(true);
