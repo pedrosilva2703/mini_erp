@@ -62,6 +62,7 @@ CREATE TABLE supplier_order (
 CREATE TABLE rawpiece (
     id              INT NOT NULL,
     type            VARCHAR(50) NOT NULL,
+    status          VARCHAR(50) NOT NULL,
     week_arrived    INT NOT NULL,
     safety_stock    BOOLEAN,
     wh_pos          INT NOT NULL,
