@@ -3,7 +3,8 @@ package com.example.minierp.controllers;
 import com.example.minierp.Launcher;
 import com.example.minierp.database.DatabaseHandler;
 import com.example.minierp.model.Factory;
-import com.example.minierp.model.Supplier;
+import com.example.minierp.utils.Alerts;
+import com.example.minierp.utils.Verifier;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -16,7 +17,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 import java.util.prefs.Preferences;
@@ -76,13 +76,13 @@ public class MainMenuController implements Initializable {
             port = Integer.parseInt(tf_port.getText());
         }
         catch (NumberFormatException e){
-            errorAlert("Port value is not an integer!");
+            Alerts.showError("Port value is not an integer!");
             return;
         }
 
         dbHandler = DatabaseHandler.getInstance(url, port, databaseName, schema, username, password);
         if(!dbHandler.setConnection()){
-            errorAlert("Connection failed!");
+            Alerts.showError("Connection failed!");
             return;
         }
 
@@ -91,23 +91,21 @@ public class MainMenuController implements Initializable {
         updateInputsState();
     }
 
-
-
     @FXML
     private void onFactorySaveButtonClicked(){
-        if( !isInteger(tf_wh) || !isInteger(tf_prod) ){
-            errorAlert("The value introduced is not an integer");
+        if( !Verifier.isInteger(tf_wh) || !Verifier.isInteger(tf_prod) ){
+            Alerts.showError("The value introduced is not an integer");
             return;
         }
 
         int capacity    =   Integer.parseInt(tf_wh.getText());
         int production  =   Integer.parseInt(tf_prod.getText());
         if( capacity < 1 || capacity > 54 ){
-            errorAlert("Warehouse capacity needs to be between 1 and 54!");
+            Alerts.showError("Warehouse capacity needs to be between 1 and 54!");
             return;
         }
         if( production < 1 ){
-            errorAlert("The maximum production needs to be at least 1");
+            Alerts.showError("The maximum production needs to be at least 1");
             return;
         }
 
@@ -121,29 +119,6 @@ public class MainMenuController implements Initializable {
 
         dbHandler.updateFactoryStatus();
         updateInputsState();
-    }
-
-    // Verification functions
-    private boolean isInteger(TextField tf){
-        int int_field;
-        try{
-            int_field = Integer.parseInt(tf.getText());
-        }
-        catch (NumberFormatException e){
-            System.out.println(e);
-            return false;
-        }
-        catch (RuntimeException e){
-            System.out.println(e);
-            return false;
-        }
-        return true;
-    }
-    private void errorAlert(String message){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("");
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
     // Manage input textfields and buttons

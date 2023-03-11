@@ -1,10 +1,12 @@
 package com.example.minierp.model;
 
 public class Client {
+    Integer id;
     String name;
     int orders;
 
-    public Client( String name, int orders){
+    public Client(Integer id, String name, int orders){
+        this.id = id;
         this.name = name;
         this.orders = orders;
     }
