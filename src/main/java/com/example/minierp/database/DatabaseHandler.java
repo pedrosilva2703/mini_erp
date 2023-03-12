@@ -2,6 +2,7 @@ package com.example.minierp.database;
 
 import com.example.minierp.model.Client;
 import com.example.minierp.model.Factory;
+import com.example.minierp.model.Supplier;
 import org.postgresql.util.PSQLException;
 
 import java.sql.*;
@@ -318,6 +319,23 @@ public class DatabaseHandler {
         return true;
     }
 
+    //External entities methods
+    public boolean nameExists(String entity, String name){
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT COUNT(*) FROM "+entity+" WHERE name = ?");
+            stmt.setString(1, name);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+            sqlReturnValues.next();
+
+            if( sqlReturnValues.getInt(1) > 0 ){
+                return true;
+            }
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return false;
+    }
+
     //Client methods
     public boolean createClient(Client client) {
         try {
@@ -331,21 +349,6 @@ public class DatabaseHandler {
             return false;
         }
         return true;
-    }
-    public boolean clientExists(String name){
-        try {
-            PreparedStatement stmt = connection.prepareStatement("SELECT COUNT(*) FROM client WHERE client.name = ?");
-            stmt.setString(1, name);
-            ResultSet sqlReturnValues = stmt.executeQuery();
-            sqlReturnValues.next();
-
-            if( sqlReturnValues.getInt(1) > 0 ){
-                return true;
-            }
-        } catch (SQLException throwable) {
-            throwable.printStackTrace();
-        }
-        return false;
     }
     public ArrayList<Client> getClients() {
         //The LEFT on JOIN prevents the case when there are still no orders
@@ -374,5 +377,41 @@ public class DatabaseHandler {
         return null;
     }
 
+    //Supplier methods
+    public boolean createSupplier(ArrayList<Supplier> new_supplier){
+        //Create entry on the supplier table
+        String sql_supp  = "INSERT INTO supplier (name) VALUES (?);";
+        String name = new_supplier.get(0).getName();
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(sql_supp);
+            insertStatement.setString(1, name);
+            insertStatement.execute();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+
+        //Create entry on the supplier_material table
+        String sql_supp_mat =   "INSERT INTO supplier_material (min_quantity, unit_price, delivery_time, FK_supplier, FK_material)\n" +
+                                "    SELECT ?, ?, ?, supplier.id, material.id\n" +
+                                "    FROM supplier, material\n" +
+                                "    WHERE supplier.name = ? AND material.type = ?;";
+        for(Supplier s : new_supplier){
+            try {
+                PreparedStatement insertStatement = connection.prepareStatement(sql_supp_mat);
+                insertStatement.setInt(1, s.getMin_quantity());
+                insertStatement.setInt(2, s.getUnit_price());
+                insertStatement.setInt(3, s.getDelivery_time());
+                insertStatement.setString(4, s.getName());
+                insertStatement.setString(5, s.getMaterial_type());
+                insertStatement.execute();
+            } catch (SQLException throwable) {
+                throwable.printStackTrace();
+                return false;
+            }
+
+        }
+        return true;
+    }
 
 }

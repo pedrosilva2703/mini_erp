@@ -6,15 +6,13 @@ public class Supplier {
     int unit_price;
     int min_quantity;
     int delivery_time;
-    double delay_prob;
 
-    public Supplier(String name, String material_type, int unit_price, int min_quantity, int delivery_time, double delay_prob) {
+    public Supplier(String name, String material_type, int unit_price, int min_quantity, int delivery_time) {
         this.name = name;
         this.material_type = material_type;
         this.unit_price = unit_price;
         this.min_quantity = min_quantity;
         this.delivery_time = delivery_time;
-        this.delay_prob = delay_prob;
     }
 
     public String getName() {
@@ -57,11 +55,4 @@ public class Supplier {
         this.delivery_time = delivery_time;
     }
 
-    public double getDelay_prob() {
-        return delay_prob;
-    }
-
-    public void setDelay_prob(double delay_prob) {
-        this.delay_prob = delay_prob;
-    }
 }

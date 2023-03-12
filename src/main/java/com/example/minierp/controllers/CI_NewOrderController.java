@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.text.Text;
 
 
 import java.net.URL;
@@ -23,6 +24,12 @@ public class CI_NewOrderController implements Initializable {
     @FXML private ComboBox<String> comboBase;
     @FXML private ComboBox<String> comboLid;
     @FXML private TextField tf_qty;
+    @FXML private Text textLid;
+    @FXML private Text textBase;
+
+    @FXML void onTypeSelected(){
+        updateComboVisibility();
+    }
 
     @FXML void createOrder(){
         String client_name = comboClient.getValue();
@@ -35,12 +42,18 @@ public class CI_NewOrderController implements Initializable {
             Alerts.showError("The value introduced is not an integer");
             return;
         }
+
+        int quantity = Integer.parseInt(tf_qty.getText());
+        if(quantity<1){
+            Alerts.showError("THe quantity needs to be higher than 0");
+            return;
+        }
+
+        // TO DO: create order
     }
 
-    @FXML void onTypeSelected(){
-        updateComboVisibility();
-    }
 
+    // Combo box methods
     private void fillTypeCombos(){
         //Type combo
         comboType.getItems().add("BlueProductBase");
@@ -59,26 +72,29 @@ public class CI_NewOrderController implements Initializable {
         comboLid.getItems().add("GreenProductLid");
         comboLid.getItems().add("MetalProductLid");
     }
-
     private void updateComboVisibility(){
         String type = comboType.getValue();
         if(  type == null){
-            disableAssembleCombos(true);
+            showAssembleCombos(false);
             return;
         }
         else if( !type.equals("Assembled") ){
-            disableAssembleCombos(true);
+            showAssembleCombos(false);
             return;
         }
 
-        disableAssembleCombos(false);
+        showAssembleCombos(true);
 
 
     }
+    private void showAssembleCombos(boolean b){
+        textLid.setVisible(b);
+        textBase.setVisible(b);
 
-    private void disableAssembleCombos(boolean b){
-        comboLid.setDisable(b);
-        comboBase.setDisable(b);
+        comboLid.getSelectionModel().clearSelection();
+        comboBase.getSelectionModel().clearSelection();
+        comboLid.setVisible(b);
+        comboBase.setVisible(b);
     }
 
     // Initialize method

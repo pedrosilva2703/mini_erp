@@ -28,7 +28,7 @@ public class ClientsController implements Initializable {
             Alerts.showError("Client's name cannot be empty");
             return;
         }
-        if( dbHandler.clientExists(name) ){
+        if( dbHandler.nameExists("client", name) ){
             Alerts.showError("This name is already registered");
             return;
         }
@@ -38,7 +38,7 @@ public class ClientsController implements Initializable {
             Alerts.showError("An error ocurred, please try again");
         }
 
-        Alerts.showInfo("Client inserted successfully");
+        Alerts.showInfo("Client added successfully");
         updateUI();
     }
 
