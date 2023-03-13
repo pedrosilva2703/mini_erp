@@ -1,13 +1,15 @@
 package com.example.minierp.model;
 
 public class Supplier {
+    Integer id;
     String name;
     String material_type;
     int unit_price;
     int min_quantity;
     int delivery_time;
 
-    public Supplier(String name, String material_type, int unit_price, int min_quantity, int delivery_time) {
+    public Supplier(Integer id, String name, String material_type, int unit_price, int min_quantity, int delivery_time) {
+        this.id = id;
         this.name = name;
         this.material_type = material_type;
         this.unit_price = unit_price;

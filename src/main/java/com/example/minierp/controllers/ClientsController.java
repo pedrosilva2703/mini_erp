@@ -49,7 +49,7 @@ public class ClientsController implements Initializable {
 
         ArrayList<Client> clientList = dbHandler.getClients();
         if( clientList != null ){
-            tv_Clients.getItems().addAll( dbHandler.getClients() );
+            tv_Clients.getItems().addAll( clientList );
             tv_Clients.setPrefHeight( (tv_Clients.getItems().size()+1.15) * tv_Clients.getFixedCellSize() );
         }
     }

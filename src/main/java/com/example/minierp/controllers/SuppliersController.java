@@ -50,14 +50,6 @@ public class SuppliersController implements Initializable {
     int price_green = 0, minqty_green = 0, time_green = 0;
     int price_metal = 0, minqty_metal = 0, time_metal = 0;
 
-    ObservableList<Supplier> supp_list = FXCollections.observableArrayList(
-            new Supplier("Supplier1", "BlueRawMaterial", 5, 10, 3),
-            new Supplier("Supplier1", "GreenRawMaterial", 5, 10, 3),
-            new Supplier("Supplier2", "MetalRawMaterial", 5, 10, 3),
-            new Supplier("Supplier3", "BlueRawMaterial", 5, 10, 3),
-            new Supplier("Supplier3", "GreenRawMaterial", 5, 10, 3),
-            new Supplier("Supplier3", "MetalRawMaterial", 5, 10, 3)
-    );
 
     @FXML void addSupplier(){
         String name = tf_name.getText();
@@ -69,7 +61,7 @@ public class SuppliersController implements Initializable {
             Alerts.showError("This name is already registered");
             return;
         }
-        if( !check_blue.isSelected() && !check_blue.isSelected() && !check_blue.isSelected() ){
+        if( !check_blue.isSelected() && !check_green.isSelected() && !check_metal.isSelected() ){
             Alerts.showError("Please select at least one material");
             return;
         }
@@ -87,7 +79,7 @@ public class SuppliersController implements Initializable {
                 Alerts.showError("All values need to be higher than 0");
                 return;
             }
-            aux_supplier.add(new Supplier(name, "BlueRawMaterial", price_blue, minqty_blue, time_blue) );
+            aux_supplier.add(new Supplier(null, name, "BlueRawMaterial", price_blue, minqty_blue, time_blue) );
         }
         if( check_green.isSelected() ){
             if(!Verifier.isInteger(tf_price_green) || !Verifier.isInteger(tf_minqty_green) || !Verifier.isInteger(tf_time_green)){
@@ -101,7 +93,7 @@ public class SuppliersController implements Initializable {
                 Alerts.showError("All values need to be higher than 0");
                 return;
             }
-            aux_supplier.add(new Supplier(name, "GreenRawMaterial", price_green, minqty_green, time_green) );
+            aux_supplier.add(new Supplier(null, name, "GreenRawMaterial", price_green, minqty_green, time_green) );
         }
         if( check_metal.isSelected() ){
             if(!Verifier.isInteger(tf_price_metal) || !Verifier.isInteger(tf_minqty_metal) || !Verifier.isInteger(tf_time_metal)){
@@ -115,7 +107,7 @@ public class SuppliersController implements Initializable {
                 Alerts.showError("All values need to be higher than 0");
                 return;
             }
-            aux_supplier.add(new Supplier(name, "MetalRawMaterial", price_metal, minqty_metal, time_metal) );
+            aux_supplier.add(new Supplier(null, name, "MetalRawMaterial", price_metal, minqty_metal, time_metal) );
         }
 
         if(!dbHandler.createSupplier(aux_supplier)){
@@ -124,10 +116,10 @@ public class SuppliersController implements Initializable {
 
         Alerts.showInfo("Supplier added successfully");
 
-        clearUI();
+        updateUI();
     }
 
-    private void clearUI(){
+    private void clearInputs(){
         tf_name.clear();
 
         check_blue.setSelected(false);
@@ -144,6 +136,16 @@ public class SuppliersController implements Initializable {
         tf_price_metal.clear();
         tf_minqty_metal.clear();
         tf_time_metal.clear();
+    }
+    private void updateUI(){
+        clearInputs();
+
+        tv_Suppliers.getItems().clear();
+        ArrayList<Supplier> supplierList = dbHandler.getSuppliers();
+        if( supplierList != null ){
+            tv_Suppliers.getItems().addAll( supplierList );
+            tv_Suppliers.setPrefHeight( (tv_Suppliers.getItems().size()+1.15) * tv_Suppliers.getFixedCellSize() );
+        }
     }
 
     // Initialize method

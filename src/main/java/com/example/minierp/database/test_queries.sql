@@ -12,3 +12,16 @@ INSERT INTO supplier_material (min_quantity, unit_price, delivery_time, FK_suppl
     SELECT 20, 5, 3, supplier.id, material.id
     FROM supplier, material
     WHERE supplier.name = 'Coiso' AND material.type = 'GreenRawMaterial';
+
+
+SELECT  supplier.id,
+        supplier.name,
+        material.type,
+        supplier_material.unit_price,
+        supplier_material.min_quantity,
+        supplier_material.delivery_time
+FROM supplier_material
+JOIN supplier on supplier.id = supplier_material.FK_supplier
+JOIN material on material.id = supplier_material.FK_material
+ORDER BY supplier.id ASC
+

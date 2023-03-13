@@ -413,5 +413,37 @@ public class DatabaseHandler {
         }
         return true;
     }
+    public ArrayList<Supplier> getSuppliers() {
+        String sql =    "SELECT  supplier.id,\n" +
+                        "        supplier.name,\n" +
+                        "        material.type,\n" +
+                        "        supplier_material.unit_price,\n" +
+                        "        supplier_material.min_quantity,\n" +
+                        "        supplier_material.delivery_time\n" +
+                        "FROM supplier_material\n" +
+                        "JOIN supplier on supplier.id = supplier_material.FK_supplier\n" +
+                        "JOIN material on material.id = supplier_material.FK_material " +
+                        "ORDER BY supplier.id ASC";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet sqlReturnValues = stmt.executeQuery();
 
+            ArrayList<Supplier> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String name = sqlReturnValues.getString(2);
+                String type = sqlReturnValues.getString(3);
+                int price = sqlReturnValues.getInt(4);
+                int min_qty = sqlReturnValues.getInt(5);
+                int delivery_time = sqlReturnValues.getInt(6);
+
+                returnValues.add(new Supplier(id,name,type,price, min_qty, delivery_time) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
 }
