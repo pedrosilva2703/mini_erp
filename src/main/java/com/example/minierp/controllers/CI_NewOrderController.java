@@ -2,8 +2,9 @@ package com.example.minierp.controllers;
 
 
 import com.example.minierp.database.DatabaseHandler;
-import com.example.minierp.model.Client;
+import com.example.minierp.model.*;
 import com.example.minierp.utils.Alerts;
+import com.example.minierp.utils.Materials;
 import com.example.minierp.utils.Verifier;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class CI_NewOrderController implements Initializable {
+    Factory factory = Factory.getInstance();
     DatabaseHandler dbHandler = DatabaseHandler.getInstance();
 
     @FXML private ComboBox<String> comboClient;
@@ -32,6 +34,7 @@ public class CI_NewOrderController implements Initializable {
     }
 
     @FXML void createOrder(){
+        String type = comboType.getValue();
         String client_name = comboClient.getValue();
         if( client_name == null){
             Alerts.showError("Please select a client");
@@ -50,6 +53,81 @@ public class CI_NewOrderController implements Initializable {
         }
 
         // TO DO: create order
+
+        //verify if has free pieces from that type in wh
+        //verify if has free pieces from that type arriving
+
+
+        //***** FROM SUPPLIER *****//
+
+        //*** Choose supplier from type ***//
+        String raw_type = Materials.getRawType(type);
+        ArrayList<Supplier> supplierList = dbHandler.getSuppliersByTypeAndQty(raw_type, quantity);
+        Supplier s = supplierList.get(0);
+
+        //*** Create pieces array ***//
+        ArrayList<Piece> pieces = new ArrayList<>();
+        for(int i=0; i<quantity; i++){
+            pieces.add(new Piece(null, raw_type, "ordered", type, 0, 0, 0, false, 0) );
+        }
+
+        //*** Calculate when materials arrive ***//
+        int arriving_date = factory.getCurrent_week() + s.getDelivery_time();
+
+        //*** Create supplier order ***//
+        int SO_id = dbHandler.createSupplierOrder(s, quantity, arriving_date);
+        System.out.println("aaaaaaaaaaaaaa"+SO_id);
+        //create inbound order
+        InboundOrder io = new InboundOrder(null, arriving_date, pieces);
+        int IO_id = dbHandler.createInboundOrder(io, SO_id);
+
+        //*** Calculates when production can start ***//
+        int production_week = arriving_date + 1;
+
+        //*** Schedule production starting from that week ***//
+        ArrayList<ProductionOrder> POrdersList = new ArrayList<>();
+        int pieces_scheduled = 0;
+        while(pieces_scheduled != quantity ){
+            int week_available_capacity = factory.getWeekly_production() - dbHandler.getProductionCountByWeek(production_week);
+
+            if(week_available_capacity == 0){
+                production_week++;
+                continue;
+            }
+
+            ProductionOrder currPO = new ProductionOrder(null, production_week);
+            for(int i=0; i<week_available_capacity; i++){
+                if(pieces_scheduled == quantity) break;
+                currPO.addPiece( pieces.get(pieces_scheduled) );
+                pieces_scheduled++;
+            }
+            POrdersList.add(currPO);
+
+            production_week++;
+        }
+
+
+        //*** Schedule expedition after production ***//
+        int expedition_week = production_week+1;
+
+
+        for(ProductionOrder po : POrdersList){
+            int PO_id = dbHandler.createProductionOrder(po);
+            for(Piece p : po.getPieces() ){
+                dbHandler.createPiece(p, SO_id, IO_id, PO_id );
+            }
+        }
+
+
+
+        //just print
+        for(ProductionOrder po : POrdersList){
+            System.out.println("Semana: " + po.getWeek() + "   Produz: " + po.getPieces().size() );
+        }
+
+
+
+
     }
 
 

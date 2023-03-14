@@ -17,6 +17,8 @@ public class Supplier {
         this.delivery_time = delivery_time;
     }
 
+    public int getId(){ return id;}
+
     public String getName() {
         return name;
     }

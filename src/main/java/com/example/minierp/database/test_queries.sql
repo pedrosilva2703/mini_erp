@@ -25,3 +25,29 @@ JOIN supplier on supplier.id = supplier_material.FK_supplier
 JOIN material on material.id = supplier_material.FK_material
 ORDER BY supplier.id ASC
 
+SELECT  supplier.id,
+        supplier.name,
+        material.type,
+        supplier_material.unit_price,
+        supplier_material.min_quantity,
+        supplier_material.delivery_time
+FROM supplier_material
+JOIN supplier on supplier.id = supplier_material.FK_supplier
+JOIN material on material.id = supplier_material.FK_material
+WHERE material.type='GreenRawMaterial' AND supplier_material.min_quantity >= 10
+
+ORDER BY supplier_material.unitprice ASC
+
+
+SELECT  COUNT(piece.id)
+FROM    piece
+JOIN    production_order    ON piece.FK_production_order = production_order.id
+WHERE   production_order.week = 1
+
+INSERT INTO supplier_order (type, quantity, unit_price, week_est_delivery, delay, FK_supplier)
+VALUES  (?, ?, ?, ?, ?, ?)
+RETURNING id
+
+
+INSERT INTO piece ( type, status, final_type, FK_supplier_order, FK_inbound_order, FK_production_order)
+VALUES (?, ?, ?, ?, ?, ?)

@@ -10,6 +10,7 @@ public class Factory {
     private String setup_status;
     // Simulation status: waiting_sim_start, ongoing_week, waiting_week_start
     private String sim_status;
+    private int current_week = 1;
 
     private Factory(){
         this.setup_status = "waiting_db_conn";
@@ -28,6 +29,8 @@ public class Factory {
     public String getWorking_mode() {   return working_mode;        }
     public int getWarehouse_capacity(){ return warehouse_capacity;  }
     public int getWeekly_production(){  return weekly_production;   }
+    public int getCurrent_week(){       return current_week;   }
+
 
     public boolean isWaitingForDbConn(){    return this.setup_status.equals("waiting_db_conn");          }
     public boolean isWaitingForParams(){    return this.setup_status.equals("waiting_factory_params");  }

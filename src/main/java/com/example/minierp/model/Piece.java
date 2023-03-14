@@ -1,0 +1,97 @@
+package com.example.minierp.model;
+
+public class Piece {
+    Integer id;
+    String type;
+    String status;
+    String final_type;
+    int week_arrived;
+    int week_produced;
+    float duration_production;
+    boolean safety_stock;
+    int wh_pos;
+
+    public Piece(Integer id, String type, String status, String final_type, int week_arrived, int week_produced, float duration_production, boolean safety_stock, int wh_pos) {
+        this.id = id;
+        this.type = type;
+        this.status = status;
+        this.final_type = final_type;
+        this.week_arrived = week_arrived;
+        this.week_produced = week_produced;
+        this.duration_production = duration_production;
+        this.safety_stock = safety_stock;
+        this.wh_pos = wh_pos;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getFinal_type() {
+        return final_type;
+    }
+
+    public void setFinal_type(String final_type) {
+        this.final_type = final_type;
+    }
+
+    public int getWeek_arrived() {
+        return week_arrived;
+    }
+
+    public void setWeek_arrived(int week_arrived) {
+        this.week_arrived = week_arrived;
+    }
+
+    public int getWeek_produced() {
+        return week_produced;
+    }
+
+    public void setWeek_produced(int week_produced) {
+        this.week_produced = week_produced;
+    }
+
+    public float getDuration_production() {
+        return duration_production;
+    }
+
+    public void setDuration_production(float duration_production) {
+        this.duration_production = duration_production;
+    }
+
+    public boolean isSafety_stock() {
+        return safety_stock;
+    }
+
+    public void setSafety_stock(boolean safety_stock) {
+        this.safety_stock = safety_stock;
+    }
+
+    public int getWh_pos() {
+        return wh_pos;
+    }
+
+    public void setWh_pos(int wh_pos) {
+        this.wh_pos = wh_pos;
+    }
+}

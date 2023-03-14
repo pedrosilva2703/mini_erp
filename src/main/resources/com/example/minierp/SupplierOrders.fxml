@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1020.0" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.minierp.controllers.SupplierOrdersController">
+<AnchorPane prefHeight="720.0" prefWidth="1020.0" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.minierp.controllers.II_SupplierOrdersController">
    <children>
       <ScrollPane prefHeight="720.0" prefWidth="1020.0" vbarPolicy="ALWAYS">
          <content>

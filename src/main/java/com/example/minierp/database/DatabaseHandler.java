@@ -1,8 +1,6 @@
 package com.example.minierp.database;
 
-import com.example.minierp.model.Client;
-import com.example.minierp.model.Factory;
-import com.example.minierp.model.Supplier;
+import com.example.minierp.model.*;
 import org.postgresql.util.PSQLException;
 
 import java.sql.*;
@@ -185,10 +183,10 @@ public class DatabaseHandler {
                         "    wh_pos              INT,\n" +
                         "\n" +
                         "    FK_supplier_order   INT NOT NULL,\n" +
-                        "    FK_client_order     INT NOT NULL,\n" +
+                        "    FK_client_order     INT,\n" +
                         "    FK_inbound_order    INT NOT NULL,\n" +
                         "    FK_production_order INT NOT NULL,\n" +
-                        "    FK_expedition_order INT NOT NULL,\n" +
+                        "    FK_expedition_order INT,\n" +
                         "\n" +
                         "    CONSTRAINT PK_piece PRIMARY KEY (id)\n" +
                         ");\n" +
@@ -445,5 +443,154 @@ public class DatabaseHandler {
             throwable.printStackTrace();
         }
         return null;
+    }
+    public ArrayList<Supplier> getSuppliersByTypeAndQty(String filter_type, int filter_qty) {
+        String sql =    "SELECT  supplier.id,\n" +
+                        "        supplier.name,\n" +
+                        "        material.type,\n" +
+                        "        supplier_material.unit_price,\n" +
+                        "        supplier_material.min_quantity,\n" +
+                        "        supplier_material.delivery_time\n" +
+                        "FROM supplier_material\n" +
+                        "JOIN supplier on supplier.id = supplier_material.FK_supplier\n" +
+                        "JOIN material on material.id = supplier_material.FK_material\n" +
+                        "WHERE material.type= ? AND supplier_material.min_quantity <= ?\n" +
+                        "\n" +
+                        "ORDER BY supplier_material.unit_price ASC";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, filter_type);
+            stmt.setInt(2, filter_qty);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<Supplier> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String name = sqlReturnValues.getString(2);
+                String type = sqlReturnValues.getString(3);
+                int price = sqlReturnValues.getInt(4);
+                int min_qty = sqlReturnValues.getInt(5);
+                int delivery_time = sqlReturnValues.getInt(6);
+
+                returnValues.add(new Supplier(id,name,type,price, min_qty, delivery_time) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+
+    //Supplier order methods
+    public int createSupplierOrder(Supplier s, int quantity, int week_est_delivery){
+        int id = -1;
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "INSERT INTO supplier_order (type, quantity, unit_price, week_est_delivery, delay, FK_supplier)\n" +
+                        "VALUES  (?, ?, ?, ?, ?, ?)" +
+                            "RETURNING id", Statement.RETURN_GENERATED_KEYS);
+            insertStatement.setString(1, s.getMaterial_type());
+            insertStatement.setInt(2, quantity);
+            insertStatement.setInt(3, s.getUnit_price());
+            insertStatement.setInt(4, week_est_delivery);
+            insertStatement.setInt(5, 0);
+            insertStatement.setInt(6, s.getId());
+            insertStatement.executeUpdate();
+
+            ResultSet rs_id = insertStatement.getGeneratedKeys();
+            rs_id.next();
+            id = rs_id.getInt(1);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return id;
+        }
+        return id;
+    }
+
+
+    //Inbound order methods
+    public int createInboundOrder(InboundOrder io, int SO_id){
+        int id = -1;
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "INSERT INTO inbound_order (week, FK_supplier_order)\n" +
+                            "VALUES  (?, ?)" +
+                            "RETURNING id", Statement.RETURN_GENERATED_KEYS);
+            insertStatement.setInt(1, io.getWeek());
+            insertStatement.setInt(2, SO_id);
+            insertStatement.executeUpdate();
+
+            ResultSet rs_id = insertStatement.getGeneratedKeys();
+            rs_id.next();
+            id = rs_id.getInt(1);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return id;
+        }
+        return id;
+    }
+
+    //Production orders methods
+    public int getProductionCountByWeek(int week){
+        String sql =    "SELECT  COUNT(piece.id)\n" +
+                        "FROM    piece\n" +
+                        "JOIN    production_order    ON piece.FK_production_order = production_order.id\n" +
+                        "WHERE   production_order.week = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, week);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            sqlReturnValues.next();
+
+            int count = sqlReturnValues.getInt(1);
+
+            return count;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return -1;
+    }
+    public int createProductionOrder(ProductionOrder po){
+        int id = -1;
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "INSERT INTO production_order (week)\n" +
+                        "VALUES  (?)" +
+                        "RETURNING id", Statement.RETURN_GENERATED_KEYS);
+            insertStatement.setInt(1, po.getWeek());
+            insertStatement.executeUpdate();
+
+            ResultSet rs_id = insertStatement.getGeneratedKeys();
+            rs_id.next();
+            id = rs_id.getInt(1);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return id;
+        }
+        return id;
+    }
+
+
+    //Piece methods
+    public boolean createPiece(Piece p, int SO_id, int IO_id, int PO_id){
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+            "INSERT INTO piece ( type, status, final_type, FK_supplier_order, FK_inbound_order, FK_production_order)\n" +
+                "VALUES (?, ?, ?, ?, ?, ?)");
+            insertStatement.setString(1, p.getType());
+            insertStatement.setString(2, p.getStatus());
+            insertStatement.setString(3, p.getFinal_type());
+            insertStatement.setInt(4, SO_id);
+            insertStatement.setInt(5, IO_id);
+            insertStatement.setInt(6, PO_id);
+
+            insertStatement.execute();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }
