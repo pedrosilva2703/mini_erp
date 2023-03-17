@@ -2,17 +2,17 @@ package com.example.minierp.model;
 
 import java.util.ArrayList;
 
-public class InboundOrder {
+public class ExpeditionOrder {
     Integer id;
     int week;
     ArrayList<Piece> pieces;
-    SupplierOrder so;
+    ClientOrder co;
 
-    public InboundOrder(Integer id, int week, ArrayList<Piece> pieces, SupplierOrder so) {
+    public ExpeditionOrder(Integer id, int week, ArrayList<Piece> pieces, ClientOrder co) {
         this.id = id;
         this.week = week;
         this.pieces = pieces;
-        this.so = so;
+        this.co = co;
     }
 
     public Integer getId() {

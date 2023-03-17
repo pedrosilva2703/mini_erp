@@ -49,5 +49,11 @@ VALUES  (?, ?, ?, ?, ?, ?)
 RETURNING id
 
 
+INSERT INTO client_order (type, price, week_est_delivery, delay, status, FK_client)
+    SELECT ?, ?, ?, ?, ?, client.id
+    FROM client
+    WHERE client.name = ?
+
+
 INSERT INTO piece ( type, status, final_type, FK_supplier_order, FK_inbound_order, FK_production_order)
 VALUES (?, ?, ?, ?, ?, ?)

@@ -58,6 +58,7 @@ public class CI_NewOrderController implements Initializable {
         //verify if has free pieces from that type arriving
 
 
+        // DONE
         //***** FROM SUPPLIER *****//
 
         //*** Choose supplier from type ***//
@@ -72,17 +73,17 @@ public class CI_NewOrderController implements Initializable {
         }
 
         //*** Calculate when materials arrive ***//
-        int arriving_date = factory.getCurrent_week() + s.getDelivery_time();
+        int arriving_week = factory.getCurrent_week() + s.getDelivery_time();
 
         //*** Create supplier order ***//
-        int SO_id = dbHandler.createSupplierOrder(s, quantity, arriving_date);
-        System.out.println("aaaaaaaaaaaaaa"+SO_id);
-        //create inbound order
-        InboundOrder io = new InboundOrder(null, arriving_date, pieces);
+        int SO_id = dbHandler.createSupplierOrder(s, quantity, arriving_week);
+
+        //*** Create inbound order ***//
+        InboundOrder io = new InboundOrder(null, arriving_week, pieces, null);
         int IO_id = dbHandler.createInboundOrder(io, SO_id);
 
         //*** Calculates when production can start ***//
-        int production_week = arriving_date + 1;
+        int production_week = arriving_week + 1;
 
         //*** Schedule production starting from that week ***//
         ArrayList<ProductionOrder> POrdersList = new ArrayList<>();
@@ -106,15 +107,26 @@ public class CI_NewOrderController implements Initializable {
             production_week++;
         }
 
-
-        //*** Schedule expedition after production ***//
+        //*** Calculate expedition and price ***//
         int expedition_week = production_week+1;
+        float final_price = s.getUnit_price() * quantity; //adicionar custos aqui eventualmente !!!!
+
+        //*** Create client order with pending_internal status ***//
+        ClientOrder CO = new ClientOrder(client_name, type, quantity, final_price, expedition_week, expedition_week, "pending_internal");
+        int CO_id = dbHandler.createClientOrder(CO);
+
+        //*** Create expedition order ***//
+        ExpeditionOrder eo = new ExpeditionOrder(null, expedition_week, pieces, null);
+        int EO_id = dbHandler.createExpeditionOrder(eo, SO_id);
 
 
+
+
+        //*** Create piece data in DataBase ***//
         for(ProductionOrder po : POrdersList){
             int PO_id = dbHandler.createProductionOrder(po);
             for(Piece p : po.getPieces() ){
-                dbHandler.createPiece(p, SO_id, IO_id, PO_id );
+                dbHandler.createPiece(p, SO_id, CO_id, IO_id, PO_id, EO_id);
             }
         }
 
@@ -124,9 +136,6 @@ public class CI_NewOrderController implements Initializable {
         for(ProductionOrder po : POrdersList){
             System.out.println("Semana: " + po.getWeek() + "   Produz: " + po.getPieces().size() );
         }
-
-
-
 
     }
 
@@ -178,11 +187,8 @@ public class CI_NewOrderController implements Initializable {
     // Initialize method
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         fillTypeCombos();
         updateComboVisibility();
-
-
 
         ArrayList<Client> clientList = dbHandler.getClients();
         if( clientList == null ) return;

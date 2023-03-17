@@ -113,6 +113,7 @@ CREATE TABLE client_order (
     week_est_delivery   INT,
     delay               INT,
     status              VARCHAR(50) NOT NULL,
+    quantity            INT NOT NULL,
 
     FK_client           INT NOT NULL,
 

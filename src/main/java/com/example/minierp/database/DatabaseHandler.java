@@ -183,10 +183,10 @@ public class DatabaseHandler {
                         "    wh_pos              INT,\n" +
                         "\n" +
                         "    FK_supplier_order   INT NOT NULL,\n" +
-                        "    FK_client_order     INT,\n" +
+                        "    FK_client_order     INT NOT NULL,\n" +
                         "    FK_inbound_order    INT NOT NULL,\n" +
                         "    FK_production_order INT NOT NULL,\n" +
-                        "    FK_expedition_order INT,\n" +
+                        "    FK_expedition_order INT NOT NULL,\n" +
                         "\n" +
                         "    CONSTRAINT PK_piece PRIMARY KEY (id)\n" +
                         ");\n" +
@@ -225,6 +225,7 @@ public class DatabaseHandler {
                         "    week_est_delivery   INT,\n" +
                         "    delay               INT,\n" +
                         "    status              VARCHAR(50) NOT NULL,\n" +
+                        "    quantity            INT NOT NULL,\n" +
                         "\n" +
                         "    FK_client           INT NOT NULL,\n" +
                         "\n" +
@@ -489,7 +490,7 @@ public class DatabaseHandler {
             PreparedStatement insertStatement = connection.prepareStatement(
                     "INSERT INTO supplier_order (type, quantity, unit_price, week_est_delivery, delay, FK_supplier)\n" +
                         "VALUES  (?, ?, ?, ?, ?, ?)" +
-                            "RETURNING id", Statement.RETURN_GENERATED_KEYS);
+                            "", Statement.RETURN_GENERATED_KEYS);
             insertStatement.setString(1, s.getMaterial_type());
             insertStatement.setInt(2, quantity);
             insertStatement.setInt(3, s.getUnit_price());
@@ -516,7 +517,7 @@ public class DatabaseHandler {
             PreparedStatement insertStatement = connection.prepareStatement(
                     "INSERT INTO inbound_order (week, FK_supplier_order)\n" +
                             "VALUES  (?, ?)" +
-                            "RETURNING id", Statement.RETURN_GENERATED_KEYS);
+                            "", Statement.RETURN_GENERATED_KEYS);
             insertStatement.setInt(1, io.getWeek());
             insertStatement.setInt(2, SO_id);
             insertStatement.executeUpdate();
@@ -558,7 +559,7 @@ public class DatabaseHandler {
             PreparedStatement insertStatement = connection.prepareStatement(
                     "INSERT INTO production_order (week)\n" +
                         "VALUES  (?)" +
-                        "RETURNING id", Statement.RETURN_GENERATED_KEYS);
+                        "", Statement.RETURN_GENERATED_KEYS);
             insertStatement.setInt(1, po.getWeek());
             insertStatement.executeUpdate();
 
@@ -572,19 +573,72 @@ public class DatabaseHandler {
         return id;
     }
 
-
-    //Piece methods
-    public boolean createPiece(Piece p, int SO_id, int IO_id, int PO_id){
+    //Expedition orders methods
+    public int createExpeditionOrder(ExpeditionOrder eo, int CO_id){
+        int id = -1;
         try {
             PreparedStatement insertStatement = connection.prepareStatement(
-            "INSERT INTO piece ( type, status, final_type, FK_supplier_order, FK_inbound_order, FK_production_order)\n" +
-                "VALUES (?, ?, ?, ?, ?, ?)");
+                    "INSERT INTO expedition_order (week, FK_client_order)\n" +
+                            "VALUES  (?, ?)" +
+                            "", Statement.RETURN_GENERATED_KEYS);
+            insertStatement.setInt(1, eo.getWeek());
+            insertStatement.setInt(2, CO_id);
+            insertStatement.executeUpdate();
+
+            ResultSet rs_id = insertStatement.getGeneratedKeys();
+            rs_id.next();
+            id = rs_id.getInt(1);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return id;
+        }
+        return id;
+    }
+
+    //Create client order
+    public int createClientOrder(ClientOrder co){
+        int id = -1;
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "INSERT INTO client_order (type, price, week_est_delivery, delay, status, quantity, FK_client) \n" +
+                        "    SELECT ?, ?, ?, ?, ?, ?, client.id \n" +
+                        "    FROM client \n" +
+                        "    WHERE client.name = ? ", Statement.RETURN_GENERATED_KEYS);
+            insertStatement.setString(1, co.getType());
+            insertStatement.setDouble(2, co.getPrice());
+            insertStatement.setInt(3, co.getDelivery_week());
+            insertStatement.setInt(4, 0);
+            insertStatement.setString(5, co.getStatus());
+            insertStatement.setInt(6, co.getQuantity());
+            insertStatement.setString(7, co.getClient());
+            insertStatement.executeUpdate();
+
+            ResultSet rs_id = insertStatement.getGeneratedKeys();
+            rs_id.next();
+            id = rs_id.getInt(1);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return id;
+        }
+        return id;
+    }
+
+    //Piece methods
+    public boolean createPiece(Piece p, int SO_id, int CO_id, int IO_id, int PO_id, int EO_id){
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+            "INSERT INTO piece ( type, status, final_type, " +
+                                    "FK_supplier_order, FK_client_order, " +
+                                    "FK_inbound_order, FK_production_order, FK_expedition_order)\n" +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             insertStatement.setString(1, p.getType());
             insertStatement.setString(2, p.getStatus());
             insertStatement.setString(3, p.getFinal_type());
             insertStatement.setInt(4, SO_id);
-            insertStatement.setInt(5, IO_id);
-            insertStatement.setInt(6, PO_id);
+            insertStatement.setInt(5, CO_id);
+            insertStatement.setInt(6, IO_id);
+            insertStatement.setInt(7, PO_id);
+            insertStatement.setInt(8, EO_id);
 
             insertStatement.execute();
         } catch (SQLException throwable) {
