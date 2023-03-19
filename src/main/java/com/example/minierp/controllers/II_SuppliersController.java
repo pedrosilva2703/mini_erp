@@ -46,9 +46,9 @@ public class II_SuppliersController implements Initializable {
     @FXML private TextField tf_time_metal;
     @FXML private CheckBox check_metal;
 
-    int price_blue  = 0, minqty_blue  = 0, time_blue  = 0;
-    int price_green = 0, minqty_green = 0, time_green = 0;
-    int price_metal = 0, minqty_metal = 0, time_metal = 0;
+    double price_blue  = 0; int minqty_blue  = 0, time_blue  = 0;
+    double price_green = 0; int minqty_green = 0, time_green = 0;
+    double price_metal = 0; int minqty_metal = 0, time_metal = 0;
 
 
     @FXML void addSupplier(){
@@ -68,11 +68,15 @@ public class II_SuppliersController implements Initializable {
 
         ArrayList<Supplier> aux_supplier = new ArrayList<>();
         if( check_blue.isSelected() ){
-            if(!Verifier.isInteger(tf_price_blue) || !Verifier.isInteger(tf_minqty_blue) || !Verifier.isInteger(tf_time_blue)){
+            if(!Verifier.isDouble(tf_price_blue)){
+                Alerts.showError("Invalid price value");
+                return;
+            }
+            if(!Verifier.isInteger(tf_minqty_blue) || !Verifier.isInteger(tf_time_blue)){
                 Alerts.showError("All values need to be integer");
                 return;
             }
-            price_blue  = Integer.parseInt(tf_price_blue.getText());
+            price_blue  = Double.parseDouble(tf_price_blue.getText());
             minqty_blue = Integer.parseInt(tf_minqty_blue.getText());
             time_blue   = Integer.parseInt(tf_time_blue.getText());
             if(price_blue<1 || minqty_blue<1 || time_blue<1){
@@ -82,11 +86,15 @@ public class II_SuppliersController implements Initializable {
             aux_supplier.add(new Supplier(null, name, "BlueRawMaterial", price_blue, minqty_blue, time_blue) );
         }
         if( check_green.isSelected() ){
-            if(!Verifier.isInteger(tf_price_green) || !Verifier.isInteger(tf_minqty_green) || !Verifier.isInteger(tf_time_green)){
+            if(!Verifier.isDouble(tf_price_green)){
+                Alerts.showError("Invalid price value");
+                return;
+            }
+            if(!Verifier.isInteger(tf_minqty_green) || !Verifier.isInteger(tf_time_green)){
                 Alerts.showError("All values need to be integer");
                 return;
             }
-            price_green  = Integer.parseInt(tf_price_green.getText());
+            price_green  = Double.parseDouble(tf_price_green.getText());
             minqty_green = Integer.parseInt(tf_minqty_green.getText());
             time_green   = Integer.parseInt(tf_time_green.getText());
             if(price_green<1 || minqty_green<1 || time_green<1){
@@ -96,11 +104,15 @@ public class II_SuppliersController implements Initializable {
             aux_supplier.add(new Supplier(null, name, "GreenRawMaterial", price_green, minqty_green, time_green) );
         }
         if( check_metal.isSelected() ){
-            if(!Verifier.isInteger(tf_price_metal) || !Verifier.isInteger(tf_minqty_metal) || !Verifier.isInteger(tf_time_metal)){
+            if(!Verifier.isDouble(tf_price_metal)){
+                Alerts.showError("Invalid price value");
+                return;
+            }
+            if(!Verifier.isInteger(tf_minqty_metal) || !Verifier.isInteger(tf_time_metal)){
                 Alerts.showError("All values need to be integer");
                 return;
             }
-            price_metal  = Integer.parseInt(tf_price_metal.getText());
+            price_metal  = Double.parseDouble(tf_price_metal.getText());
             minqty_metal = Integer.parseInt(tf_minqty_metal.getText());
             time_metal   = Integer.parseInt(tf_time_metal.getText());
             if(price_metal<1 || minqty_metal<1 || time_metal<1){

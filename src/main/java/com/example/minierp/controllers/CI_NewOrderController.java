@@ -64,6 +64,10 @@ public class CI_NewOrderController implements Initializable {
         //*** Choose supplier from type ***//
         String raw_type = Materials.getRawType(type);
         ArrayList<Supplier> supplierList = dbHandler.getSuppliersByTypeAndQty(raw_type, quantity);
+        if( supplierList.size() == 0){
+            Alerts.showError("There are still no suppliers for this type of product");
+            return;
+        }
         Supplier s = supplierList.get(0);
 
         //*** Create pieces array ***//
@@ -109,7 +113,7 @@ public class CI_NewOrderController implements Initializable {
 
         //*** Calculate expedition and price ***//
         int expedition_week = production_week+1;
-        float final_price = s.getUnit_price() * quantity; //adicionar custos aqui eventualmente !!!!
+        double final_price = s.getUnit_price() * quantity; //adicionar custos aqui eventualmente !!!!
 
         //*** Create client order with pending_internal status ***//
         ClientOrder CO = new ClientOrder(client_name, type, quantity, final_price, expedition_week, expedition_week, "pending_internal");

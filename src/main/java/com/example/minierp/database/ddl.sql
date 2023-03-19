@@ -53,6 +53,7 @@ CREATE TABLE supplier_order (
     unit_price          FLOAT(6),
     week_est_delivery   INT,
     delay               INT,
+    status              VARCHAR(50) NOT NULL,
 
     FK_supplier         INT NOT NULL,
 

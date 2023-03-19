@@ -4,11 +4,11 @@ public class Supplier {
     Integer id;
     String name;
     String material_type;
-    int unit_price;
+    double unit_price;
     int min_quantity;
     int delivery_time;
 
-    public Supplier(Integer id, String name, String material_type, int unit_price, int min_quantity, int delivery_time) {
+    public Supplier(Integer id, String name, String material_type, double unit_price, int min_quantity, int delivery_time) {
         this.id = id;
         this.name = name;
         this.material_type = material_type;
@@ -35,11 +35,11 @@ public class Supplier {
         this.material_type = material_type;
     }
 
-    public int getUnit_price() {
+    public double getUnit_price() {
         return unit_price;
     }
 
-    public void setUnit_price(int unit_price) {
+    public void setUnit_price(double unit_price) {
         this.unit_price = unit_price;
     }
 

@@ -20,7 +20,7 @@
                   <Text layoutX="40.0" layoutY="68.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="page-title" text="Supplier" />
                   <Text layoutX="40.0" layoutY="128.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Edit supplier" />
                   <Text layoutX="40.0" layoutY="163.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Name" />
-                  <Button layoutX="61.0" layoutY="360.0" mnemonicParsing="false" styleClass="regular-button" text="Add" />
+                  <Button layoutX="61.0" layoutY="360.0" mnemonicParsing="false" onMouseClicked="#updateSupplier" styleClass="regular-button" text="Update" />
                   <Text layoutX="40.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Materials" />
                   <GridPane layoutX="60.0" layoutY="203.0" prefHeight="150.0" prefWidth="900.0">
                     <columnConstraints>
@@ -46,67 +46,67 @@
                         <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Metal Raw Material" GridPane.halignment="LEFT" GridPane.rowIndex="3" />
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                            <children>
-                              <TextField layoutX="55.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
+                              <TextField fx:id="tf_price_blue" layoutX="55.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                            <children>
-                              <TextField layoutX="55.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
+                              <TextField fx:id="tf_price_green" layoutX="55.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                            <children>
-                              <TextField layoutX="55.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
+                              <TextField fx:id="tf_price_metal" layoutX="55.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                            <children>
-                              <TextField layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
+                              <TextField fx:id="tf_minqty_blue" layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
                            <children>
-                              <TextField layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
+                              <TextField fx:id="tf_minqty_green" layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="3">
                            <children>
-                              <TextField layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
+                              <TextField fx:id="tf_minqty_metal" layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1">
                            <children>
-                              <TextField layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
+                              <TextField fx:id="tf_time_blue" layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
                            <children>
-                              <TextField layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
+                              <TextField fx:id="tf_time_green" layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="3">
                            <children>
-                              <TextField layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
+                              <TextField fx:id="tf_time_metal" layoutX="61.0" layoutY="5.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="1">
                            <children>
-                              <CheckBox layoutY="10.0" mnemonicParsing="false" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="17.0" />
+                              <CheckBox fx:id="check_blue" layoutY="10.0" mnemonicParsing="false" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="17.0" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="2">
                            <children>
-                              <CheckBox layoutX="7.0" layoutY="18.0" mnemonicParsing="false" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="17.0" />
+                              <CheckBox fx:id="check_green" layoutX="7.0" layoutY="18.0" mnemonicParsing="false" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="17.0" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="3">
                            <children>
-                              <CheckBox layoutX="8.0" layoutY="17.0" mnemonicParsing="false" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="17.0" />
+                              <CheckBox fx:id="check_metal" layoutX="8.0" layoutY="17.0" mnemonicParsing="false" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="17.0" />
                            </children>
                         </AnchorPane>
                      </children>
                   </GridPane>
-                  <ComboBox layoutX="101.0" layoutY="144.0" prefHeight="28.0" prefWidth="197.0" />
+                  <ComboBox fx:id="comboName" layoutX="101.0" layoutY="144.0" onAction="#comboNameSelected" prefHeight="28.0" prefWidth="197.0" />
                </children>
             </AnchorPane>
          </content>

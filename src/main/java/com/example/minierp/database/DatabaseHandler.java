@@ -165,6 +165,7 @@ public class DatabaseHandler {
                         "    unit_price          FLOAT(6),\n" +
                         "    week_est_delivery   INT,\n" +
                         "    delay               INT,\n" +
+                        "    status              VARCHAR(50) NOT NULL,"+
                         "\n" +
                         "    FK_supplier         INT NOT NULL,\n" +
                         "\n" +
@@ -399,7 +400,7 @@ public class DatabaseHandler {
             try {
                 PreparedStatement insertStatement = connection.prepareStatement(sql_supp_mat);
                 insertStatement.setInt(1, s.getMin_quantity());
-                insertStatement.setInt(2, s.getUnit_price());
+                insertStatement.setDouble(2, s.getUnit_price());
                 insertStatement.setInt(3, s.getDelivery_time());
                 insertStatement.setString(4, s.getName());
                 insertStatement.setString(5, s.getMaterial_type());
@@ -433,7 +434,42 @@ public class DatabaseHandler {
                 Integer id = sqlReturnValues.getInt(1);
                 String name = sqlReturnValues.getString(2);
                 String type = sqlReturnValues.getString(3);
-                int price = sqlReturnValues.getInt(4);
+                double price = sqlReturnValues.getDouble(4);
+                int min_qty = sqlReturnValues.getInt(5);
+                int delivery_time = sqlReturnValues.getInt(6);
+
+                returnValues.add(new Supplier(id,name,type,price, min_qty, delivery_time) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public ArrayList<Supplier> getSuppliersByName(String filter_name) {
+        String sql =    "SELECT  supplier.id,\n" +
+                        "        supplier.name,\n" +
+                        "        material.type,\n" +
+                        "        supplier_material.unit_price,\n" +
+                        "        supplier_material.min_quantity,\n" +
+                        "        supplier_material.delivery_time\n" +
+                        "FROM supplier_material\n" +
+                        "JOIN supplier on supplier.id = supplier_material.FK_supplier\n" +
+                        "JOIN material on material.id = supplier_material.FK_material\n" +
+                        "WHERE supplier.name = ?\n";
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, filter_name);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<Supplier> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String name = sqlReturnValues.getString(2);
+                String type = sqlReturnValues.getString(3);
+                double price = sqlReturnValues.getDouble(4);
                 int min_qty = sqlReturnValues.getInt(5);
                 int delivery_time = sqlReturnValues.getInt(6);
 
@@ -458,6 +494,7 @@ public class DatabaseHandler {
                         "WHERE material.type= ? AND supplier_material.min_quantity <= ?\n" +
                         "\n" +
                         "ORDER BY supplier_material.unit_price ASC";
+
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, filter_type);
@@ -470,11 +507,32 @@ public class DatabaseHandler {
                 Integer id = sqlReturnValues.getInt(1);
                 String name = sqlReturnValues.getString(2);
                 String type = sqlReturnValues.getString(3);
-                int price = sqlReturnValues.getInt(4);
+                double price = sqlReturnValues.getDouble(4);
                 int min_qty = sqlReturnValues.getInt(5);
                 int delivery_time = sqlReturnValues.getInt(6);
 
                 returnValues.add(new Supplier(id,name,type,price, min_qty, delivery_time) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public ArrayList<String> getSupplierNames(){
+        String sql =    "SELECT supplier.name \n" +
+                        "FROM supplier \n" +
+                        "GROUP BY supplier.name";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<String> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                String name = sqlReturnValues.getString(1);
+
+                returnValues.add(name);
             }
             return returnValues;
         } catch (SQLException throwable) {
@@ -488,15 +546,16 @@ public class DatabaseHandler {
         int id = -1;
         try {
             PreparedStatement insertStatement = connection.prepareStatement(
-                    "INSERT INTO supplier_order (type, quantity, unit_price, week_est_delivery, delay, FK_supplier)\n" +
-                        "VALUES  (?, ?, ?, ?, ?, ?)" +
+                    "INSERT INTO supplier_order (type, quantity, unit_price, week_est_delivery, delay, status, FK_supplier)\n" +
+                        "VALUES  (?, ?, ?, ?, ?, ?, ?)" +
                             "", Statement.RETURN_GENERATED_KEYS);
             insertStatement.setString(1, s.getMaterial_type());
             insertStatement.setInt(2, quantity);
-            insertStatement.setInt(3, s.getUnit_price());
+            insertStatement.setDouble(3, s.getUnit_price());
             insertStatement.setInt(4, week_est_delivery);
             insertStatement.setInt(5, 0);
-            insertStatement.setInt(6, s.getId());
+            insertStatement.setString(6, "waiting_confirmation");
+            insertStatement.setInt(7, s.getId());
             insertStatement.executeUpdate();
 
             ResultSet rs_id = insertStatement.getGeneratedKeys();
@@ -508,7 +567,78 @@ public class DatabaseHandler {
         }
         return id;
     }
+    public ArrayList<SupplierOrder> getSupplierOrders(){
+        String sql =    "SELECT  supplier.name,\n" +
+                        "        supplier_order.id,\n" +
+                        "        supplier_order.type,\n" +
+                        "        supplier_order.quantity,\n" +
+                        "        supplier_order.unit_price,\n" +
+                        "        supplier_order.week_est_delivery,\n" +
+                        "        supplier_order.delay,\n" +
+                        "        supplier_order.status \n" +
+                        "FROM supplier_order\n" +
+                        "JOIN supplier ON supplier.id = supplier_order.FK_supplier";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet sqlReturnValues = stmt.executeQuery();
 
+            ArrayList<SupplierOrder> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(2);
+                String name = sqlReturnValues.getString(1);
+                String type = sqlReturnValues.getString(3);
+                int qty = sqlReturnValues.getInt(4);
+                double price = sqlReturnValues.getDouble(5);
+                int delivery_week = sqlReturnValues.getInt(6);
+                int delay = sqlReturnValues.getInt(7);
+                String status = sqlReturnValues.getString(8);
+
+                returnValues.add(new SupplierOrder(id, name, type, qty, price, delivery_week, delay, status) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public ArrayList<SupplierOrder> getSupplierOrdersByName(String supplier_name){
+        String sql =    "SELECT  supplier.name,\n" +
+                "        supplier_order.id,\n" +
+                "        supplier_order.type,\n" +
+                "        supplier_order.quantity,\n" +
+                "        supplier_order.unit_price,\n" +
+                "        supplier_order.week_est_delivery,\n" +
+                "        supplier_order.delay,\n" +
+                "        supplier_order.status \n" +
+                "FROM  supplier_order\n" +
+                "JOIN  supplier ON supplier.id = supplier_order.FK_supplier " +
+                "WHERE supplier.name = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, supplier_name);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<SupplierOrder> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(2);
+                String name = sqlReturnValues.getString(1);
+                String type = sqlReturnValues.getString(3);
+                int qty = sqlReturnValues.getInt(4);
+                double price = sqlReturnValues.getDouble(5);
+                int delivery_week = sqlReturnValues.getInt(6);
+                int delay = sqlReturnValues.getInt(7);
+                String status = sqlReturnValues.getString(8);
+
+                returnValues.add(new SupplierOrder(id, name, type, qty, price, delivery_week, delay, status) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
 
     //Inbound order methods
     public int createInboundOrder(InboundOrder io, int SO_id){

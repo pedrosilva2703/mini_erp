@@ -35,7 +35,7 @@
                   <TextField layoutX="40.0" layoutY="190.0" styleClass="number-field" />
                   <Button layoutX="120.0" layoutY="191.0" mnemonicParsing="false" styleClass="cancel-button" text="Delay" />
                   <Text layoutX="40.0" layoutY="163.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Supplier" />
-                  <ComboBox layoutX="120.0" layoutY="144.0" prefWidth="197.0" />
+                  <ComboBox fx:id="comboName" layoutX="120.0" layoutY="144.0" onAction="#filterSupplier" prefWidth="197.0" />
                </children>
             </AnchorPane>
          </content>

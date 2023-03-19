@@ -1,6 +1,7 @@
 package com.example.minierp.model;
 
 public class SupplierOrder {
+    Integer id;
     String name;
     String material_type;
     int quantity;
@@ -9,7 +10,8 @@ public class SupplierOrder {
     int delay;
     String status;
 
-    public SupplierOrder(String name, String material_type, int quantity, double price, int delivery_week, int delay, String status) {
+    public SupplierOrder(Integer id, String name, String material_type, int quantity, double price, int delivery_week, int delay, String status) {
+        this.id = id;
         this.name = name;
         this.material_type = material_type;
         this.quantity = quantity;

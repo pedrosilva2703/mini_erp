@@ -23,4 +23,20 @@ public final class Verifier {
         return true;
     }
 
+    public static boolean isDouble(TextField tf){
+        double double_field;
+        try{
+            double_field = Double.parseDouble(tf.getText());
+        }
+        catch (NumberFormatException e){
+            System.out.println(e);
+            return false;
+        }
+        catch (RuntimeException e){
+            System.out.println(e);
+            return false;
+        }
+        return true;
+    }
+
 }

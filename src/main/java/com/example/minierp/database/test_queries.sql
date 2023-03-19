@@ -57,3 +57,14 @@ INSERT INTO client_order (type, price, week_est_delivery, delay, status, FK_clie
 
 INSERT INTO piece ( type, status, final_type, FK_supplier_order, FK_inbound_order, FK_production_order)
 VALUES (?, ?, ?, ?, ?, ?)
+
+
+SELECT  supplier.name,
+        supplier_order.type,
+        supplier_order.quantity,
+        supplier_order.unit_price,
+        supplier_order.week_est_delivery,
+        supplier_order.delay,
+        supplier_order.status
+FROM supplier_order
+JOIN supplier ON supplier.id = supplier_order.FK_supplier
