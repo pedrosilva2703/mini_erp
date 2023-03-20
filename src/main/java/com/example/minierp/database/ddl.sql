@@ -83,6 +83,7 @@ CREATE TABLE piece (
 CREATE TABLE inbound_order (
     id      SERIAL NOT NULL,
     week    INT NOT NULL,
+    status  VARCHAR(50),
 
     FK_supplier_order   INT NOT NULL,
 
@@ -92,6 +93,7 @@ CREATE TABLE inbound_order (
 CREATE TABLE production_order (
     id      SERIAL NOT NULL,
     week    INT NOT NULL,
+    status  VARCHAR(50),
 
     CONSTRAINT PK_production_order PRIMARY KEY (id)
 );
@@ -99,6 +101,7 @@ CREATE TABLE production_order (
 CREATE TABLE expedition_order (
     id      SERIAL NOT NULL,
     week    INT NOT NULL,
+    status  VARCHAR(50),
 
     FK_client_order INT NOT NULL,
     CONSTRAINT PK_expedition_order PRIMARY KEY (id)

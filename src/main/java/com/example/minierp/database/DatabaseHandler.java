@@ -137,108 +137,111 @@ public class DatabaseHandler {
     }
     public boolean createTables(){
         String sql =    "CREATE TABLE material (\n" +
-                        "    id      SERIAL NOT NULL,\n" +
-                        "    type    VARCHAR(50) NOT NULL,\n" +
-                        "\n" +
-                        "    CONSTRAINT PK_material PRIMARY KEY (id)\n" +
-                        ");\n" +
-                        "\n" +
-                        "CREATE TABLE supplier_material (\n" +
-                        "    min_quantity    INT,\n" +
-                        "    unit_price      FLOAT(6),\n" +
-                        "    delivery_time   INT,\n" +
-                        "    FK_supplier     INT NOT NULL,\n" +
-                        "    FK_material     INT NOT NULL\n" +
-                        ");\n" +
-                        "\n" +
-                        "CREATE TABLE supplier (\n" +
-                        "    id      SERIAL NOT NULL,\n" +
-                        "    name    VARCHAR(50) NOT NULL,\n" +
-                        "\n" +
-                        "    CONSTRAINT PK_supplier PRIMARY KEY (id)\n" +
-                        ");\n" +
-                        "\n" +
-                        "CREATE TABLE supplier_order (\n" +
-                        "    id                  SERIAL NOT NULL,\n" +
-                        "    type                VARCHAR(50) NOT NULL,\n" +
-                        "    quantity            INT NOT NULL,\n" +
-                        "    unit_price          FLOAT(6),\n" +
-                        "    week_est_delivery   INT,\n" +
-                        "    delay               INT,\n" +
-                        "    status              VARCHAR(50) NOT NULL,"+
-                        "\n" +
-                        "    FK_supplier         INT NOT NULL,\n" +
-                        "\n" +
-                        "    CONSTRAINT PK_supplier_order PRIMARY KEY (id)\n" +
-                        ");\n" +
-                        "\n" +
-                        "CREATE TABLE piece (\n" +
-                        "    id                  SERIAL NOT NULL,\n" +
-                        "    type                VARCHAR(50) NOT NULL,\n" +
-                        "    status              VARCHAR(50) NOT NULL,\n" +
-                        "    final_type          VARCHAR(50),\n" +
-                        "    week_arrived        INT,\n" +
-                        "    week_produced       INT,\n" +
-                        "    duration_production FLOAT(6),\n" +
-                        "    safety_stock        BOOLEAN,\n" +
-                        "    wh_pos              INT,\n" +
-                        "\n" +
-                        "    FK_supplier_order   INT NOT NULL,\n" +
-                        "    FK_client_order     INT NOT NULL,\n" +
-                        "    FK_inbound_order    INT NOT NULL,\n" +
-                        "    FK_production_order INT NOT NULL,\n" +
-                        "    FK_expedition_order INT NOT NULL,\n" +
-                        "\n" +
-                        "    CONSTRAINT PK_piece PRIMARY KEY (id)\n" +
-                        ");\n" +
-                        "\n" +
-                        "CREATE TABLE inbound_order (\n" +
-                        "    id      SERIAL NOT NULL,\n" +
-                        "    week    INT NOT NULL,\n" +
-                        "\n" +
-                        "    FK_supplier_order   INT NOT NULL,\n" +
-                        "\n" +
-                        "    CONSTRAINT PK_inbound_order PRIMARY KEY (id)\n" +
-                        ");\n" +
-                        "\n" +
-                        "CREATE TABLE production_order (\n" +
-                        "    id      SERIAL NOT NULL,\n" +
-                        "    week    INT NOT NULL,\n" +
-                        "\n" +
-                        "    CONSTRAINT PK_production_order PRIMARY KEY (id)\n" +
-                        ");\n" +
-                        "\n" +
-                        "CREATE TABLE expedition_order (\n" +
-                        "    id      SERIAL NOT NULL,\n" +
-                        "    week    INT NOT NULL,\n" +
-                        "\n" +
-                        "    FK_client_order INT NOT NULL,\n" +
-                        "    CONSTRAINT PK_expedition_order PRIMARY KEY (id)\n" +
-                        ");\n" +
-                        "\n" +
-                        "\n" +
-                        "CREATE TABLE client_order (\n" +
-                        "    id                  SERIAL NOT NULL,\n" +
-                        "    type                VARCHAR(50) NOT NULL,\n" +
-                        "    type_base           VARCHAR(50),\n" +
-                        "    type_lid            VARCHAR(50),\n" +
-                        "    price               FLOAT(6),\n" +
-                        "    week_est_delivery   INT,\n" +
-                        "    delay               INT,\n" +
-                        "    status              VARCHAR(50) NOT NULL,\n" +
-                        "    quantity            INT NOT NULL,\n" +
-                        "\n" +
-                        "    FK_client           INT NOT NULL,\n" +
-                        "\n" +
-                        "    CONSTRAINT PK_client_order PRIMARY KEY (id)\n" +
-                        ");\n" +
-                        "\n" +
-                        "CREATE TABLE client (\n" +
-                        "    id      SERIAL NOT NULL,\n" +
-                        "    name    VARCHAR(50) NOT NULL,\n" +
-                        "\n" +
-                        "    CONSTRAINT PK_client PRIMARY KEY (id)\n" +
-                        ");";
+                "    id      SERIAL NOT NULL,\n" +
+                "    type    VARCHAR(50) NOT NULL,\n" +
+                "\n" +
+                "    CONSTRAINT PK_material PRIMARY KEY (id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE supplier_material (\n" +
+                "    min_quantity    INT,\n" +
+                "    unit_price      FLOAT(6),\n" +
+                "    delivery_time   INT,\n" +
+                "    FK_supplier     INT NOT NULL,\n" +
+                "    FK_material     INT NOT NULL\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE supplier (\n" +
+                "    id      SERIAL NOT NULL,\n" +
+                "    name    VARCHAR(50) NOT NULL,\n" +
+                "\n" +
+                "    CONSTRAINT PK_supplier PRIMARY KEY (id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE supplier_order (\n" +
+                "    id                  SERIAL NOT NULL,\n" +
+                "    type                VARCHAR(50) NOT NULL,\n" +
+                "    quantity            INT NOT NULL,\n" +
+                "    unit_price          FLOAT(6),\n" +
+                "    week_est_delivery   INT,\n" +
+                "    delay               INT,\n" +
+                "    status              VARCHAR(50) NOT NULL,\n" +
+                "\n" +
+                "    FK_supplier         INT NOT NULL,\n" +
+                "\n" +
+                "    CONSTRAINT PK_supplier_order PRIMARY KEY (id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE piece (\n" +
+                "    id                  SERIAL NOT NULL,\n" +
+                "    type                VARCHAR(50) NOT NULL,\n" +
+                "    status              VARCHAR(50) NOT NULL,\n" +
+                "    final_type          VARCHAR(50),\n" +
+                "    week_arrived        INT,\n" +
+                "    week_produced       INT,\n" +
+                "    duration_production FLOAT(6),\n" +
+                "    safety_stock        BOOLEAN,\n" +
+                "    wh_pos              INT,\n" +
+                "\n" +
+                "    FK_supplier_order   INT NOT NULL,\n" +
+                "    FK_client_order     INT NOT NULL,\n" +
+                "    FK_inbound_order    INT NOT NULL,\n" +
+                "    FK_production_order INT NOT NULL,\n" +
+                "    FK_expedition_order INT NOT NULL,\n" +
+                "\n" +
+                "    CONSTRAINT PK_piece PRIMARY KEY (id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE inbound_order (\n" +
+                "    id      SERIAL NOT NULL,\n" +
+                "    week    INT NOT NULL,\n" +
+                "    status  VARCHAR(50),\n" +
+                "    \n" +
+                "    FK_supplier_order   INT NOT NULL,\n" +
+                "\n" +
+                "    CONSTRAINT PK_inbound_order PRIMARY KEY (id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE production_order (\n" +
+                "    id      SERIAL NOT NULL,\n" +
+                "    week    INT NOT NULL,\n" +
+                "    status  VARCHAR(50),\n" +
+                "\n" +
+                "    CONSTRAINT PK_production_order PRIMARY KEY (id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE expedition_order (\n" +
+                "    id      SERIAL NOT NULL,\n" +
+                "    week    INT NOT NULL,\n" +
+                "    status  VARCHAR(50),\n" +
+                "\n" +
+                "    FK_client_order INT NOT NULL,\n" +
+                "    CONSTRAINT PK_expedition_order PRIMARY KEY (id)\n" +
+                ");\n" +
+                "\n" +
+                "\n" +
+                "CREATE TABLE client_order (\n" +
+                "    id                  SERIAL NOT NULL,\n" +
+                "    type                VARCHAR(50) NOT NULL,\n" +
+                "    type_base           VARCHAR(50),\n" +
+                "    type_lid            VARCHAR(50),\n" +
+                "    price               FLOAT(6),\n" +
+                "    week_est_delivery   INT,\n" +
+                "    delay               INT,\n" +
+                "    status              VARCHAR(50) NOT NULL,\n" +
+                "    quantity            INT NOT NULL,\n" +
+                "\n" +
+                "    FK_client           INT NOT NULL,\n" +
+                "\n" +
+                "    CONSTRAINT PK_client_order PRIMARY KEY (id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE client (\n" +
+                "    id      SERIAL NOT NULL,\n" +
+                "    name    VARCHAR(50) NOT NULL,\n" +
+                "\n" +
+                "    CONSTRAINT PK_client PRIMARY KEY (id)\n" +
+                ");";
         try {
             PreparedStatement dropStatement = connection.prepareStatement(sql);
             dropStatement.execute();
@@ -377,6 +380,127 @@ public class DatabaseHandler {
         return null;
     }
 
+    //Client order methods
+    public int createClientOrder(ClientOrder co){
+        int id = -1;
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "INSERT INTO client_order (type, price, week_est_delivery, delay, status, quantity, FK_client) \n" +
+                            "    SELECT ?, ?, ?, ?, ?, ?, client.id \n" +
+                            "    FROM client \n" +
+                            "    WHERE client.name = ? ", Statement.RETURN_GENERATED_KEYS);
+            insertStatement.setString(1, co.getType());
+            insertStatement.setDouble(2, co.getPrice());
+            insertStatement.setInt(3, co.getDelivery_week());
+            insertStatement.setInt(4, 0);
+            insertStatement.setString(5, co.getStatus());
+            insertStatement.setInt(6, co.getQuantity());
+            insertStatement.setString(7, co.getClient());
+            insertStatement.executeUpdate();
+
+            ResultSet rs_id = insertStatement.getGeneratedKeys();
+            rs_id.next();
+            id = rs_id.getInt(1);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return id;
+        }
+        return id;
+    }
+    public ArrayList<ClientOrder> getClientOrdersByStatus(String filter_status){
+        String sql =    "SELECT  client_order.id,\n" +
+                "        client.name,\n" +
+                "        client_order.type,\n" +
+                "        client_order.quantity,\n" +
+                "        client_order.price,\n" +
+                "        client_order.week_est_delivery,\n" +
+                "        client_order.delay,\n" +
+                "        client_order.status\n" +
+                "FROM client_order\n" +
+                "JOIN client on client.id = client_order.FK_client\n" +
+                "WHERE client_order.status = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, filter_status);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<ClientOrder> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String name = sqlReturnValues.getString(2);
+                String type = sqlReturnValues.getString(3);
+                int qty = sqlReturnValues.getInt(4);
+                double price = sqlReturnValues.getDouble(5);
+                int initial_estimation = sqlReturnValues.getInt(6);
+                int current_estimation = sqlReturnValues.getInt(7) + initial_estimation;
+                String status = sqlReturnValues.getString(8);
+
+                returnValues.add(new ClientOrder(id, name, type, qty, price, initial_estimation, current_estimation, status) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public ArrayList<ClientOrder> getClientOrdersByName(String filter_name, String filter_status){
+        String sql =    "SELECT  client_order.id,\n" +
+                "        client.name,\n" +
+                "        client_order.type,\n" +
+                "        client_order.quantity,\n" +
+                "        client_order.price,\n" +
+                "        client_order.week_est_delivery,\n" +
+                "        client_order.delay,\n" +
+                "        client_order.status\n" +
+                "FROM client_order\n" +
+                "JOIN client on client.id = client_order.FK_client\n" +
+                "WHERE client_order.status = ? AND client.name = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, filter_status);
+            stmt.setString(2, filter_name);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<ClientOrder> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String name = sqlReturnValues.getString(2);
+                String type = sqlReturnValues.getString(3);
+                int qty = sqlReturnValues.getInt(4);
+                double price = sqlReturnValues.getDouble(5);
+                int initial_estimation = sqlReturnValues.getInt(6);
+                int current_estimation = sqlReturnValues.getInt(7) + initial_estimation;
+                String status = sqlReturnValues.getString(8);
+
+                returnValues.add(new ClientOrder(id, name, type, qty, price, initial_estimation, current_estimation, status) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public boolean updateClientOrderStatus(ClientOrder co, String new_status){
+        String sql =    "UPDATE client_order\n" +
+                        "SET    status = ?\n" +
+                        "WHERE  client_order.id = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, new_status);
+            stmt.setInt(2, co.getId());
+            stmt.execute();
+
+            ArrayList<ClientOrder> returnValues = new ArrayList<>();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
     //Supplier methods
     public boolean createSupplier(ArrayList<Supplier> new_supplier){
         //Create entry on the supplier table
@@ -405,6 +529,92 @@ public class DatabaseHandler {
                 insertStatement.setString(4, s.getName());
                 insertStatement.setString(5, s.getMaterial_type());
                 insertStatement.execute();
+            } catch (SQLException throwable) {
+                throwable.printStackTrace();
+                return false;
+            }
+
+        }
+        return true;
+    }
+    public boolean materialSupplierExists(String name, String material){
+        String sql =    "SELECT COUNT(*)\n" +
+                        "FROM supplier_material\n" +
+                        "WHERE   FK_supplier IN (SELECT supplier.id FROM supplier WHERE supplier.name = ?)\n" +
+                        "        AND\n" +
+                        "        FK_material IN (SELECT material.id FROM material WHERE material.type = ?)";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, name);
+            stmt.setString(2, material);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+            sqlReturnValues.next();
+            if( sqlReturnValues.getInt(1) > 0 ){
+                return true;
+            }
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return false;
+    }
+    public boolean updateSupplier(ArrayList<Supplier> supplier){
+
+        String sql_supp_mat =   "INSERT INTO supplier_material (min_quantity, unit_price, delivery_time, FK_supplier, FK_material)\n" +
+                                "    SELECT ?, ?, ?, supplier.id, material.id\n" +
+                                "    FROM supplier, material\n" +
+                                "    WHERE supplier.name = ? AND material.type = ?;";
+
+        String sql_update   =   "UPDATE supplier_material\n" +
+                                "SET min_quantity = ?, unit_price = ?, delivery_time = ? \n" +
+                                "WHERE   FK_supplier IN (SELECT supplier.id FROM supplier WHERE supplier.name = ?)\n" +
+                                "        AND\n" +
+                                "        FK_material IN (SELECT material.id FROM material WHERE material.type = ?)";
+
+        String sql_delete   =   "DELETE  FROM supplier_material\n" +
+                                "WHERE   FK_supplier IN (SELECT supplier.id FROM supplier WHERE supplier.name = ?)\n" +
+                                "        AND\n" +
+                                "        FK_material IN (SELECT material.id FROM material WHERE material.type = ?)";
+        String sql = "";
+
+        ArrayList<String> materials = new ArrayList<>();
+        materials.add("BlueRawMaterial");
+        materials.add("GreenRawMaterial");
+        materials.add("MetalRawMaterial");
+
+        for(String m : materials){
+            try {
+                boolean selected = false;
+                for(Supplier s : supplier){
+                    if(s.getMaterial_type().equals(m) ){
+                        //Material was selected
+                        selected = true;
+                        if( materialSupplierExists(s.getName(), s.getMaterial_type()) ){
+                            //Material exists and needs to be updated
+                            sql = sql_update;
+                        }
+                        else{
+                            //Material doesnt exist and needs to be created;
+                            sql = sql_supp_mat;
+                        }
+                        PreparedStatement insertStatement = connection.prepareStatement(sql);
+                        insertStatement.setInt(1, s.getMin_quantity());
+                        insertStatement.setDouble(2, s.getUnit_price());
+                        insertStatement.setInt(3, s.getDelivery_time());
+                        insertStatement.setString(4, s.getName());
+                        insertStatement.setString(5, s.getMaterial_type());
+                        insertStatement.execute();
+                    }
+                }
+
+                if( !selected ){
+                    //Material was not selected, needs delete
+                    PreparedStatement insertStatement = connection.prepareStatement(sql_delete);
+                    insertStatement.setString(1, supplier.get(0).getName());
+                    insertStatement.setString(2, m);
+                    insertStatement.execute();
+                }
+
+
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
                 return false;
@@ -639,17 +849,37 @@ public class DatabaseHandler {
         }
         return null;
     }
+    public boolean updateSupplierOrderStatusByClientOrder(ClientOrder co, String new_status){
+        String sql =    "UPDATE supplier_order\n" +
+                "SET status = ?\n" +
+                "WHERE id IN\n" +
+                "   (SELECT piece.fk_supplier_order\n" +
+                "   FROM piece\n" +
+                "   WHERE piece.FK_client_order = ?)";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, new_status);
+            stmt.setInt(2, co.getId());
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
     //Inbound order methods
     public int createInboundOrder(InboundOrder io, int SO_id){
         int id = -1;
         try {
             PreparedStatement insertStatement = connection.prepareStatement(
-                    "INSERT INTO inbound_order (week, FK_supplier_order)\n" +
-                            "VALUES  (?, ?)" +
+                    "INSERT INTO inbound_order (week, status, FK_supplier_order)\n" +
+                            "VALUES  (?, ?, ?)" +
                             "", Statement.RETURN_GENERATED_KEYS);
             insertStatement.setInt(1, io.getWeek());
-            insertStatement.setInt(2, SO_id);
+            insertStatement.setString(2, "waiting_confirmation");
+            insertStatement.setInt(3, SO_id);
             insertStatement.executeUpdate();
 
             ResultSet rs_id = insertStatement.getGeneratedKeys();
@@ -660,6 +890,25 @@ public class DatabaseHandler {
             return id;
         }
         return id;
+    }
+    public boolean updateInboundStatusByClientOrder(ClientOrder co, String new_status){
+        String sql =    "UPDATE inbound_order\n" +
+                        "SET status = ?\n" +
+                        "WHERE id IN\n" +
+                        "   (SELECT piece.fk_inbound_order\n" +
+                        "   FROM piece\n" +
+                        "   WHERE piece.FK_client_order = ?)";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, new_status);
+            stmt.setInt(2, co.getId());
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     //Production orders methods
@@ -687,10 +936,11 @@ public class DatabaseHandler {
         int id = -1;
         try {
             PreparedStatement insertStatement = connection.prepareStatement(
-                    "INSERT INTO production_order (week)\n" +
-                        "VALUES  (?)" +
+                    "INSERT INTO production_order (week, status)\n" +
+                        "VALUES  (?, ?)" +
                         "", Statement.RETURN_GENERATED_KEYS);
             insertStatement.setInt(1, po.getWeek());
+            insertStatement.setString(2, "waiting_confirmation");
             insertStatement.executeUpdate();
 
             ResultSet rs_id = insertStatement.getGeneratedKeys();
@@ -701,6 +951,25 @@ public class DatabaseHandler {
             return id;
         }
         return id;
+    }
+    public boolean updateProductionStatusByClientOrder(ClientOrder co, String new_status){
+        String sql =    "UPDATE production_order\n" +
+                        "SET status = ?\n" +
+                        "WHERE id IN\n" +
+                        "   (SELECT piece.fk_production_order\n" +
+                        "   FROM piece\n" +
+                        "   WHERE piece.FK_client_order = ?)";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, new_status);
+            stmt.setInt(2, co.getId());
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     //Expedition orders methods
@@ -708,11 +977,12 @@ public class DatabaseHandler {
         int id = -1;
         try {
             PreparedStatement insertStatement = connection.prepareStatement(
-                    "INSERT INTO expedition_order (week, FK_client_order)\n" +
-                            "VALUES  (?, ?)" +
+                    "INSERT INTO expedition_order (week, status, FK_client_order)\n" +
+                            "VALUES  (?, ?, ?)" +
                             "", Statement.RETURN_GENERATED_KEYS);
             insertStatement.setInt(1, eo.getWeek());
-            insertStatement.setInt(2, CO_id);
+            insertStatement.setString(2, "waiting_confirmation");
+            insertStatement.setInt(3, CO_id);
             insertStatement.executeUpdate();
 
             ResultSet rs_id = insertStatement.getGeneratedKeys();
@@ -724,33 +994,24 @@ public class DatabaseHandler {
         }
         return id;
     }
-
-    //Create client order
-    public int createClientOrder(ClientOrder co){
-        int id = -1;
+    public boolean updateExpeditionStatusByClientOrder(ClientOrder co, String new_status){
+        String sql =    "UPDATE expedition_order\n" +
+                        "SET status = ?\n" +
+                        "WHERE id IN\n" +
+                        "   (SELECT piece.fk_expedition_order\n" +
+                        "   FROM piece\n" +
+                        "   WHERE piece.FK_client_order = ?)";
         try {
-            PreparedStatement insertStatement = connection.prepareStatement(
-                    "INSERT INTO client_order (type, price, week_est_delivery, delay, status, quantity, FK_client) \n" +
-                        "    SELECT ?, ?, ?, ?, ?, ?, client.id \n" +
-                        "    FROM client \n" +
-                        "    WHERE client.name = ? ", Statement.RETURN_GENERATED_KEYS);
-            insertStatement.setString(1, co.getType());
-            insertStatement.setDouble(2, co.getPrice());
-            insertStatement.setInt(3, co.getDelivery_week());
-            insertStatement.setInt(4, 0);
-            insertStatement.setString(5, co.getStatus());
-            insertStatement.setInt(6, co.getQuantity());
-            insertStatement.setString(7, co.getClient());
-            insertStatement.executeUpdate();
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, new_status);
+            stmt.setInt(2, co.getId());
+            stmt.execute();
 
-            ResultSet rs_id = insertStatement.getGeneratedKeys();
-            rs_id.next();
-            id = rs_id.getInt(1);
         } catch (SQLException throwable) {
             throwable.printStackTrace();
-            return id;
+            return false;
         }
-        return id;
+        return true;
     }
 
     //Piece methods

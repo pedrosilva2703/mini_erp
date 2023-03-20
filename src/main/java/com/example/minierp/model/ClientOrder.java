@@ -1,6 +1,7 @@
 package com.example.minierp.model;
 
 public class ClientOrder {
+    Integer id;
     String client;
     String type;
     int quantity;
@@ -9,7 +10,8 @@ public class ClientOrder {
     int current_estimation;
     String status;
 
-    public ClientOrder(String client, String type, int quantity, double price, int delivery_week, int current_estimation, String status) {
+    public ClientOrder(Integer id, String client, String type, int quantity, double price, int delivery_week, int current_estimation, String status) {
+        this.id = id;
         this.client = client;
         this.type = type;
         this.quantity = quantity;
@@ -19,6 +21,14 @@ public class ClientOrder {
         this.status = status;
     }
 
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getClient() {
         return client;
@@ -75,5 +85,4 @@ public class ClientOrder {
     public void setStatus(String status) {
         this.status = status;
     }
-
 }

@@ -68,3 +68,42 @@ SELECT  supplier.name,
         supplier_order.status
 FROM supplier_order
 JOIN supplier ON supplier.id = supplier_order.FK_supplier
+
+
+
+UPDATE supplier_material
+SET min_quantity = ?, unit_price = ?, delivery_time = ?
+WHERE   FK_supplier IN (SELECT supplier.id FROM supplier WHERE supplier.name = ?)
+        AND
+        FK_material IN (SELECT material.id FROM material WHERE material.type = ?)
+
+SELECT COUNT(*)
+FROM supplier_material
+WHERE   FK_supplier IN (SELECT supplier.id FROM supplier WHERE supplier.name = ?)
+        AND
+        FK_material IN (SELECT material.id FROM material WHERE material.type = ?)
+
+
+SELECT  client_order.id,
+        client.name,
+        client_order.type,
+        client_order.quantity,
+        client_order.price,
+        client_order.week_est_delivery,
+        client_order.delay,
+        client_order.status
+FROM client_order
+JOIN client on client.id = client_order.FK_client
+WHERE client_order.status = ?
+
+UPDATE client_order
+SET status = ?
+WHERE client_order.id = ?
+
+
+UPDATE inbound_order
+SET status = ?
+WHERE id IN
+(SELECT piece.fk_inbound_order
+FROM piece
+WHERE piece.FK_client_order = 1)

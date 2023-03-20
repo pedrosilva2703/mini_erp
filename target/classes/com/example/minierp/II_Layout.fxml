@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.minierp.controllers.LayoutController">
+<BorderPane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.minierp.controllers.II_LayoutController">
    <left>
       <VBox prefHeight="520.0" prefWidth="260.0" styleClass="menu" BorderPane.alignment="CENTER">
          <children>
@@ -17,13 +17,14 @@
             </Pane>
             <Pane prefHeight="79.0" prefWidth="242.0" />
             <Button fx:id="scheduleButton" mnemonicParsing="false" onMouseClicked="#onScheduleButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Schedule" />
+            <Button fx:id="pendingButton" mnemonicParsing="false" onMouseClicked="#onPendingButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Pending" />
+            <Pane prefHeight="62.0" prefWidth="260.0" />
             <Button fx:id="clientOrdersButton" mnemonicParsing="false" onMouseClicked="#onClientOrdersButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Client Orders" />
             <Button fx:id="supplierOrdersButton" mnemonicParsing="false" onMouseClicked="#onSupplierOrdersButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Supplier Orders" />
-            <Pane prefHeight="79.0" prefWidth="242.0" />
+            <Pane prefHeight="62.0" prefWidth="242.0" />
             <Button fx:id="clientsButton" mnemonicParsing="false" onMouseClicked="#onClientsButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Add Client" />
             <Button fx:id="suppliersButton" mnemonicParsing="false" onMouseClicked="#onSuppliersButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Add Supplier" />
-            <Pane prefHeight="79.0" prefWidth="260.0" />
-            <Pane prefHeight="79.0" prefWidth="260.0" />
+            <Pane prefHeight="62.0" prefWidth="260.0" />
             <Button fx:id="backButton" mnemonicParsing="false" onMouseClicked="#onBackButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-back-button" text="← Main Menu" />
          </children></VBox>
    </left>

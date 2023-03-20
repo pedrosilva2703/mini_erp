@@ -116,7 +116,7 @@ public class CI_NewOrderController implements Initializable {
         double final_price = s.getUnit_price() * quantity; //adicionar custos aqui eventualmente !!!!
 
         //*** Create client order with pending_internal status ***//
-        ClientOrder CO = new ClientOrder(client_name, type, quantity, final_price, expedition_week, expedition_week, "pending_internal");
+        ClientOrder CO = new ClientOrder(null, client_name, type, quantity, final_price, expedition_week, expedition_week, "pending_internal");
         int CO_id = dbHandler.createClientOrder(CO);
 
         //*** Create expedition order ***//

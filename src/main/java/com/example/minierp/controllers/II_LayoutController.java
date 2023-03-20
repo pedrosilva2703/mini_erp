@@ -13,11 +13,12 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class LayoutController {
+public class II_LayoutController {
     @FXML
     private BorderPane mainPane;
 
     @FXML private Button scheduleButton;
+    @FXML private Button pendingButton;
     @FXML private Button clientsButton;
     @FXML private Button clientOrdersButton;
     @FXML private Button suppliersButton;
@@ -30,23 +31,28 @@ public class LayoutController {
         refreshButtonStates(scheduleButton);
     }
     @FXML
+    private void onPendingButtonClick(){
+        loadPage("II_PendingConfirmation");
+        refreshButtonStates(pendingButton);
+    }
+    @FXML
     private void onClientsButtonClick(){
-        loadPage("Clients");
+        loadPage("II_Clients");
         refreshButtonStates(clientsButton);
     }
     @FXML
     private void onClientOrdersButtonClick(){
-        loadPage("ClientOrders");
+        loadPage("II_ClientOrders");
         refreshButtonStates(clientOrdersButton);
     }
     @FXML
     private void onSuppliersButtonClick(){
-        loadPage("Suppliers");
+        loadPage("II_Suppliers");
         refreshButtonStates(suppliersButton);
     }
     @FXML
     private void onSupplierOrdersButtonClick(){
-        loadPage("SupplierOrders");
+        loadPage("II_SupplierOrders");
         refreshButtonStates(supplierOrdersButton);
     }
     @FXML
@@ -72,6 +78,7 @@ public class LayoutController {
     private void refreshButtonStates(Button clickedButton){
         // Unselect all buttons
         unselectButton(scheduleButton);
+        unselectButton(pendingButton);
         unselectButton(clientsButton);
         unselectButton(clientOrdersButton);
         unselectButton(suppliersButton);
