@@ -5,13 +5,13 @@ public class Piece {
     String type;
     String status;
     String final_type;
-    int week_arrived;
-    int week_produced;
-    float duration_production;
+    Integer week_arrived;
+    Integer week_produced;
+    Float duration_production;
     boolean safety_stock;
-    int wh_pos;
+    Integer wh_pos;
 
-    public Piece(Integer id, String type, String status, String final_type, int week_arrived, int week_produced, float duration_production, boolean safety_stock, int wh_pos) {
+    public Piece(Integer id, String type, String status, String final_type, Integer week_arrived, Integer week_produced, Float duration_production, boolean safety_stock, Integer wh_pos) {
         this.id = id;
         this.type = type;
         this.status = status;
@@ -71,11 +71,11 @@ public class Piece {
         this.week_produced = week_produced;
     }
 
-    public float getDuration_production() {
+    public Float getDuration_production() {
         return duration_production;
     }
 
-    public void setDuration_production(float duration_production) {
+    public void setDuration_production(Float duration_production) {
         this.duration_production = duration_production;
     }
 

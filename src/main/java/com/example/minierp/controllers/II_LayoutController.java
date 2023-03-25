@@ -28,6 +28,7 @@ public class II_LayoutController {
 
     @FXML
     private void onScheduleButtonClick(){
+        loadPage("II_Schedule");
         refreshButtonStates(scheduleButton);
     }
     @FXML

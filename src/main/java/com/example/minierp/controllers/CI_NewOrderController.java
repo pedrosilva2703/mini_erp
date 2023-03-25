@@ -9,6 +9,7 @@ import com.example.minierp.utils.Verifier;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 
@@ -29,6 +30,9 @@ public class CI_NewOrderController implements Initializable {
     @FXML private Text textLid;
     @FXML private Text textBase;
 
+    @FXML private RadioButton earlierRadio;
+    @FXML private RadioButton cheaperRadio;
+
     @FXML void onTypeSelected(){
         updateComboVisibility();
     }
@@ -48,9 +52,18 @@ public class CI_NewOrderController implements Initializable {
 
         int quantity = Integer.parseInt(tf_qty.getText());
         if(quantity<1){
-            Alerts.showError("THe quantity needs to be higher than 0");
+            Alerts.showError("The quantity needs to be higher than 0");
             return;
         }
+
+        if(!earlierRadio.isSelected() && !cheaperRadio.isSelected() ){
+            Alerts.showError("Please select preference");
+            return;
+        }
+
+        String preference = "";
+        if(earlierRadio.isSelected()) preference = "earlier";
+        if(cheaperRadio.isSelected()) preference = "cheaper";
 
         // TO DO: create order
 
@@ -63,7 +76,7 @@ public class CI_NewOrderController implements Initializable {
 
         //*** Choose supplier from type ***//
         String raw_type = Materials.getRawType(type);
-        ArrayList<Supplier> supplierList = dbHandler.getSuppliersByTypeAndQty(raw_type, quantity);
+        ArrayList<Supplier> supplierList = dbHandler.getSuppliersByTypeAndQty(raw_type, quantity, preference);
         if( supplierList.size() == 0){
             Alerts.showError("There are still no suppliers for this type of product");
             return;
@@ -73,17 +86,18 @@ public class CI_NewOrderController implements Initializable {
         //*** Create pieces array ***//
         ArrayList<Piece> pieces = new ArrayList<>();
         for(int i=0; i<quantity; i++){
-            pieces.add(new Piece(null, raw_type, "ordered", type, 0, 0, 0, false, 0) );
+            pieces.add(new Piece(null, raw_type, "ordered", type, null, null, null, false, null) );
         }
 
         //*** Calculate when materials arrive ***//
         int arriving_week = factory.getCurrent_week() + s.getDelivery_time();
 
         //*** Create supplier order ***//
+        SupplierOrder SO = new SupplierOrder(null, s.getName(), s.getMaterial_type(), quantity, s.getUnit_price(), arriving_week, 0, "waiting_confirmation");
         int SO_id = dbHandler.createSupplierOrder(s, quantity, arriving_week);
 
         //*** Create inbound order ***//
-        InboundOrder io = new InboundOrder(null, arriving_week, pieces, null);
+        InboundOrder io = new InboundOrder(null, arriving_week, "waiting_confirmation", pieces, SO);
         int IO_id = dbHandler.createInboundOrder(io, SO_id);
 
         //*** Calculates when production can start ***//
@@ -100,12 +114,15 @@ public class CI_NewOrderController implements Initializable {
                 continue;
             }
 
-            ProductionOrder currPO = new ProductionOrder(null, production_week);
+
+            ArrayList<Piece> po_pieces = new ArrayList<>();
             for(int i=0; i<week_available_capacity; i++){
                 if(pieces_scheduled == quantity) break;
-                currPO.addPiece( pieces.get(pieces_scheduled) );
+                po_pieces.add( pieces.get(pieces_scheduled) );
                 pieces_scheduled++;
             }
+            ProductionOrder currPO = new ProductionOrder(null, production_week, "waiting_confirmation", raw_type, type, po_pieces);
+
             POrdersList.add(currPO);
 
             production_week++;
@@ -120,10 +137,8 @@ public class CI_NewOrderController implements Initializable {
         int CO_id = dbHandler.createClientOrder(CO);
 
         //*** Create expedition order ***//
-        ExpeditionOrder eo = new ExpeditionOrder(null, expedition_week, pieces, null);
+        ExpeditionOrder eo = new ExpeditionOrder(null, expedition_week, "waiting_confirmation", pieces, CO);
         int EO_id = dbHandler.createExpeditionOrder(eo, SO_id);
-
-
 
 
         //*** Create piece data in DataBase ***//

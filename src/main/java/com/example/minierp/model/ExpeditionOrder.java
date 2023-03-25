@@ -5,14 +5,23 @@ import java.util.ArrayList;
 public class ExpeditionOrder {
     Integer id;
     int week;
+    int quantity;
+    String client;
+    String status;
+    String type;
     ArrayList<Piece> pieces;
     ClientOrder co;
 
-    public ExpeditionOrder(Integer id, int week, ArrayList<Piece> pieces, ClientOrder co) {
+    public ExpeditionOrder(Integer id, int week, String status, ArrayList<Piece> pieces, ClientOrder co) {
         this.id = id;
         this.week = week;
         this.pieces = pieces;
         this.co = co;
+        this.status = status;
+
+        this.client = co.getClient();
+        this.quantity = pieces.size();
+        this.type = co.getType();
     }
 
     public Integer getId() {
@@ -43,4 +52,19 @@ public class ExpeditionOrder {
         this.pieces.add(p);
     }
 
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public String getClient() {
+        return client;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getType() {
+        return type;
+    }
 }

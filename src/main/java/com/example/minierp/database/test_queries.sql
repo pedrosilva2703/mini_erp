@@ -107,3 +107,31 @@ WHERE id IN
 (SELECT piece.fk_inbound_order
 FROM piece
 WHERE piece.FK_client_order = 1)
+
+
+/* perguntar esta */
+SELECT COUNT(*)
+FROM supplier_order
+WHERE   FK_supplier IN (SELECT supplier.id FROM supplier WHERE supplier.name = ?)
+        AND
+        (status = 'waiting_confirmation' OR status = 'ordered')
+
+
+SELECT  id,
+        type,
+        status,
+        final_type,
+        week_arrived,
+        week_produced,
+        duration_production,
+        safety_stock,
+        wh_pos
+FROM piece
+WHERE FK_inbound_order = ?
+
+
+SELECT  id,
+        week,
+        status,
+        FK_supplier_order
+FROM inbound_order
