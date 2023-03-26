@@ -184,10 +184,10 @@ public class DatabaseHandler {
                 "    wh_pos              INT,\n" +
                 "\n" +
                 "    FK_supplier_order   INT NOT NULL,\n" +
-                "    FK_client_order     INT NOT NULL,\n" +
+                "    FK_client_order     INT,\n" +
                 "    FK_inbound_order    INT NOT NULL,\n" +
-                "    FK_production_order INT NOT NULL,\n" +
-                "    FK_expedition_order INT NOT NULL,\n" +
+                "    FK_production_order INT,\n" +
+                "    FK_expedition_order INT,\n" +
                 "\n" +
                 "    CONSTRAINT PK_piece PRIMARY KEY (id)\n" +
                 ");\n" +
@@ -727,7 +727,7 @@ public class DatabaseHandler {
         }
         return null;
     }
-    public ArrayList<Supplier> getSuppliersByTypeAndQty(String filter_type, int filter_qty, String preference) {
+    public ArrayList<Supplier> getSuppliersByExactQty(String filter_type, int filter_qty, String preference) {
         String sql =    "SELECT  supplier.id,\n" +
                         "        supplier.name,\n" +
                         "        material.type,\n" +
@@ -742,6 +742,46 @@ public class DatabaseHandler {
 
         if(preference.equals("cheaper") ) sql = sql + "ORDER BY supplier_material.unit_price ASC";
         if(preference.equals("earlier") ) sql = sql + "ORDER BY supplier_material.delivery_time ASC";
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, filter_type);
+            stmt.setInt(2, filter_qty);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<Supplier> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String name = sqlReturnValues.getString(2);
+                String type = sqlReturnValues.getString(3);
+                double price = sqlReturnValues.getDouble(4);
+                int min_qty = sqlReturnValues.getInt(5);
+                int delivery_time = sqlReturnValues.getInt(6);
+
+                returnValues.add(new Supplier(id,name,type,price, min_qty, delivery_time) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public ArrayList<Supplier> getSuppliersByExcessQty(String filter_type, int filter_qty, String preference) {
+        String sql =    "SELECT  supplier.id,\n" +
+                "        supplier.name,\n" +
+                "        material.type,\n" +
+                "        supplier_material.unit_price,\n" +
+                "        supplier_material.min_quantity,\n" +
+                "        supplier_material.delivery_time\n" +
+                "FROM supplier_material\n" +
+                "JOIN supplier on supplier.id = supplier_material.FK_supplier\n" +
+                "JOIN material on material.id = supplier_material.FK_material\n" +
+                "WHERE material.type= ? AND supplier_material.min_quantity >= ?\n" +
+                "\n";
+
+        if(preference.equals("cheaper") ) sql = sql + "ORDER BY supplier_material.min_quantity ASC, supplier_material.unit_price ASC";
+        if(preference.equals("earlier") ) sql = sql + "ORDER BY supplier_material.min_quantity ASC, supplier_material.delivery_time ASC";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
@@ -1183,10 +1223,17 @@ public class DatabaseHandler {
             insertStatement.setString(2, p.getStatus());
             insertStatement.setString(3, p.getFinal_type());
             insertStatement.setInt(4, SO_id);
-            insertStatement.setInt(5, CO_id);
+
+            if(CO_id != -1) insertStatement.setInt(5, CO_id);
+            else            insertStatement.setNull(5, java.sql.Types.INTEGER);
+
             insertStatement.setInt(6, IO_id);
-            insertStatement.setInt(7, PO_id);
-            insertStatement.setInt(8, EO_id);
+
+            if(PO_id != -1) insertStatement.setInt(7, PO_id);
+            else            insertStatement.setNull(7, java.sql.Types.INTEGER);
+
+            if(EO_id != -1) insertStatement.setInt(8, EO_id);
+            else            insertStatement.setNull(8, java.sql.Types.INTEGER);
 
             insertStatement.execute();
         } catch (SQLException throwable) {

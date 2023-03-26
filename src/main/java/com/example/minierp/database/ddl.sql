@@ -72,10 +72,10 @@ CREATE TABLE piece (
     wh_pos              INT,
 
     FK_supplier_order   INT NOT NULL,
-    FK_client_order     INT NOT NULL,
+    FK_client_order     INT,
     FK_inbound_order    INT NOT NULL,
-    FK_production_order INT NOT NULL,
-    FK_expedition_order INT NOT NULL,
+    FK_production_order INT,
+    FK_expedition_order INT,
 
     CONSTRAINT PK_piece PRIMARY KEY (id)
 );

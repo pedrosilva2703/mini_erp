@@ -50,9 +50,9 @@ public class CI_NewOrderController implements Initializable {
             return;
         }
 
-        int quantity = Integer.parseInt(tf_qty.getText());
-        if(quantity<1){
-            Alerts.showError("The quantity needs to be higher than 0");
+        int desired_quantity = Integer.parseInt(tf_qty.getText());
+        if(desired_quantity<1){
+            Alerts.showError("The desired_quantity needs to be higher than 0");
             return;
         }
 
@@ -76,28 +76,62 @@ public class CI_NewOrderController implements Initializable {
 
         //*** Choose supplier from type ***//
         String raw_type = Materials.getRawType(type);
-        ArrayList<Supplier> supplierList = dbHandler.getSuppliersByTypeAndQty(raw_type, quantity, preference);
-        if( supplierList.size() == 0){
-            Alerts.showError("There are still no suppliers for this type of product");
-            return;
+        ArrayList<Supplier> supplierList = dbHandler.getSuppliersByExactQty(raw_type, desired_quantity, preference);
+        if(supplierList.size() == 0){
+            //If there is no way to order the exact desired_quantity, we need to order some extra pieces to fill the minimum desired_quantity
+            supplierList = dbHandler.getSuppliersByExcessQty(raw_type, desired_quantity, preference);
+
+            if(supplierList.size() == 0){
+                Alerts.showError("There are still no suppliers for this type of product");
+                return;
+            }
         }
+
         Supplier s = supplierList.get(0);
+        int ordered_quantity;
+        if( s.getMin_quantity() > desired_quantity) ordered_quantity = s.getMin_quantity();
+        else ordered_quantity = desired_quantity;
 
         //*** Create pieces array ***//
-        ArrayList<Piece> pieces = new ArrayList<>();
-        for(int i=0; i<quantity; i++){
-            pieces.add(new Piece(null, raw_type, "ordered", type, null, null, null, false, null) );
+        ArrayList<Piece> pieces_desired = new ArrayList<>();
+        ArrayList<Piece> pieces_extra = new ArrayList<>();
+        ArrayList<Piece> pieces_ordered = new ArrayList<>();
+        for(int i=0; i<ordered_quantity; i++){
+            if(i<desired_quantity){
+                pieces_desired.add(new Piece(null,
+                                                raw_type,
+                                            "waiting_confirmation",
+                                                type,
+                                            null,
+                                            null,
+                                            null,
+                                            false,
+                                            null) );
+            }
+            else{
+                pieces_extra.add(new Piece(null,
+                        raw_type,
+                        "waiting_confirmation",
+                        type,
+                        null,
+                        null,
+                        null,
+                        true,
+                        null) );
+            }
         }
+        pieces_ordered.addAll(pieces_desired);
+        pieces_ordered.addAll(pieces_extra);
 
         //*** Calculate when materials arrive ***//
         int arriving_week = factory.getCurrent_week() + s.getDelivery_time();
 
         //*** Create supplier order ***//
-        SupplierOrder SO = new SupplierOrder(null, s.getName(), s.getMaterial_type(), quantity, s.getUnit_price(), arriving_week, 0, "waiting_confirmation");
-        int SO_id = dbHandler.createSupplierOrder(s, quantity, arriving_week);
+        SupplierOrder SO = new SupplierOrder(null, s.getName(), s.getMaterial_type(), ordered_quantity, s.getUnit_price(), arriving_week, 0, "waiting_confirmation");
+        int SO_id = dbHandler.createSupplierOrder(s, ordered_quantity, arriving_week);
 
         //*** Create inbound order ***//
-        InboundOrder io = new InboundOrder(null, arriving_week, "waiting_confirmation", pieces, SO);
+        InboundOrder io = new InboundOrder(null, arriving_week, "waiting_confirmation", pieces_ordered, SO);
         int IO_id = dbHandler.createInboundOrder(io, SO_id);
 
         //*** Calculates when production can start ***//
@@ -106,7 +140,7 @@ public class CI_NewOrderController implements Initializable {
         //*** Schedule production starting from that week ***//
         ArrayList<ProductionOrder> POrdersList = new ArrayList<>();
         int pieces_scheduled = 0;
-        while(pieces_scheduled != quantity ){
+        while(pieces_scheduled != desired_quantity ){
             int week_available_capacity = factory.getWeekly_production() - dbHandler.getProductionCountByWeek(production_week);
 
             if(week_available_capacity == 0){
@@ -117,8 +151,8 @@ public class CI_NewOrderController implements Initializable {
 
             ArrayList<Piece> po_pieces = new ArrayList<>();
             for(int i=0; i<week_available_capacity; i++){
-                if(pieces_scheduled == quantity) break;
-                po_pieces.add( pieces.get(pieces_scheduled) );
+                if(pieces_scheduled == desired_quantity) break;
+                po_pieces.add( pieces_desired.get(pieces_scheduled) );
                 pieces_scheduled++;
             }
             ProductionOrder currPO = new ProductionOrder(null, production_week, "waiting_confirmation", raw_type, type, po_pieces);
@@ -130,14 +164,14 @@ public class CI_NewOrderController implements Initializable {
 
         //*** Calculate expedition and price ***//
         int expedition_week = production_week+1;
-        double final_price = s.getUnit_price() * quantity; //adicionar custos aqui eventualmente !!!!
+        double final_price = s.getUnit_price() * desired_quantity; //adicionar custos aqui eventualmente !!!!
 
         //*** Create client order with pending_internal status ***//
-        ClientOrder CO = new ClientOrder(null, client_name, type, quantity, final_price, expedition_week, expedition_week, "pending_internal");
+        ClientOrder CO = new ClientOrder(null, client_name, type, desired_quantity, final_price, expedition_week, expedition_week, "pending_internal");
         int CO_id = dbHandler.createClientOrder(CO);
 
         //*** Create expedition order ***//
-        ExpeditionOrder eo = new ExpeditionOrder(null, expedition_week, "waiting_confirmation", pieces, CO);
+        ExpeditionOrder eo = new ExpeditionOrder(null, expedition_week, "waiting_confirmation", pieces_desired, CO);
         int EO_id = dbHandler.createExpeditionOrder(eo, SO_id);
 
 
@@ -147,6 +181,9 @@ public class CI_NewOrderController implements Initializable {
             for(Piece p : po.getPieces() ){
                 dbHandler.createPiece(p, SO_id, CO_id, IO_id, PO_id, EO_id);
             }
+        }
+        for(Piece p : pieces_extra){
+            dbHandler.createPiece(p, SO_id, -1, IO_id, -1, -1);
         }
 
 
