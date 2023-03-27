@@ -66,81 +66,29 @@ public class CI_NewOrderController implements Initializable {
         if(cheaperRadio.isSelected()) preference = "cheaper";
 
         // TO DO: create order
-
-        //verify if has free pieces from that type in wh
-        //verify if has free pieces from that type arriving
-
-
-        // DONE
-        //***** FROM SUPPLIER *****//
-
-        //*** Choose supplier from type ***//
         String raw_type = Materials.getRawType(type);
-        ArrayList<Supplier> supplierList = dbHandler.getSuppliersByExactQty(raw_type, desired_quantity, preference);
-        if(supplierList.size() == 0){
-            //If there is no way to order the exact desired_quantity, we need to order some extra pieces to fill the minimum desired_quantity
-            supplierList = dbHandler.getSuppliersByExcessQty(raw_type, desired_quantity, preference);
+        double final_price = 0;
+        ArrayList<Piece> CO_all_pieces = new ArrayList<>();
 
-            if(supplierList.size() == 0){
-                Alerts.showError("There are still no suppliers for this type of product");
-                return;
-            }
+
+
+        //***** Allocate free RAW pieces in WH *****//
+
+        //Retrieve available pieces in WH
+        ArrayList<Piece> rawpieces_in_wh_allocated = new ArrayList<>();
+        ArrayList<Piece> rawpieces_in_wh_free = dbHandler.getAvailablePiecesInWH(raw_type);
+        //Allocate necessary pieces in WH and gets their costs
+        for(Piece p : rawpieces_in_wh_free){
+            if(rawpieces_in_wh_allocated.size()==desired_quantity ) break;
+            final_price += dbHandler.getPieceCost(p);
+            rawpieces_in_wh_allocated.add(p);
         }
 
-        Supplier s = supplierList.get(0);
-        int ordered_quantity;
-        if( s.getMin_quantity() > desired_quantity) ordered_quantity = s.getMin_quantity();
-        else ordered_quantity = desired_quantity;
-
-        //*** Create pieces array ***//
-        ArrayList<Piece> pieces_desired = new ArrayList<>();
-        ArrayList<Piece> pieces_extra = new ArrayList<>();
-        ArrayList<Piece> pieces_ordered = new ArrayList<>();
-        for(int i=0; i<ordered_quantity; i++){
-            if(i<desired_quantity){
-                pieces_desired.add(new Piece(null,
-                                                raw_type,
-                                            "waiting_confirmation",
-                                                type,
-                                            null,
-                                            null,
-                                            null,
-                                            false,
-                                            null) );
-            }
-            else{
-                pieces_extra.add(new Piece(null,
-                        raw_type,
-                        "waiting_confirmation",
-                        type,
-                        null,
-                        null,
-                        null,
-                        true,
-                        null) );
-            }
-        }
-        pieces_ordered.addAll(pieces_desired);
-        pieces_ordered.addAll(pieces_extra);
-
-        //*** Calculate when materials arrive ***//
-        int arriving_week = factory.getCurrent_week() + s.getDelivery_time();
-
-        //*** Create supplier order ***//
-        SupplierOrder SO = new SupplierOrder(null, s.getName(), s.getMaterial_type(), ordered_quantity, s.getUnit_price(), arriving_week, 0, "waiting_confirmation");
-        int SO_id = dbHandler.createSupplierOrder(s, ordered_quantity, arriving_week);
-
-        //*** Create inbound order ***//
-        InboundOrder io = new InboundOrder(null, arriving_week, "waiting_confirmation", pieces_ordered, SO);
-        int IO_id = dbHandler.createInboundOrder(io, SO_id);
-
-        //*** Calculates when production can start ***//
-        int production_week = arriving_week + 1;
-
-        //*** Schedule production starting from that week ***//
-        ArrayList<ProductionOrder> POrdersList = new ArrayList<>();
+        //Schedule the production of the pieces already in WH
+        ArrayList<ProductionOrder> POrdersList_WH_pieces = new ArrayList<>();
         int pieces_scheduled = 0;
-        while(pieces_scheduled != desired_quantity ){
+        int production_week = factory.getCurrent_week() + 1;
+        while(pieces_scheduled != rawpieces_in_wh_allocated.size() ){
             int week_available_capacity = factory.getWeekly_production() - dbHandler.getProductionCountByWeek(production_week);
 
             if(week_available_capacity == 0){
@@ -148,50 +96,188 @@ public class CI_NewOrderController implements Initializable {
                 continue;
             }
 
-
             ArrayList<Piece> po_pieces = new ArrayList<>();
             for(int i=0; i<week_available_capacity; i++){
                 if(pieces_scheduled == desired_quantity) break;
-                po_pieces.add( pieces_desired.get(pieces_scheduled) );
+                po_pieces.add( rawpieces_in_wh_allocated.get(pieces_scheduled) );
                 pieces_scheduled++;
             }
             ProductionOrder currPO = new ProductionOrder(null, production_week, "waiting_confirmation", raw_type, type, po_pieces);
 
-            POrdersList.add(currPO);
+            POrdersList_WH_pieces.add(currPO);
 
             production_week++;
         }
-
-        //*** Calculate expedition and price ***//
-        int expedition_week = production_week+1;
-        double final_price = s.getUnit_price() * desired_quantity; //adicionar custos aqui eventualmente !!!!
-
-        //*** Create client order with pending_internal status ***//
-        ClientOrder CO = new ClientOrder(null, client_name, type, desired_quantity, final_price, expedition_week, expedition_week, "pending_internal");
-        int CO_id = dbHandler.createClientOrder(CO);
-
-        //*** Create expedition order ***//
-        ExpeditionOrder eo = new ExpeditionOrder(null, expedition_week, "waiting_confirmation", pieces_desired, CO);
-        int EO_id = dbHandler.createExpeditionOrder(eo, SO_id);
+        CO_all_pieces.addAll(rawpieces_in_wh_allocated);
 
 
-        //*** Create piece data in DataBase ***//
-        for(ProductionOrder po : POrdersList){
+        //*** Update the pieces status ***//
+        for(ProductionOrder po : POrdersList_WH_pieces){
             int PO_id = dbHandler.createProductionOrder(po);
             for(Piece p : po.getPieces() ){
-                dbHandler.createPiece(p, SO_id, CO_id, IO_id, PO_id, EO_id);
+                dbHandler.updatePiecePO(p, PO_id);
             }
         }
-        for(Piece p : pieces_extra){
-            dbHandler.createPiece(p, SO_id, -1, IO_id, -1, -1);
+
+        //verify if has free pieces from that type arriving WIP
+
+
+
+        int quantity_in_need = desired_quantity - CO_all_pieces.size();
+        if(quantity_in_need!=0){
+            //***** FROM SUPPLIER *****//
+            //*** Choose supplier from type ***//
+            ArrayList<Supplier> supplierList = dbHandler.getSuppliersByExactQty(raw_type, quantity_in_need, preference);
+            if(supplierList.size() == 0){
+                //If there is no way to order the exact quantity_in_need, we need to order some extra pieces to fill the minimum quantity_in_need
+                supplierList = dbHandler.getSuppliersByExcessQty(raw_type, quantity_in_need, preference);
+
+                if(supplierList.size() == 0){
+                    Alerts.showError("There are still no suppliers for this type of product");
+                    return;
+                }
+            }
+
+            Supplier s = supplierList.get(0);
+            int ordered_quantity;
+            if( s.getMin_quantity() > quantity_in_need) ordered_quantity = s.getMin_quantity();
+            else ordered_quantity = quantity_in_need;
+
+            //*** Create pieces array ***//
+            ArrayList<Piece> pieces_desired = new ArrayList<>();
+            ArrayList<Piece> pieces_extra = new ArrayList<>();
+            ArrayList<Piece> pieces_ordered = new ArrayList<>();
+            for(int i=0; i<ordered_quantity; i++){
+                if(i<quantity_in_need){
+                    pieces_desired.add(new Piece(null,
+                            raw_type,
+                            "waiting_confirmation",
+                            type,
+                            null,
+                            null,
+                            null,
+                            false,
+                            null) );
+                }
+                else{
+                    pieces_extra.add(new Piece(null,
+                            raw_type,
+                            "waiting_confirmation",
+                            type,
+                            null,
+                            null,
+                            null,
+                            true,
+                            null) );
+                }
+            }
+            pieces_ordered.addAll(pieces_desired);
+            pieces_ordered.addAll(pieces_extra);
+
+            //*** Calculate when materials arrive ***//
+            int arriving_week = factory.getCurrent_week() + s.getDelivery_time();
+
+            //*** Create supplier order ***//
+            SupplierOrder SO = new SupplierOrder(null, s.getName(), s.getMaterial_type(), ordered_quantity, s.getUnit_price(), arriving_week, 0, "waiting_confirmation");
+            int SO_id = dbHandler.createSupplierOrder(s, ordered_quantity, arriving_week);
+
+            //*** Create inbound order ***//
+            InboundOrder io = new InboundOrder(null, arriving_week, "waiting_confirmation", pieces_ordered, SO);
+            int IO_id = dbHandler.createInboundOrder(io, SO_id);
+
+            //*** Calculates when production can start ***//
+            production_week = arriving_week + 1;
+
+            //*** Schedule production starting from that week ***//
+            ArrayList<ProductionOrder> POrdersList = new ArrayList<>();
+            pieces_scheduled = 0;
+            while(pieces_scheduled != quantity_in_need ){
+                int week_available_capacity = factory.getWeekly_production() - dbHandler.getProductionCountByWeek(production_week);
+
+                if(week_available_capacity == 0){
+                    production_week++;
+                    continue;
+                }
+
+
+                ArrayList<Piece> po_pieces = new ArrayList<>();
+                for(int i=0; i<week_available_capacity; i++){
+                    if(pieces_scheduled == quantity_in_need) break;
+                    po_pieces.add( pieces_desired.get(pieces_scheduled) );
+                    pieces_scheduled++;
+                }
+                ProductionOrder currPO = new ProductionOrder(null, production_week, "waiting_confirmation", raw_type, type, po_pieces);
+
+                POrdersList.add(currPO);
+
+                production_week++;
+            }
+
+            //Update final_price with the new order
+            final_price += s.getUnit_price() * quantity_in_need; //adicionar custos aqui eventualmente !!!!
+
+            //*** Calculate expedition and price ***//
+            int expedition_week = production_week+1;
+
+            //*** Create client order with pending_internal status ***//
+            ClientOrder CO = new ClientOrder(null, client_name, type, desired_quantity, final_price, expedition_week, expedition_week, "pending_internal");
+            int CO_id = dbHandler.createClientOrder(CO);
+
+            //*** Create expedition order ***//
+            ExpeditionOrder eo = new ExpeditionOrder(null, expedition_week, "waiting_confirmation", pieces_desired, CO);
+            int EO_id = dbHandler.createExpeditionOrder(eo, CO_id);
+
+
+            //*** Create piece data in DataBase ***//
+            for(ProductionOrder po : POrdersList){
+                int PO_id = dbHandler.createProductionOrder(po);
+                for(Piece p : po.getPieces() ){
+                    dbHandler.createPiece(p, SO_id, CO_id, IO_id, PO_id, EO_id);
+                }
+            }
+            for(Piece p : pieces_extra){
+                dbHandler.createPiece(p, SO_id, -1, IO_id, -1, -1);
+            }
+
+            //Update CO and EO from the pieces in wh
+            for(ProductionOrder po : POrdersList_WH_pieces){
+                for(Piece p : po.getPieces() ){
+                    dbHandler.updatePieceCO(p, CO_id);
+                    dbHandler.updatePieceEO(p, EO_id);
+                }
+            }
+
+        }
+        else{
+            //If there is no need for supplier ordering:
+
+            //*** Calculate expedition and price ***//
+            int expedition_week = production_week+1;
+
+            //*** Create client order with pending_internal status ***//
+            ClientOrder CO = new ClientOrder(null, client_name, type, desired_quantity, final_price, expedition_week, expedition_week, "pending_internal");
+            int CO_id = dbHandler.createClientOrder(CO);
+
+            //*** Create expedition order ***//
+            ExpeditionOrder eo = new ExpeditionOrder(null, expedition_week, "waiting_confirmation", CO_all_pieces, CO);
+            int EO_id = dbHandler.createExpeditionOrder(eo, CO_id);
+
+            //Update CO and EO from the pieces in wh
+            for(ProductionOrder po : POrdersList_WH_pieces){
+                for(Piece p : po.getPieces() ){
+                    dbHandler.updatePieceCO(p, CO_id);
+                    dbHandler.updatePieceEO(p, EO_id);
+                }
+            }
         }
 
 
 
-        //just print
-        for(ProductionOrder po : POrdersList){
-            System.out.println("Semana: " + po.getWeek() + "   Produz: " + po.getPieces().size() );
-        }
+
+
+
+
+
 
     }
 

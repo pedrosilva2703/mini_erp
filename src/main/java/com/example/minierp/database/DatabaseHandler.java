@@ -1242,6 +1242,92 @@ public class DatabaseHandler {
         }
         return true;
     }
+    public boolean updatePiece(Piece p, int CO_id, int PO_id, int EO_id){
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                            "UPDATE piece\n" +
+                                "SET final_type = ?, FK_client_order = ?, FK_production_order = ?, FK_expedition_order = ?\n" +
+                                "WHERE id = ? ;");
+
+            insertStatement.setString(1, p.getFinal_type());
+
+            if(CO_id == -1)      insertStatement.setNull(2, java.sql.Types.INTEGER);
+            else                 insertStatement.setInt(2, CO_id);
+
+            if(PO_id == -1)      insertStatement.setNull(3, java.sql.Types.INTEGER);
+            else                 insertStatement.setInt(3, PO_id);
+
+            if(EO_id == -1)      insertStatement.setNull(4, java.sql.Types.INTEGER);
+            else                 insertStatement.setInt(4, EO_id);
+
+            insertStatement.setInt(5, p.getId() );
+
+            insertStatement.executeUpdate();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    public boolean updatePiecePO(Piece p, int PO_id){
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "UPDATE piece\n" +
+                            "SET final_type = ?, FK_production_order = ?\n" +
+                            "WHERE id = ? ;");
+
+            insertStatement.setString(1, p.getFinal_type());
+
+            if(PO_id == -1)      insertStatement.setNull(2, java.sql.Types.INTEGER);
+            else                 insertStatement.setInt(2, PO_id);
+
+            insertStatement.setInt(3, p.getId() );
+
+            insertStatement.executeUpdate();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    public boolean updatePieceEO(Piece p, int EO_id){
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "UPDATE piece\n" +
+                            "SET FK_expedition_order = ?\n" +
+                            "WHERE id = ? ;");
+
+            if(EO_id == -1)      insertStatement.setNull(1, java.sql.Types.INTEGER);
+            else                 insertStatement.setInt(1, EO_id);
+
+            insertStatement.setInt(2, p.getId() );
+
+            insertStatement.executeUpdate();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    public boolean updatePieceCO(Piece p, int CO_id){
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "UPDATE piece\n" +
+                            "SET FK_client_order = ?\n" +
+                            "WHERE id = ? ;");
+
+            if(CO_id == -1)      insertStatement.setNull(1, java.sql.Types.INTEGER);
+            else                 insertStatement.setInt(1, CO_id);
+
+            insertStatement.setInt(2, p.getId() );
+
+            insertStatement.executeUpdate();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
     public ArrayList<Piece> getPiecesByIO(int IO_id){
         String sql =    "SELECT  id,\n" +
                         "        type,\n" +
@@ -1358,5 +1444,64 @@ public class DatabaseHandler {
             throwable.printStackTrace();
         }
         return null;
+    }
+    public ArrayList<Piece> getAvailablePiecesInWH(String filter_type){
+        String sql =    "SELECT  id,\n" +
+                        "        type,\n" +
+                        "        status,\n" +
+                        "        final_type,\n" +
+                        "        week_arrived,\n" +
+                        "        week_produced,\n" +
+                        "        duration_production,\n" +
+                        "        safety_stock,\n" +
+                        "        wh_pos\n" +
+                        "FROM piece \n" +
+                        "WHERE FK_client_order IS NULL AND wh_pos IS NULL AND type = ?";
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, filter_type);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<Piece> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String type = sqlReturnValues.getString(2);
+                String status = sqlReturnValues.getString(3);
+                String final_type = sqlReturnValues.getString(4);
+                Integer week_arrived = sqlReturnValues.getInt(5);
+                Integer week_produced = sqlReturnValues.getInt(6);
+                Float duration_production = sqlReturnValues.getFloat(7);
+                boolean safety_stock = sqlReturnValues.getBoolean(8);
+                Integer wh_pos = sqlReturnValues.getInt(9);
+
+                returnValues.add(new Piece(id, type, status, final_type, week_arrived, week_produced, duration_production, safety_stock, wh_pos) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public double getPieceCost(Piece p){
+        String sql =    "SELECT unit_price\n" +
+                        "FROM supplier_order\n" +
+                        "JOIN piece ON supplier_order.id = piece.fk_supplier_order\n" +
+                        "WHERE piece.id = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, p.getId());
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            sqlReturnValues.next();
+
+            double count = sqlReturnValues.getDouble(1);
+
+            return count;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return 0;
     }
 }
