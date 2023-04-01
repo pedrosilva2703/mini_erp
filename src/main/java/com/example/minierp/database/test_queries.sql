@@ -135,3 +135,11 @@ SELECT  id,
         status,
         FK_supplier_order
 FROM inbound_order
+
+
+DELETE FROM inbound_order
+WHERE status = 'canceled';
+DELETE FROM production_order
+WHERE status = 'canceled';
+DELETE FROM expedition_order
+WHERE status = 'canceled';

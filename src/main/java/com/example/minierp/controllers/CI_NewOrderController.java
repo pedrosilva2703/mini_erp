@@ -98,7 +98,7 @@ public class CI_NewOrderController implements Initializable {
 
             ArrayList<Piece> po_pieces = new ArrayList<>();
             for(int i=0; i<week_available_capacity; i++){
-                if(pieces_scheduled == desired_quantity) break;
+                if(pieces_scheduled == rawpieces_in_wh_allocated.size()) break;
                 po_pieces.add( rawpieces_in_wh_allocated.get(pieces_scheduled) );
                 pieces_scheduled++;
             }
@@ -217,7 +217,7 @@ public class CI_NewOrderController implements Initializable {
             final_price += s.getUnit_price() * quantity_in_need; //adicionar custos aqui eventualmente !!!!
 
             //*** Calculate expedition and price ***//
-            int expedition_week = production_week+1;
+            int expedition_week = production_week; //the PW is already offseted by 1
 
             //*** Create client order with pending_internal status ***//
             ClientOrder CO = new ClientOrder(null, client_name, type, desired_quantity, final_price, expedition_week, expedition_week, "pending_internal");
@@ -247,12 +247,13 @@ public class CI_NewOrderController implements Initializable {
                 }
             }
 
+            System.out.println("An order to supplier will be made");
         }
         else{
             //If there is no need for supplier ordering:
 
             //*** Calculate expedition and price ***//
-            int expedition_week = production_week+1;
+            int expedition_week = production_week; //the PW is already offseted by 1
 
             //*** Create client order with pending_internal status ***//
             ClientOrder CO = new ClientOrder(null, client_name, type, desired_quantity, final_price, expedition_week, expedition_week, "pending_internal");
@@ -269,14 +270,13 @@ public class CI_NewOrderController implements Initializable {
                     dbHandler.updatePieceEO(p, EO_id);
                 }
             }
+
+            System.out.println("This order can be completed only with the pieces in the WH");
         }
 
 
 
-
-
-
-
+        Alerts.showInfo("Order was sent successfully. Please wait for our internal approval.");
 
 
     }

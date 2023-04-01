@@ -76,4 +76,8 @@ public class SupplierOrder {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public Integer getId() {
+        return id;
+    }
 }

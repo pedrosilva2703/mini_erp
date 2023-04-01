@@ -492,8 +492,6 @@ public class DatabaseHandler {
             stmt.setInt(2, co.getId());
             stmt.execute();
 
-            ArrayList<ClientOrder> returnValues = new ArrayList<>();
-
         } catch (SQLException throwable) {
             throwable.printStackTrace();
             return false;
@@ -534,6 +532,22 @@ public class DatabaseHandler {
             throwable.printStackTrace();
         }
         return null;
+    }
+    public boolean cancelPendingClientOrder(ClientOrder co, String cancel_type){
+        String sql =    "UPDATE client_order\n" +
+                        "SET    status = ?\n" +
+                        "WHERE  client_order.id = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, cancel_type);
+            stmt.setInt(2, co.getId());
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     //Supplier methods
@@ -592,7 +606,6 @@ public class DatabaseHandler {
         }
         return false;
     }
-
     public boolean updateSupplier(ArrayList<Supplier> supplier){
 
         String sql_supp_mat =   "INSERT INTO supplier_material (min_quantity, unit_price, delivery_time, FK_supplier, FK_material)\n" +
@@ -926,6 +939,47 @@ public class DatabaseHandler {
         }
         return null;
     }
+    public SupplierOrder getPendingSupplierOrderByClientOrder(ClientOrder co){
+        String sql =    "SELECT  supplier.name,\n" +
+                        "        supplier_order.id,\n" +
+                        "        supplier_order.type,\n" +
+                        "        supplier_order.quantity,\n" +
+                        "        supplier_order.unit_price,\n" +
+                        "        supplier_order.week_est_delivery,\n" +
+                        "        supplier_order.delay,\n" +
+                        "        supplier_order.status \n" +
+                        "FROM supplier_order\n" +
+                        "JOIN supplier ON supplier.id = supplier_order.FK_supplier \n" +
+                        "WHERE  supplier_order.status = ? AND " +
+                        "       supplier_order.id IN \n" +
+                        "           (SELECT piece.fk_supplier_order \n" +
+                        "           FROM piece \n" +
+                        "           WHERE piece.FK_client_order = ?);";
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, "waiting_confirmation");
+            stmt.setInt(2, co.getId());
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            sqlReturnValues.next();
+            Integer id = sqlReturnValues.getInt(2);
+            String name = sqlReturnValues.getString(1);
+            String type = sqlReturnValues.getString(3);
+            int qty = sqlReturnValues.getInt(4);
+            double price = sqlReturnValues.getDouble(5);
+            int delivery_week = sqlReturnValues.getInt(6);
+            int delay = sqlReturnValues.getInt(7);
+            String status = sqlReturnValues.getString(8);
+
+            SupplierOrder returnValue = new SupplierOrder(id, name, type, qty, price, delivery_week, delay, status);
+
+            return returnValue;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
     public ArrayList<SupplierOrder> getSupplierOrdersByName(String supplier_name){
         String sql =    "SELECT  supplier.name,\n" +
                 "        supplier_order.id,\n" +
@@ -974,6 +1028,42 @@ public class DatabaseHandler {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, new_status);
             stmt.setInt(2, co.getId());
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    public boolean cancelPendingSupplierOrder(SupplierOrder so){
+        String sql =    "UPDATE supplier_order\n" +
+                        "SET    status = ?\n" +
+                        "WHERE  supplier_order.id = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, "canceled");
+            stmt.setInt(2, so.getId() );
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+
+    //Internal Orders (IO, PO, EO)
+    public boolean deleteCanceledInternalOrders(){
+        String sql =    "DELETE FROM inbound_order\n" +
+                "WHERE status = 'canceled'; \n" +
+                "DELETE FROM production_order\n" +
+                "WHERE status = 'canceled'; \n" +
+                "DELETE FROM expedition_order\n" +
+                "WHERE status = 'canceled'; ";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.execute();
 
         } catch (SQLException throwable) {
@@ -1106,7 +1196,6 @@ public class DatabaseHandler {
             stmt.setString(1, new_status);
             stmt.setInt(2, co.getId());
             stmt.execute();
-
         } catch (SQLException throwable) {
             throwable.printStackTrace();
             return false;
@@ -1445,6 +1534,45 @@ public class DatabaseHandler {
         }
         return null;
     }
+    public ArrayList<Piece> getPiecesByCO(int CO_id){
+        String sql =    "SELECT  id,\n" +
+                "        type,\n" +
+                "        status,\n" +
+                "        final_type,\n" +
+                "        week_arrived,\n" +
+                "        week_produced,\n" +
+                "        duration_production,\n" +
+                "        safety_stock,\n" +
+                "        wh_pos\n" +
+                "FROM piece \n" +
+                "WHERE FK_client_order = ?";
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, CO_id);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<Piece> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String type = sqlReturnValues.getString(2);
+                String status = sqlReturnValues.getString(3);
+                String final_type = sqlReturnValues.getString(4);
+                Integer week_arrived = sqlReturnValues.getInt(5);
+                Integer week_produced = sqlReturnValues.getInt(6);
+                Float duration_production = sqlReturnValues.getFloat(7);
+                boolean safety_stock = sqlReturnValues.getBoolean(8);
+                Integer wh_pos = sqlReturnValues.getInt(9);
+
+                returnValues.add(new Piece(id, type, status, final_type, week_arrived, week_produced, duration_production, safety_stock, wh_pos) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
     public ArrayList<Piece> getAvailablePiecesInWH(String filter_type){
         String sql =    "SELECT  id,\n" +
                         "        type,\n" +
@@ -1456,7 +1584,7 @@ public class DatabaseHandler {
                         "        safety_stock,\n" +
                         "        wh_pos\n" +
                         "FROM piece \n" +
-                        "WHERE FK_client_order IS NULL AND wh_pos IS NULL AND type = ?";
+                        "WHERE FK_client_order IS NULL AND wh_pos IS NOT NULL AND type = ?";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
@@ -1504,4 +1632,5 @@ public class DatabaseHandler {
         }
         return 0;
     }
+
 }
