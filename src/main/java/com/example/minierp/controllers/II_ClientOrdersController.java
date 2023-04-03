@@ -49,6 +49,8 @@ public class II_ClientOrdersController implements Initializable {
 
         tv_CO.getItems().clear();
         ArrayList<ClientOrder> coList = dbHandler.getClientOrdersByStatus("confirmed");
+        coList.addAll(dbHandler.getClientOrdersByStatus("canceled_client") );
+        coList.addAll(dbHandler.getClientOrdersByStatus("canceled_internal") );
         if( coList != null ){
             tv_CO.getItems().addAll( coList );
             tv_CO.setPrefHeight( (tv_CO.getItems().size()+1.15) * tv_CO.getFixedCellSize() );

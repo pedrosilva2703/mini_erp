@@ -3,6 +3,7 @@ package com.example.minierp.controllers;
 import com.example.minierp.database.DatabaseHandler;
 import com.example.minierp.model.Client;
 import com.example.minierp.model.ClientOrder;
+import com.example.minierp.model.Piece;
 import com.example.minierp.model.SupplierOrder;
 import com.example.minierp.utils.Alerts;
 import javafx.collections.FXCollections;
@@ -64,6 +65,63 @@ public class CI_PendingOrdersController implements Initializable {
         String client_name = comboName.getValue();
         Alerts.showInfo(client_name+" confirmed the order");
 
+        filterClient();
+    }
+
+    @FXML void declineButtonClicked(){
+        ObservableList<ClientOrder> selectionList;
+        selectionList               = tv_PO.getSelectionModel().getSelectedItems();
+
+        if(selectionList.isEmpty() ){
+            Alerts.showError("You need to select an order");
+            return;
+        }
+
+        ClientOrder selected_order  = selectionList.get(0);
+        if(!dbHandler.cancelPendingClientOrder(selected_order, "canceled_client") ){
+            Alerts.showError("An error occurred canceling client order.");
+            return;
+        }
+
+        //Cancel supplier order associated with his client order (if exists)
+        SupplierOrder pending_supplier_order = dbHandler.getPendingSupplierOrderByClientOrder(selected_order);
+        if(pending_supplier_order!=null){
+            if(!dbHandler.cancelPendingSupplierOrder(pending_supplier_order)){
+                Alerts.showError("An error occurred canceling a supplier order");
+                return;
+            }
+        }
+
+        //Set temporary status as canceled, for future deletion
+        if(     !dbHandler.updateInboundStatusByClientOrder(selected_order, "canceled")
+                ||  !dbHandler.updateProductionStatusByClientOrder(selected_order, "canceled")
+                ||  !dbHandler.updateExpeditionStatusByClientOrder(selected_order, "canceled")   ){
+
+            Alerts.showError("An error occurred updating internal orders");
+            return;
+        }
+
+
+        //Free pieces foreign keys
+        ArrayList<Piece> piecesFromCO = dbHandler.getPiecesByCO(selected_order.getId() );
+        for(Piece p : piecesFromCO){
+            if(     !dbHandler.updatePiecePO(p, -1)
+                    ||  !dbHandler.updatePieceEO(p, -1)
+                    ||  !dbHandler.updatePieceCO(p, -1)  ){
+
+                Alerts.showError("An error occurred updating piece data");
+                return;
+            }
+
+        }
+
+        //Delete internal orders (when deleting Inbound, it also deletes pieces)
+        if(!dbHandler.deleteCanceledInternalOrders()){
+            Alerts.showError("An error occurred deleting internal order");
+            return;
+        }
+
+        Alerts.showInfo("Order was canceled successfully");
         filterClient();
     }
 

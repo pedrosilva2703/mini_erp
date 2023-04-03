@@ -196,7 +196,7 @@ public class MainMenuController implements Initializable {
 
     // Write previous configuration on Factory fields
     private void loadFactoryParams(){
-        dbHandler.retrieveFactoryStatus();
+        dbHandler.retrieveFactoryPreviousConfig();
         if      ( factory.getWorking_mode().equals("single")        )   radio_single.setSelected(true);
         else if ( factory.getWorking_mode().equals("intermediate")  )   radio_interm.setSelected(true);
         else if ( factory.getWorking_mode().equals("final")         )   radio_final.setSelected(true);

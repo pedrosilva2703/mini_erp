@@ -15,7 +15,7 @@
                 <AnchorPane prefHeight="720.0" prefWidth="1000.0">
                     <children>
                         <Button layoutX="40.0" layoutY="193.0" mnemonicParsing="false" onMouseClicked="#acceptButtonClicked" styleClass="confirm-button" text="Accept" />
-                        <Button layoutX="143.0" layoutY="193.0" mnemonicParsing="false" styleClass="cancel-button" text="Decline" />
+                        <Button layoutX="143.0" layoutY="193.0" mnemonicParsing="false" onMouseClicked="#declineButtonClicked" styleClass="cancel-button" text="Decline" />
                         <Text layoutX="40.0" layoutY="68.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="page-title" text="Pending Orders" />
                         <Text layoutX="40.0" layoutY="128.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Manage pending orders" />
                         <Text layoutX="40.0" layoutY="163.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Client" />

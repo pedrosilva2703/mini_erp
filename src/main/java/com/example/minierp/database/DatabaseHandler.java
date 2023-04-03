@@ -76,7 +76,7 @@ public class DatabaseHandler {
         }
         return true;
     }
-    public void retrieveFactoryStatus() {
+    public void retrieveFactoryPreviousConfig() {
         Factory factory = Factory.getInstance();
         try {
             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM factory");
@@ -107,6 +107,25 @@ public class DatabaseHandler {
             updateStatement.setInt(   4,    factory.getWarehouse_capacity() );
             updateStatement.setInt(   5,    factory.getWeekly_production()  );
             updateStatement.execute();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    public boolean retrieveFactoryStatus() {
+        Factory factory = Factory.getInstance();
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM factory");
+            ResultSet sqlReturnValues = stmt.executeQuery();
+            sqlReturnValues.next();
+
+            factory.setSetup_status(sqlReturnValues.getString(1));
+            factory.setSim_status(sqlReturnValues.getString(2));
+            factory.setWorking_mode(sqlReturnValues.getString(3) );
+            factory.setWarehouse_capacity(sqlReturnValues.getInt(4) );
+            factory.setWeekly_production(sqlReturnValues.getInt(5) );
+
         } catch (SQLException throwable) {
             throwable.printStackTrace();
             return false;
@@ -548,6 +567,36 @@ public class DatabaseHandler {
             return false;
         }
         return true;
+    }
+    public boolean hasPendingClientOrders(){
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT COUNT(*) FROM client_order WHERE status = ? OR status = ?");
+            stmt.setString(1, "pending_internal");
+            stmt.setString(2, "pending_client");
+            ResultSet sqlReturnValues = stmt.executeQuery();
+            sqlReturnValues.next();
+
+            if( sqlReturnValues.getInt(1) > 0 ){
+                return true;
+            }
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return false;
+    }
+    public boolean hasClientOrders(){
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT COUNT(*) FROM client_order");
+            ResultSet sqlReturnValues = stmt.executeQuery();
+            sqlReturnValues.next();
+
+            if( sqlReturnValues.getInt(1) > 0 ){
+                return true;
+            }
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return false;
     }
 
     //Supplier methods
@@ -1017,6 +1066,7 @@ public class DatabaseHandler {
         }
         return null;
     }
+        //BUG
     public boolean updateSupplierOrderStatusByClientOrder(ClientOrder co, String new_status){
         String sql =    "UPDATE supplier_order\n" +
                 "SET status = ?\n" +
@@ -1044,6 +1094,59 @@ public class DatabaseHandler {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, "canceled");
             stmt.setInt(2, so.getId() );
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    public ArrayList<SupplierOrder> getSupplierOrdersByCurrentDelivery(int week){
+        String sql =    "SELECT  supplier.name,\n" +
+                "        supplier_order.id,\n" +
+                "        supplier_order.type,\n" +
+                "        supplier_order.quantity,\n" +
+                "        supplier_order.unit_price,\n" +
+                "        supplier_order.week_est_delivery,\n" +
+                "        supplier_order.delay,\n" +
+                "        supplier_order.status \n" +
+                "FROM  supplier_order\n" +
+                "JOIN  supplier ON supplier.id = supplier_order.FK_supplier " +
+                "WHERE supplier_order.week_est_delivery + supplier_order.delay = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, week);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<SupplierOrder> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(2);
+                String name = sqlReturnValues.getString(1);
+                String type = sqlReturnValues.getString(3);
+                int qty = sqlReturnValues.getInt(4);
+                double price = sqlReturnValues.getDouble(5);
+                int delivery_week = sqlReturnValues.getInt(6);
+                int delay = sqlReturnValues.getInt(7);
+                String status = sqlReturnValues.getString(8);
+
+                returnValues.add(new SupplierOrder(id, name, type, qty, price, delivery_week, delay, status) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public boolean updateSupplierOrderStatus(SupplierOrder so, String status){
+        String sql =    "UPDATE supplier_order\n" +
+                        "SET status = ?\n" +
+                        "WHERE id = ? \n";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, status);
+            stmt.setInt(2, so.getId());
             stmt.execute();
 
         } catch (SQLException throwable) {
@@ -1632,5 +1735,110 @@ public class DatabaseHandler {
         }
         return 0;
     }
+
+
+
+    //MES simulation methods
+    public void setInboundCompleted(int week){
+        String sql =    "UPDATE inbound_order\n" +
+                "SET status = ? \n" +
+                "WHERE week = ? \n";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, "completed");
+            stmt.setInt(2, week);
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return;
+        }
+        return;
+    }
+    public void setPiecesInbound(int week){
+        String sql =    "UPDATE piece \n" +
+                        "SET week_arrived = ?, wh_pos = 11\n" +
+                        "WHERE fk_inbound_order IN\n" +
+                        "(SELECT id FROM inbound_order WHERE week = ?)";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, week);
+            stmt.setInt(2, week);
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return;
+        }
+        return;
+    }
+    public void setProductionCompleted(int week){
+        String sql =    "UPDATE production_order\n" +
+                "SET status = ? \n" +
+                "WHERE week = ? \n";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, "completed");
+            stmt.setInt(2, week);
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return;
+        }
+        return;
+    }
+    public void setPiecesProduction(int week){
+        String sql =    "UPDATE piece \n" +
+                "SET type = final_type, week_produced = ?\n" +
+                "WHERE fk_production_order IN\n" +
+                "(SELECT id FROM production_order WHERE week = ?)";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, week);
+            stmt.setInt(2, week);
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return;
+        }
+        return;
+    }
+    public void setExpeditionCompleted(int week){
+        String sql =    "UPDATE expedition_order\n" +
+                "SET status = ? \n" +
+                "WHERE week = ? \n";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, "completed");
+            stmt.setInt(2, week);
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return;
+        }
+        return;
+    }
+    public void setPiecesExpedition(int week){
+        String sql =    "UPDATE piece \n" +
+                "SET wh_pos = ?\n" +
+                "WHERE fk_expedition_order IN\n" +
+                "(SELECT id FROM expedition_order WHERE week = ?)";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setNull(1, java.sql.Types.INTEGER);
+            stmt.setInt(2, week);
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return;
+        }
+        return;
+    }
+
+
 
 }

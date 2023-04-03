@@ -36,6 +36,8 @@ public class CI_ConfirmedOrdersController implements Initializable {
         String selected_name = comboName.getValue();
 
         ArrayList<ClientOrder> coList = dbHandler.getClientOrdersByName(selected_name, "confirmed");
+        coList.addAll(dbHandler.getClientOrdersByName(selected_name, "canceled_client"));
+        coList.addAll(dbHandler.getClientOrdersByName(selected_name, "canceled_internal"));
         if( coList != null ){
             tv_CO.getItems().addAll( coList );
             tv_CO.setPrefHeight( (tv_CO.getItems().size()+1.15) * tv_CO.getFixedCellSize() );

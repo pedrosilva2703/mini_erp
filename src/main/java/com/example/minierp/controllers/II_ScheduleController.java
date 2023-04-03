@@ -1,16 +1,16 @@
 package com.example.minierp.controllers;
 
 import com.example.minierp.database.DatabaseHandler;
-import com.example.minierp.model.ClientOrder;
-import com.example.minierp.model.ExpeditionOrder;
-import com.example.minierp.model.InboundOrder;
-import com.example.minierp.model.ProductionOrder;
+import com.example.minierp.model.*;
+import com.example.minierp.utils.Alerts;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,6 +18,13 @@ import java.util.ResourceBundle;
 
 public class II_ScheduleController implements Initializable {
     DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+    Factory factory = Factory.getInstance();
+
+    @FXML private Text statusText;
+    @FXML private Text weekText;
+
+    @FXML private Button nextButton;
+    @FXML private Button mesButton;
 
     @FXML private AnchorPane anchor_EO;
     @FXML private AnchorPane anchor_IO;
@@ -45,8 +52,85 @@ public class II_ScheduleController implements Initializable {
     @FXML private TableView<InboundOrder> tv_IO;
     @FXML private TableView<ProductionOrder> tv_PO;
 
+    @FXML
+    void nextButtonClicked() {
+        if(!dbHandler.hasClientOrders() ) {
+            Alerts.showError("Simulation cannot start without client orders in the system");
+            return;
+        }
+        if(dbHandler.hasPendingClientOrders()){
+            Alerts.showError("There are still pending client orders!");
+            return;
+        }
+
+
+        //ALGORITMOS A CORRER ANTES DE ACABAR A SEMANA
+
+        int current_week = factory.getCurrent_week();
+
+        //Set SupplierOrders that are arriving
+        ArrayList<SupplierOrder> arrivingOrders = dbHandler.getSupplierOrdersByCurrentDelivery(current_week+2);
+        for(SupplierOrder so : arrivingOrders){
+            dbHandler.updateSupplierOrderStatus(so, "arriving");
+        }
+
+        //Set SupplierOrders that are completed (arrive this next week)
+        ArrayList<SupplierOrder> completedOrders = dbHandler.getSupplierOrdersByCurrentDelivery(current_week+1);
+        for(SupplierOrder so : completedOrders){
+            dbHandler.updateSupplierOrderStatus(so, "completed");
+        }
+
+        //FIM DOS ALGORITMOS
+
+        dbHandler.retrieveFactoryStatus();
+        factory.incrementWeek();
+        factory.setSim_status("ongoing_week");
+        dbHandler.updateFactoryStatus();
+
+        updateUI();
+
+    }
+
+    @FXML
+    void mesButtonClicked() {
+        dbHandler.retrieveFactoryStatus();
+
+        int week = factory.getCurrent_week();
+
+        //set internal orders as completed
+        dbHandler.setInboundCompleted(week);
+        dbHandler.setPiecesInbound(week);
+        dbHandler.setProductionCompleted(week);
+        dbHandler.setPiecesProduction(week);
+        dbHandler.setExpeditionCompleted(week);
+        dbHandler.setPiecesExpedition(week);
+
+
+        factory.setSim_status("waiting_week_start");
+        dbHandler.updateFactoryStatus();
+
+        updateUI();
+
+    }
 
     private void updateUI(){
+        //Factory status
+        dbHandler.retrieveFactoryStatus();
+        if(factory.isOngoingWeek()){
+            nextButton.setDisable(true);
+            mesButton.setDisable(false);
+        }
+        else if(factory.isWaitingSimStart() || factory.isWaitingWeekStart() ){
+            nextButton.setDisable(false);
+            mesButton.setDisable(true);
+        }
+
+        weekText.setText( Integer.toString(factory.getCurrent_week() ));
+        statusText.setText( factory.getSim_status() );
+
+
+
+
         //Inbound orders
         tv_IO.getItems().clear();
         ArrayList<InboundOrder> ioList = dbHandler.getInboundOrders();
@@ -101,6 +185,7 @@ public class II_ScheduleController implements Initializable {
         tc_EO_week.setCellValueFactory(new PropertyValueFactory<ExpeditionOrder, Integer>("week") );;
 
         updateUI();
+
     }
 
 }

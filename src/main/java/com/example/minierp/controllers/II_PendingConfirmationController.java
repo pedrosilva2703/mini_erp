@@ -41,7 +41,7 @@ public class II_PendingConfirmationController implements Initializable {
 
         ClientOrder selected_order  = selectionList.get(0);
         if(!dbHandler.updateClientOrderStatus(selected_order, "pending_client")){
-            Alerts.showError("An error occured. Confirmation failed.");
+            Alerts.showError("An error occurred. Confirmation failed.");
         }
         Alerts.showInfo("Order internally accepted");
 
