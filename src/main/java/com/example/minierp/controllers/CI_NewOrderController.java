@@ -72,8 +72,7 @@ public class CI_NewOrderController implements Initializable {
 
 
 
-        //***** Allocate free RAW pieces in WH *****//
-
+        //*********************************************** Allocate free RAW pieces in WH***********************************************//
         //Retrieve available pieces in WH
         ArrayList<Piece> rawpieces_in_wh_allocated = new ArrayList<>();
         ArrayList<Piece> rawpieces_in_wh_free = dbHandler.getAvailablePiecesInWH(raw_type);
@@ -119,13 +118,13 @@ public class CI_NewOrderController implements Initializable {
             }
         }
 
-        //verify if has free pieces from that type arriving WIP
 
+        
 
-
+        //*********************************************** CHECK PIECES IN NEED AND "CHECKOUT" ***********************************************//
         int quantity_in_need = desired_quantity - CO_all_pieces.size();
         if(quantity_in_need!=0){
-            //***** FROM SUPPLIER *****//
+            //*********************************************** FROM SUPPLIER ***********************************************//
             //*** Choose supplier from type ***//
             ArrayList<Supplier> supplierList = dbHandler.getSuppliersByExactQty(raw_type, quantity_in_need, preference);
             if(supplierList.size() == 0){
@@ -163,7 +162,7 @@ public class CI_NewOrderController implements Initializable {
                     pieces_extra.add(new Piece(null,
                             raw_type,
                             "waiting_confirmation",
-                            type,
+                            "",
                             null,
                             null,
                             null,

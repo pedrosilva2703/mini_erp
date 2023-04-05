@@ -87,6 +87,12 @@ public class II_ScheduleController implements Initializable {
         factory.setSim_status("ongoing_week");
         dbHandler.updateFactoryStatus();
 
+        //MES simulation
+        dbHandler.setInboundRunning(factory.getCurrent_week());
+        dbHandler.setProductionRunning(factory.getCurrent_week());
+        dbHandler.setExpeditionRunning(factory.getCurrent_week());
+        //End mes simulation
+
         updateUI();
 
     }

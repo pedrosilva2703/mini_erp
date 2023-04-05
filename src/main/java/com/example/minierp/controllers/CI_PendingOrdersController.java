@@ -112,7 +112,6 @@ public class CI_PendingOrdersController implements Initializable {
                 Alerts.showError("An error occurred updating piece data");
                 return;
             }
-
         }
 
         //Delete internal orders (when deleting Inbound, it also deletes pieces)
