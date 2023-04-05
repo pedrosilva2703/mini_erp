@@ -71,15 +71,15 @@ public class CI_NewOrderController implements Initializable {
         ArrayList<Piece> CO_all_pieces = new ArrayList<>();
 
 
-
         //*********************************************** Allocate free RAW pieces in WH***********************************************//
         //Retrieve available pieces in WH
         ArrayList<Piece> rawpieces_in_wh_allocated = new ArrayList<>();
         ArrayList<Piece> rawpieces_in_wh_free = dbHandler.getAvailablePiecesInWH(raw_type);
         //Allocate necessary pieces in WH and gets their costs
         for(Piece p : rawpieces_in_wh_free){
-            if(rawpieces_in_wh_allocated.size()==desired_quantity ) break;
+            if(rawpieces_in_wh_allocated.size()== desired_quantity-CO_all_pieces.size() ) break;
             final_price += dbHandler.getPieceCost(p);
+            p.setFinal_type(type);
             rawpieces_in_wh_allocated.add(p);
         }
 
@@ -119,7 +119,53 @@ public class CI_NewOrderController implements Initializable {
         }
 
 
-        
+        //*********************************************** Allocate free pieces that are arriving ***********************************************//
+        //Retrieve available pieces arriving
+        ArrayList<Piece> rawpieces_arriving_allocated = new ArrayList<>();
+        ArrayList<Piece> rawpieces_arriving_free = dbHandler.getAvailablePiecesArriving(raw_type);
+
+        //Allocate necessary pieces in WH and gets their costs
+        for(Piece p : rawpieces_arriving_free){
+            if(rawpieces_arriving_allocated.size()== desired_quantity - CO_all_pieces.size() ) break;
+            final_price += dbHandler.getPieceCost(p);
+            p.setFinal_type(type);
+            rawpieces_arriving_allocated.add(p);
+        }
+
+        //Schedule the production of the pieces already in WH
+        ArrayList<ProductionOrder> POrdersList_Arriving_pieces = new ArrayList<>();
+        pieces_scheduled = 0;
+        production_week = factory.getCurrent_week() + 2; //+1 for arriving, +1 for inbound
+        while(pieces_scheduled != rawpieces_arriving_allocated.size() ){
+            int week_available_capacity = factory.getWeekly_production() - dbHandler.getProductionCountByWeek(production_week);
+
+            if(week_available_capacity == 0){
+                production_week++;
+                continue;
+            }
+
+            ArrayList<Piece> po_pieces = new ArrayList<>();
+            for(int i=0; i<week_available_capacity; i++){
+                if(pieces_scheduled == rawpieces_arriving_allocated.size()) break;
+                po_pieces.add( rawpieces_arriving_allocated.get(pieces_scheduled) );
+                pieces_scheduled++;
+            }
+            ProductionOrder currPO = new ProductionOrder(null, production_week, "waiting_confirmation", raw_type, type, po_pieces);
+
+            POrdersList_Arriving_pieces.add(currPO);
+
+            production_week++;
+        }
+        CO_all_pieces.addAll(rawpieces_arriving_allocated);
+
+
+        //*** Update the pieces status ***//
+        for(ProductionOrder po : POrdersList_Arriving_pieces){
+            int PO_id = dbHandler.createProductionOrder(po);
+            for(Piece p : po.getPieces() ){
+                dbHandler.updatePiecePO(p, PO_id);
+            }
+        }
 
         //*********************************************** CHECK PIECES IN NEED AND "CHECKOUT" ***********************************************//
         int quantity_in_need = desired_quantity - CO_all_pieces.size();
@@ -246,6 +292,14 @@ public class CI_NewOrderController implements Initializable {
                 }
             }
 
+            //Update CO and EO from arriving pieces
+            for(ProductionOrder po : POrdersList_Arriving_pieces){
+                for(Piece p : po.getPieces() ){
+                    dbHandler.updatePieceCO(p, CO_id);
+                    dbHandler.updatePieceEO(p, EO_id);
+                }
+            }
+
             System.out.println("An order to supplier will be made");
         }
         else{
@@ -270,7 +324,14 @@ public class CI_NewOrderController implements Initializable {
                 }
             }
 
-            System.out.println("This order can be completed only with the pieces in the WH");
+            //Update CO and EO from arriving pieces
+            for(ProductionOrder po : POrdersList_Arriving_pieces){
+                for(Piece p : po.getPieces() ){
+                    dbHandler.updatePieceCO(p, CO_id);
+                    dbHandler.updatePieceEO(p, EO_id);
+                }
+            }
+
         }
 
 

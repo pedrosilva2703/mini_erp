@@ -54,7 +54,7 @@ public class CI_PendingOrdersController implements Initializable {
 
         ClientOrder selected_order  = selectionList.get(0);
         if(     !dbHandler.updateClientOrderStatus(selected_order, "confirmed")
-            ||  !dbHandler.updateSupplierOrderStatusByClientOrder(selected_order, "ordered")
+            ||  !dbHandler.updatePendingSupplierOrderStatusByClientOrder(selected_order, "ordered")
             ||  !dbHandler.updateInboundStatusByClientOrder(selected_order, "confirmed")
             ||  !dbHandler.updateProductionStatusByClientOrder(selected_order, "confirmed")
             ||  !dbHandler.updateExpeditionStatusByClientOrder(selected_order, "confirmed") ){

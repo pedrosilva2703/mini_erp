@@ -1129,10 +1129,10 @@ public class DatabaseHandler {
         return null;
     }
         //BUG
-    public boolean updateSupplierOrderStatusByClientOrder(ClientOrder co, String new_status){
+    public boolean updatePendingSupplierOrderStatusByClientOrder(ClientOrder co, String new_status){
         String sql =    "UPDATE supplier_order\n" +
                 "SET status = ?\n" +
-                "WHERE id IN\n" +
+                "WHERE status = 'waiting_confirmation' AND id IN\n" +
                 "   (SELECT piece.fk_supplier_order\n" +
                 "   FROM piece\n" +
                 "   WHERE piece.FK_client_order = ?)";
@@ -1854,6 +1854,47 @@ public class DatabaseHandler {
                         "        wh_pos\n" +
                         "FROM piece \n" +
                         "WHERE FK_client_order IS NULL AND wh_pos IS NOT NULL AND type = ?";
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, filter_type);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<Piece> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String type = sqlReturnValues.getString(2);
+                String status = sqlReturnValues.getString(3);
+                String final_type = sqlReturnValues.getString(4);
+                Integer week_arrived = sqlReturnValues.getInt(5);
+                Integer week_produced = sqlReturnValues.getInt(6);
+                Float duration_production = sqlReturnValues.getFloat(7);
+                boolean safety_stock = sqlReturnValues.getBoolean(8);
+                Integer wh_pos = sqlReturnValues.getInt(9);
+
+                returnValues.add(new Piece(id, type, status, final_type, week_arrived, week_produced, duration_production, safety_stock, wh_pos) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public ArrayList<Piece> getAvailablePiecesArriving(String filter_type){
+        String sql =    "SELECT id,\n" +
+                "        type,\n" +
+                "        status,\n" +
+                "        final_type,\n" +
+                "        week_arrived,\n" +
+                "        week_produced,\n" +
+                "        duration_production,\n" +
+                "        safety_stock,\n" +
+                "        wh_pos\n" +
+                "FROM piece \n" +
+                "WHERE type = ? AND FK_client_order IS NULL AND " +
+                "      FK_supplier_order IN\n" +
+                "      (SELECT id FROM supplier_order WHERE status = 'arriving') ";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
