@@ -132,7 +132,7 @@ public class CI_NewOrderController implements Initializable {
             rawpieces_arriving_allocated.add(p);
         }
 
-        //Schedule the production of the pieces already in WH
+        //Schedule the production of the pieces arriving
         ArrayList<ProductionOrder> POrdersList_Arriving_pieces = new ArrayList<>();
         pieces_scheduled = 0;
         production_week = factory.getCurrent_week() + 2; //+1 for arriving, +1 for inbound

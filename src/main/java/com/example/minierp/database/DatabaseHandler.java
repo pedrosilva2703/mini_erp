@@ -501,6 +501,46 @@ public class DatabaseHandler {
         }
         return null;
     }
+    public ArrayList<ClientOrder> getClientOrdersBySupplierOrder(SupplierOrder so){
+        String sql =    "SELECT  client_order.id,\n" +
+                "        client.name,\n" +
+                "        client_order.type,\n" +
+                "        client_order.quantity,\n" +
+                "        client_order.price,\n" +
+                "        client_order.week_est_delivery,\n" +
+                "        client_order.delay,\n" +
+                "        client_order.status\n" +
+                "FROM client_order\n" +
+                "JOIN client on client.id = client_order.FK_client\n" +
+                "WHERE client_order.id IN \n" +
+                "        (SELECT piece.FK_client_order \n" +
+                "        FROM piece \n" +
+                "        WHERE piece.FK_supplier_order = ?);";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, so.getId());
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<ClientOrder> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String name = sqlReturnValues.getString(2);
+                String type = sqlReturnValues.getString(3);
+                int qty = sqlReturnValues.getInt(4);
+                double price = sqlReturnValues.getDouble(5);
+                int initial_estimation = sqlReturnValues.getInt(6);
+                int current_estimation = sqlReturnValues.getInt(7) + initial_estimation;
+                String status = sqlReturnValues.getString(8);
+
+                returnValues.add(new ClientOrder(id, name, type, qty, price, initial_estimation, current_estimation, status) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
     public boolean updateClientOrderStatus(ClientOrder co, String new_status){
         String sql =    "UPDATE client_order\n" +
                         "SET    status = ?\n" +
@@ -508,6 +548,22 @@ public class DatabaseHandler {
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, new_status);
+            stmt.setInt(2, co.getId());
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    public boolean updateClientOrderDelay(ClientOrder co, int new_delay){
+        String sql =    "UPDATE client_order\n" +
+                "SET    delay = ?\n" +
+                "WHERE  client_order.id = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, new_delay);
             stmt.setInt(2, co.getId());
             stmt.execute();
 
@@ -1217,6 +1273,22 @@ public class DatabaseHandler {
         }
         return true;
     }
+    public boolean updateSupplierOrderDelay(SupplierOrder so, int delay){
+        String sql =    "UPDATE supplier_order\n" +
+                "SET delay = ?\n" +
+                "WHERE id = ? \n";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, delay);
+            stmt.setInt(2, so.getId());
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
 
     //Internal Orders (IO, PO, EO)
@@ -1284,7 +1356,8 @@ public class DatabaseHandler {
                         "        week,\n" +
                         "        status,\n" +
                         "        FK_supplier_order\n" +
-                        "FROM inbound_order";
+                        "FROM inbound_order\n" +
+                        "ORDER BY week ASC ";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet sqlReturnValues = stmt.executeQuery();
@@ -1348,6 +1421,21 @@ public class DatabaseHandler {
         }
         return true;
     }
+    public boolean updateInboundWeekBySupplierOrder(SupplierOrder so){
+        String sql =    "UPDATE inbound_order\n" +
+                        "SET week = ?\n" +
+                        "WHERE fk_supplier_order = ?\n";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, so.getDelivery_week() + so.getDelay());
+            stmt.setInt(2, so.getId());
+            stmt.execute();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
     //Production orders methods
     public int getProductionCountByWeek(int week){
@@ -1390,6 +1478,26 @@ public class DatabaseHandler {
         }
         return id;
     }
+    public int createConfirmedProductionOrder(ProductionOrder po){
+        int id = -1;
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "INSERT INTO production_order (week, status)\n" +
+                            "VALUES  (?, ?)" +
+                            "", Statement.RETURN_GENERATED_KEYS);
+            insertStatement.setInt(1, po.getWeek());
+            insertStatement.setString(2, "confirmed");
+            insertStatement.executeUpdate();
+
+            ResultSet rs_id = insertStatement.getGeneratedKeys();
+            rs_id.next();
+            id = rs_id.getInt(1);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return id;
+        }
+        return id;
+    }
     public boolean updateProductionStatusByClientOrder(ClientOrder co, String new_status){
         String sql =    "UPDATE production_order\n" +
                         "SET status = ?\n" +
@@ -1412,7 +1520,8 @@ public class DatabaseHandler {
         String sql =    "SELECT  id,\n" +
                         "        week,\n" +
                         "        status\n" +
-                        "FROM production_order";
+                        "FROM production_order\n" +
+                        "ORDER BY week ASC";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet sqlReturnValues = stmt.executeQuery();
@@ -1445,6 +1554,36 @@ public class DatabaseHandler {
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setInt(1, co.getId());
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<ProductionOrder> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                int week = sqlReturnValues.getInt(2);
+                String status = sqlReturnValues.getString(3);
+
+                Piece piece_aux = getPiecesByPO(id).get(0);
+                returnValues.add(new ProductionOrder(id, week, status, piece_aux.getType(), piece_aux.getFinal_type(), getPiecesByPO(id) ) );
+            }
+
+
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public ArrayList<ProductionOrder> getConfirmedProductionOrdersBySO(SupplierOrder so){
+        String sql =    "SELECT id, week, status\n" +
+                        "FROM production_order\n" +
+                        "WHERE status = 'confirmed' AND id IN\n" +
+                        "(SELECT fk_production_order\n" +
+                        "FROM piece\n" +
+                        "WHERE fk_supplier_order = ?) ";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, so.getId());
             ResultSet sqlReturnValues = stmt.executeQuery();
 
             ArrayList<ProductionOrder> returnValues = new ArrayList<>();
@@ -1525,10 +1664,11 @@ public class DatabaseHandler {
     }
     public ArrayList<ExpeditionOrder> getExpeditionOrders(){
         String sql =    "SELECT  id,\n" +
-                "        week,\n" +
-                "        status,\n" +
-                "        FK_client_order\n" +
-                "FROM expedition_order";
+                        "        week,\n" +
+                        "        status,\n" +
+                        "        FK_client_order\n" +
+                        "FROM expedition_order\n" +
+                        "ORDER BY week ASC";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet sqlReturnValues = stmt.executeQuery();
@@ -1550,6 +1690,46 @@ public class DatabaseHandler {
             throwable.printStackTrace();
         }
         return null;
+    }
+    public ExpeditionOrder getExpeditionOrderByClientOrder(ClientOrder co){
+        String sql =    "SELECT  id,\n" +
+                "        week,\n" +
+                "        status,\n" +
+                "        FK_client_order\n" +
+                "FROM expedition_order\n" +
+                "WHERE fk_client_order = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, co.getId());
+            ResultSet sqlReturnValues = stmt.executeQuery();
+            sqlReturnValues.next();
+
+            Integer id = sqlReturnValues.getInt(1);
+            int week = sqlReturnValues.getInt(2);
+            String status = sqlReturnValues.getString(3);
+            int CO_id = sqlReturnValues.getInt(4);
+
+            return new ExpeditionOrder(id, week, status, getPiecesByEO(id), getClientOrder(CO_id) );
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public boolean updateExpeditionWeekByClientOrder(ClientOrder co){
+        String sql =    "UPDATE expedition_order\n" +
+                "SET week = ?\n" +
+                "WHERE fk_client_order = ?\n";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, co.getCurrent_estimation());
+            stmt.setInt(2, co.getId());
+            stmt.execute();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     //Piece methods
@@ -1819,6 +1999,46 @@ public class DatabaseHandler {
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setInt(1, CO_id);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<Piece> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String type = sqlReturnValues.getString(2);
+                String status = sqlReturnValues.getString(3);
+                String final_type = sqlReturnValues.getString(4);
+                Integer week_arrived = sqlReturnValues.getInt(5);
+                Integer week_produced = sqlReturnValues.getInt(6);
+                Float duration_production = sqlReturnValues.getFloat(7);
+                boolean safety_stock = sqlReturnValues.getBoolean(8);
+                Integer wh_pos = sqlReturnValues.getInt(9);
+
+                returnValues.add(new Piece(id, type, status, final_type, week_arrived, week_produced, duration_production, safety_stock, wh_pos) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+    public ArrayList<Piece> getPiecesBySOandCO(SupplierOrder so, ClientOrder co){
+        String sql =    "SELECT  id,\n" +
+                "        type,\n" +
+                "        status,\n" +
+                "        final_type,\n" +
+                "        week_arrived,\n" +
+                "        week_produced,\n" +
+                "        duration_production,\n" +
+                "        safety_stock,\n" +
+                "        wh_pos\n" +
+                "FROM piece \n" +
+                "WHERE FK_supplier_order = ? AND FK_client_order = ?";
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, so.getId());
+            stmt.setInt(2, co.getId());
             ResultSet sqlReturnValues = stmt.executeQuery();
 
             ArrayList<Piece> returnValues = new ArrayList<>();
