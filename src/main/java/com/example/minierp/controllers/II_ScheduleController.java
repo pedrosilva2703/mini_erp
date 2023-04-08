@@ -80,6 +80,10 @@ public class II_ScheduleController implements Initializable {
             dbHandler.updateSupplierOrderStatus(so, "completed");
         }
 
+        //Read feedback from Production Orders in MES and process it
+        processProductionFeedback();
+
+
         //FIM DOS ALGORITMOS
 
         dbHandler.retrieveFactoryStatus();
@@ -167,6 +171,14 @@ public class II_ScheduleController implements Initializable {
         double po_height = anchor_PO.getPrefHeight()+tv_PO.getPrefHeight() + io_height;
         AnchorPane.setTopAnchor(anchor_EO, po_height);
 
+    }
+
+    private void processProductionFeedback(){
+        //Obter as Client Orders em que PO.week foi esta semana
+        //Para cada CO:
+            //Contar quantas peças estao "damaged"
+            //Contar o numero de peças em falta
+            //Correr o algoritmo de escalonamento para o nº de peças em falta
     }
 
     // Initialize method

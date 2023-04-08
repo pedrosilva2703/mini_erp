@@ -50,18 +50,18 @@ public class MainMenuController implements Initializable {
 
 
     @FXML
-    private void goInternal(){changeScene(internalButton, "II_Layout");}
+    private void goInternal(){changeScene(internalButton, "II_Layout", "Internal Interface");}
     @FXML
     private void goSupplier(){
-        changeScene(supplierButton, "SI_Layout");
+        changeScene(supplierButton, "SI_Layout", "Supplier Interface");
     }
     @FXML
     private void goClient(){
-        changeScene(clientButton, "CI_Layout");
+        changeScene(clientButton, "CI_Layout", "Client Interface");
     }
     @FXML
     private void goAbout(){
-        changeScene(aboutButton, "About");
+        changeScene(aboutButton, "About", "About");
     }
 
     @FXML
@@ -206,11 +206,24 @@ public class MainMenuController implements Initializable {
 
     }
     // Navigation functions
-    private void changeScene(Button button, String scene) {
+    private void changeScene(Button button, String scene, String title) {
         try {
             Stage stage = (Stage) internalButton.getScene().getWindow();
             Parent root = FXMLLoader.load(Launcher.class.getResource(scene + ".fxml"));
             stage.setScene(new Scene(root));
+
+
+//            Stage stage = (Stage) internalButton.getScene().getWindow();
+//            stage.setIconified(true);
+//
+//            Stage new_stage = new Stage();
+//            Parent root = FXMLLoader.load(Launcher.class.getResource(scene + ".fxml"));
+//            new_stage.setScene(new Scene(root));
+//
+//            new_stage.setTitle(title);
+//            new_stage.setResizable(false);
+//            new_stage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
