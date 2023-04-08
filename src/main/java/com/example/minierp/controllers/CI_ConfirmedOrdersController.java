@@ -88,11 +88,10 @@ public class CI_ConfirmedOrdersController implements Initializable {
             }
 
 
-        //Para todas as peças da CO, apaga a FK da CO, PO, EO
+        //Para todas as peças da CO, apaga a FK da CO, EO
         ArrayList<Piece> piecesFromCO = dbHandler.getPiecesByCO(selected_order.getId() );
         for(Piece p : piecesFromCO){
-            if(     !dbHandler.updatePiecePO(p, -1)
-                    ||  !dbHandler.updatePieceEO(p, -1)
+            if(         !dbHandler.updatePieceEO(p, -1)
                     ||  !dbHandler.updatePieceCO(p, -1)  ){
 
                 Alerts.showError("An error occurred updating piece data");

@@ -65,10 +65,24 @@ public class CI_NewOrderController implements Initializable {
         if(earlierRadio.isSelected()) preference = "earlier";
         if(cheaperRadio.isSelected()) preference = "cheaper";
 
-        // TO DO: create order
+        //Create order
         String raw_type = Materials.getRawType(type);
         double final_price = 0;
         ArrayList<Piece> CO_all_pieces = new ArrayList<>();
+        int expedition_week = factory.getCurrent_week()+1;
+
+        //*********************************************** Allocate free finished pieces in WH***********************************************//
+        //Retrieve available Finished pieces in WH
+        ArrayList<Piece> finalpieces_in_wh_allocated = new ArrayList<>();
+        ArrayList<Piece> finalieces_in_wh_free = dbHandler.getAvailableFinalPiecesInWH(type);
+        //Allocate necessary final pieces in WH and gets their costs
+        for(Piece p : finalieces_in_wh_free){
+            if(finalpieces_in_wh_allocated.size()== desired_quantity-CO_all_pieces.size() ) break;
+            final_price += dbHandler.getPieceCost(p);
+            finalpieces_in_wh_allocated.add(p);
+        }
+        CO_all_pieces.addAll(finalpieces_in_wh_allocated);
+
 
 
         //*********************************************** Allocate free RAW pieces in WH***********************************************//
@@ -78,6 +92,7 @@ public class CI_NewOrderController implements Initializable {
         //Allocate necessary pieces in WH and gets their costs
         for(Piece p : rawpieces_in_wh_free){
             if(rawpieces_in_wh_allocated.size()== desired_quantity-CO_all_pieces.size() ) break;
+
             final_price += dbHandler.getPieceCost(p);
             p.setFinal_type(type);
             rawpieces_in_wh_allocated.add(p);
@@ -109,7 +124,6 @@ public class CI_NewOrderController implements Initializable {
         }
         CO_all_pieces.addAll(rawpieces_in_wh_allocated);
 
-
         //*** Update the pieces status ***//
         for(ProductionOrder po : POrdersList_WH_pieces){
             int PO_id = dbHandler.createProductionOrder(po);
@@ -117,6 +131,8 @@ public class CI_NewOrderController implements Initializable {
                 dbHandler.updatePiecePO(p, PO_id);
             }
         }
+
+        if(production_week > expedition_week) expedition_week = production_week;
 
 
         //*********************************************** Allocate free pieces that are arriving ***********************************************//
@@ -127,6 +143,7 @@ public class CI_NewOrderController implements Initializable {
         //Allocate necessary pieces in WH and gets their costs
         for(Piece p : rawpieces_arriving_free){
             if(rawpieces_arriving_allocated.size()== desired_quantity - CO_all_pieces.size() ) break;
+            production_week = factory.getCurrent_week() + 2; //+1 for arriving, +1 for inbound
             final_price += dbHandler.getPieceCost(p);
             p.setFinal_type(type);
             rawpieces_arriving_allocated.add(p);
@@ -135,7 +152,7 @@ public class CI_NewOrderController implements Initializable {
         //Schedule the production of the pieces arriving
         ArrayList<ProductionOrder> POrdersList_Arriving_pieces = new ArrayList<>();
         pieces_scheduled = 0;
-        production_week = factory.getCurrent_week() + 2; //+1 for arriving, +1 for inbound
+
         while(pieces_scheduled != rawpieces_arriving_allocated.size() ){
             int week_available_capacity = factory.getWeekly_production() - dbHandler.getProductionCountByWeek(production_week);
 
@@ -158,7 +175,6 @@ public class CI_NewOrderController implements Initializable {
         }
         CO_all_pieces.addAll(rawpieces_arriving_allocated);
 
-
         //*** Update the pieces status ***//
         for(ProductionOrder po : POrdersList_Arriving_pieces){
             int PO_id = dbHandler.createProductionOrder(po);
@@ -166,6 +182,8 @@ public class CI_NewOrderController implements Initializable {
                 dbHandler.updatePiecePO(p, PO_id);
             }
         }
+
+        if(production_week > expedition_week) expedition_week = production_week;
 
         //*********************************************** CHECK PIECES IN NEED AND "CHECKOUT" ***********************************************//
         int quantity_in_need = desired_quantity - CO_all_pieces.size();
@@ -262,7 +280,7 @@ public class CI_NewOrderController implements Initializable {
             final_price += s.getUnit_price() * quantity_in_need; //adicionar custos aqui eventualmente !!!!
 
             //*** Calculate expedition and price ***//
-            int expedition_week = production_week; //the PW is already offseted by 1
+            if(production_week > expedition_week) expedition_week = production_week;
 
             //*** Create client order with pending_internal status ***//
             ClientOrder CO = new ClientOrder(null, client_name, type, desired_quantity, final_price, expedition_week, expedition_week, "pending_internal");
@@ -284,6 +302,12 @@ public class CI_NewOrderController implements Initializable {
                 dbHandler.createPiece(p, SO_id, -1, IO_id, -1, -1);
             }
 
+
+            //Update CO and EO from the final pieces in wh
+            for(Piece p : finalpieces_in_wh_allocated ){
+                dbHandler.updatePieceCO(p, CO_id);
+                dbHandler.updatePieceEO(p, EO_id);
+            }
             //Update CO and EO from the pieces in wh
             for(ProductionOrder po : POrdersList_WH_pieces){
                 for(Piece p : po.getPieces() ){
@@ -291,7 +315,6 @@ public class CI_NewOrderController implements Initializable {
                     dbHandler.updatePieceEO(p, EO_id);
                 }
             }
-
             //Update CO and EO from arriving pieces
             for(ProductionOrder po : POrdersList_Arriving_pieces){
                 for(Piece p : po.getPieces() ){
@@ -305,9 +328,6 @@ public class CI_NewOrderController implements Initializable {
         else{
             //If there is no need for supplier ordering:
 
-            //*** Calculate expedition and price ***//
-            int expedition_week = production_week; //the PW is already offseted by 1
-
             //*** Create client order with pending_internal status ***//
             ClientOrder CO = new ClientOrder(null, client_name, type, desired_quantity, final_price, expedition_week, expedition_week, "pending_internal");
             int CO_id = dbHandler.createClientOrder(CO);
@@ -316,6 +336,12 @@ public class CI_NewOrderController implements Initializable {
             ExpeditionOrder eo = new ExpeditionOrder(null, expedition_week, "waiting_confirmation", CO_all_pieces, CO);
             int EO_id = dbHandler.createExpeditionOrder(eo, CO_id);
 
+
+            //Update CO and EO from the final pieces in wh
+            for(Piece p : finalpieces_in_wh_allocated ){
+                dbHandler.updatePieceCO(p, CO_id);
+                dbHandler.updatePieceEO(p, EO_id);
+            }
             //Update CO and EO from the pieces in wh
             for(ProductionOrder po : POrdersList_WH_pieces){
                 for(Piece p : po.getPieces() ){
@@ -323,7 +349,6 @@ public class CI_NewOrderController implements Initializable {
                     dbHandler.updatePieceEO(p, EO_id);
                 }
             }
-
             //Update CO and EO from arriving pieces
             for(ProductionOrder po : POrdersList_Arriving_pieces){
                 for(Piece p : po.getPieces() ){

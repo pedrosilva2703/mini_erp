@@ -72,6 +72,10 @@ public class SI_OrdersController implements Initializable {
             Alerts.showError("This order was already completed!");
             return;
         }
+        if(selected_order.getDelay()!=0){
+            Alerts.showError("This order was already delayed once!");
+            return;
+        }
 
         if(!Verifier.isInteger(tf_delay)){
             Alerts.showError("Invalid delay value");
@@ -168,7 +172,7 @@ public class SI_OrdersController implements Initializable {
         Alerts.showInfo("The system was informed about the delay successfully");
 
         filterSupplier();
-        
+
     }
 
     private void fillNameFilter(){
