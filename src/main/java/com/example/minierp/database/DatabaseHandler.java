@@ -541,6 +541,47 @@ public class DatabaseHandler {
         }
         return null;
     }
+    public ArrayList<ClientOrder> getClientOrdersByProdWeek(int week){
+        String sql =    "SELECT  client_order.id,\n" +
+                        "        client.name,\n" +
+                        "        client_order.type,\n" +
+                        "        client_order.quantity,\n" +
+                        "        client_order.price,\n" +
+                        "        client_order.week_est_delivery,\n" +
+                        "        client_order.delay,\n" +
+                        "        client_order.status\n" +
+                        "FROM client_order\n" +
+                        "JOIN client on client.id = client_order.FK_client\n" +
+                        "WHERE client_order.id IN\n" +
+                        "(SELECT fk_client_order\n" +
+                        "FROM piece\n" +
+                        "JOIN production_order ON production_order.id = piece.fk_production_order\n" +
+                        "WHERE production_order.week = ?)";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, week);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<ClientOrder> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String name = sqlReturnValues.getString(2);
+                String type = sqlReturnValues.getString(3);
+                int qty = sqlReturnValues.getInt(4);
+                double price = sqlReturnValues.getDouble(5);
+                int initial_estimation = sqlReturnValues.getInt(6);
+                int current_estimation = sqlReturnValues.getInt(7) + initial_estimation;
+                String status = sqlReturnValues.getString(8);
+
+                returnValues.add(new ClientOrder(id, name, type, qty, price, initial_estimation, current_estimation, status) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
     public boolean updateClientOrderStatus(ClientOrder co, String new_status){
         String sql =    "UPDATE client_order\n" +
                         "SET    status = ?\n" +
@@ -1319,7 +1360,7 @@ public class DatabaseHandler {
                             "VALUES  (?, ?, ?)" +
                             "", Statement.RETURN_GENERATED_KEYS);
             insertStatement.setInt(1, io.getWeek());
-            insertStatement.setString(2, "waiting_confirmation");
+            insertStatement.setString(2, io.getStatus());
             insertStatement.setInt(3, SO_id);
             insertStatement.executeUpdate();
 
@@ -1849,6 +1890,23 @@ public class DatabaseHandler {
         }
         return true;
     }
+    public boolean freeDefectivePiecesFromClientOrder(ClientOrder co){
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "UPDATE piece\n" +
+                            "SET FK_client_order = ?\n" +
+                            "WHERE FK_client_order = ? AND status = 'defective' ;");
+
+            insertStatement.setNull(1, java.sql.Types.INTEGER);
+            insertStatement.setInt(2, co.getId() );
+
+            insertStatement.executeUpdate();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return false;
+        }
+        return true;
+    }
     public boolean updatePieceFinalType(Piece p, String final_type){
         try {
             PreparedStatement insertStatement = connection.prepareStatement(
@@ -2073,7 +2131,7 @@ public class DatabaseHandler {
                         "        safety_stock,\n" +
                         "        wh_pos\n" +
                         "FROM piece \n" +
-                        "WHERE FK_client_order IS NULL AND type = ?";
+                        "WHERE FK_client_order IS NULL AND status != 'defective' AND type = ?";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
@@ -2112,7 +2170,7 @@ public class DatabaseHandler {
                         "        safety_stock,\n" +
                         "        wh_pos\n" +
                         "FROM piece \n" +
-                        "WHERE FK_client_order IS NULL AND wh_pos IS NOT NULL AND type = ?";
+                        "WHERE FK_client_order IS NULL AND status != 'defective' AND wh_pos IS NOT NULL AND type = ?";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
@@ -2200,6 +2258,44 @@ public class DatabaseHandler {
             throwable.printStackTrace();
         }
         return 0;
+    }
+    public ArrayList<Piece> getDefectivePiecesByCO(ClientOrder CO){
+        String sql =    "SELECT id,\n" +
+                        "        type,\n" +
+                        "        status,\n" +
+                        "        final_type,\n" +
+                        "        week_arrived,\n" +
+                        "        week_produced,\n" +
+                        "        duration_production,\n" +
+                        "        safety_stock,\n" +
+                        "        wh_pos\n" +
+                        "FROM piece\n" +
+                        "WHERE fk_client_order = ? AND status = 'defective'";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, CO.getId());
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            ArrayList<Piece> returnValues = new ArrayList<>();
+
+            while (sqlReturnValues.next()){
+                Integer id = sqlReturnValues.getInt(1);
+                String type = sqlReturnValues.getString(2);
+                String status = sqlReturnValues.getString(3);
+                String final_type = sqlReturnValues.getString(4);
+                Integer week_arrived = sqlReturnValues.getInt(5);
+                Integer week_produced = sqlReturnValues.getInt(6);
+                Float duration_production = sqlReturnValues.getFloat(7);
+                boolean safety_stock = sqlReturnValues.getBoolean(8);
+                Integer wh_pos = sqlReturnValues.getInt(9);
+
+                returnValues.add(new Piece(id, type, status, final_type, week_arrived, week_produced, duration_production, safety_stock, wh_pos) );
+            }
+            return returnValues;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
     }
 
 
