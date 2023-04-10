@@ -2211,7 +2211,7 @@ public class DatabaseHandler {
                 "FROM piece \n" +
                 "WHERE type = ? AND FK_client_order IS NULL AND " +
                 "      FK_supplier_order IN\n" +
-                "      (SELECT id FROM supplier_order WHERE status = 'arriving') ";
+                "      (SELECT id FROM supplier_order WHERE status = 'arriving' OR status = 'confirmed') ";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
