@@ -143,3 +143,13 @@ DELETE FROM production_order
 WHERE status = 'canceled';
 DELETE FROM expedition_order
 WHERE status = 'canceled';
+
+
+
+SELECT COUNT(piece.id), SUM(CASE WHEN piece.week_arrived IS NOT NULL THEN 1 ELSE 0 END)
+FROM piece
+JOIN inbound_order ON piece.fk_inbound_order = inbound_order.id
+WHERE inbound_order.id IN
+    (SELECT piece.fk_inbound_order
+     FROM piece
+     WHERE piece.id = ?)
