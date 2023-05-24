@@ -2,6 +2,7 @@ package com.example.minierp.controllers;
 
 import com.example.minierp.database.DatabaseHandler;
 import com.example.minierp.model.Client;
+import com.example.minierp.model.Factory;
 import com.example.minierp.model.Supplier;
 import com.example.minierp.utils.Alerts;
 import com.example.minierp.utils.Verifier;
@@ -83,6 +84,10 @@ public class II_SuppliersController implements Initializable {
                 Alerts.showError("All values need to be higher than 0");
                 return;
             }
+            if(minqty_blue > Factory.getInstance().getWarehouse_capacity()){
+                Alerts.showError("The factory can't accept a supplier that has a minimum quantity larger than the warehouse capacity");
+                return;
+            }
             aux_supplier.add(new Supplier(null, name, "BlueRawMaterial", price_blue, minqty_blue, time_blue) );
         }
         if( check_green.isSelected() ){
@@ -101,6 +106,10 @@ public class II_SuppliersController implements Initializable {
                 Alerts.showError("All values need to be higher than 0");
                 return;
             }
+            if(minqty_green > Factory.getInstance().getWarehouse_capacity()){
+                Alerts.showError("The factory can't accept a supplier that has a minimum quantity larger than the warehouse capacity");
+                return;
+            }
             aux_supplier.add(new Supplier(null, name, "GreenRawMaterial", price_green, minqty_green, time_green) );
         }
         if( check_metal.isSelected() ){
@@ -117,6 +126,10 @@ public class II_SuppliersController implements Initializable {
             time_metal   = Integer.parseInt(tf_time_metal.getText());
             if(price_metal<1 || minqty_metal<1 || time_metal<1){
                 Alerts.showError("All values need to be higher than 0");
+                return;
+            }
+            if(minqty_metal > Factory.getInstance().getWarehouse_capacity()){
+                Alerts.showError("The factory can't accept a supplier that has a minimum quantity larger than the warehouse capacity");
                 return;
             }
             aux_supplier.add(new Supplier(null, name, "MetalRawMaterial", price_metal, minqty_metal, time_metal) );

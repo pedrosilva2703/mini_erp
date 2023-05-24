@@ -123,14 +123,15 @@ public class SI_OrdersController implements Initializable {
             int production_week = inbound_week+1;
             while(pieces_scheduled != piece_CO_SO_list.size() ){
                 int week_available_capacity = factory.getWeekly_production() - dbHandler.getProductionCountByWeek(production_week);
+                int week_available_storage = factory.getWarehouse_capacity() - dbHandler.getFinalWarehouseOccupation(production_week);
 
-                if(week_available_capacity == 0){
+                if(week_available_capacity == 0 || week_available_storage == 0){
                     production_week++;
                     continue;
                 }
 
                 ArrayList<Piece> po_pieces = new ArrayList<>();
-                for(int i=0; i<week_available_capacity; i++){
+                for(int i=0; i<week_available_capacity && i<week_available_storage; i++){
                     if(pieces_scheduled == piece_CO_SO_list.size()) break;
                     po_pieces.add( piece_CO_SO_list.get(pieces_scheduled) );
                     pieces_scheduled++;

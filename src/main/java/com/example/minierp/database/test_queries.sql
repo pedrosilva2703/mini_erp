@@ -153,3 +153,30 @@ WHERE inbound_order.id IN
     (SELECT piece.fk_inbound_order
      FROM piece
      WHERE piece.id = ?)
+
+
+
+
+SELECT
+  SUM(CASE WHEN production_order.week <= 3 THEN 1 ELSE 0 END) AS total_pieces_production,
+  SUM(CASE WHEN expedition_order.week <= 3 THEN 1 ELSE 0 END) AS total_pieces_expedition,
+  SUM(CASE WHEN production_order.week <= 3 THEN 1 ELSE 0 END) - SUM(CASE WHEN expedition_order.week <= 3 THEN 1 ELSE 0 END) AS difference
+FROM
+  piece
+  INNER JOIN production_order ON piece.fk_production_order = production_order.id
+  INNER JOIN expedition_order ON piece.fk_expedition_order = expedition_order.id
+WHERE
+  production_order.week <= 3 AND expedition_order.week <= 3;
+
+SELECT(
+(SELECT COUNT(piece.id)
+FROM piece
+JOIN production_order ON piece.fk_production_order = production_order.id
+WHERE piece.status != 'defective' AND production_order.week <= 3)
+-
+(SELECT COUNT(piece.id)
+FROM piece
+JOIN expedition_order ON piece.fk_expedition_order = expedition_order.id
+WHERE expedition_order.week <= 3)
+)
+

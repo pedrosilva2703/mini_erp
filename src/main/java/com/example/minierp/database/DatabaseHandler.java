@@ -1660,6 +1660,62 @@ public class DatabaseHandler {
         }
         return true;
     }
+    public int getFinalWarehouseOccupation(int week){
+        String sql =    "SELECT(\n" +
+                            "(SELECT COUNT(piece.id)\n" +
+                            "FROM piece\n" +
+                            "JOIN production_order ON piece.fk_production_order = production_order.id\n" +
+                            "WHERE piece.status != 'defective' AND production_order.week <= ? AND production_order.status != 'canceled')\n" +
+                            "-\n" +
+                            "(SELECT COUNT(piece.id)\n" +
+                            "FROM piece\n" +
+                            "JOIN expedition_order ON piece.fk_expedition_order = expedition_order.id\n" +
+                            "WHERE expedition_order.week <= ? AND expedition_order.status != 'canceled')\n" +
+                        ")\n";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, week);
+            stmt.setInt(2, week);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            sqlReturnValues.next();
+
+            int count = sqlReturnValues.getInt(1);
+
+            return count;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return -1;
+    }
+    public int getMaterialWarehouseOccupation(int week){
+        String sql =    "SELECT(\n" +
+                            "(SELECT COUNT(piece.id)\n" +
+                            "FROM piece\n" +
+                            "JOIN inbound_order ON piece.fk_inbound_order = inbound_order.id\n" +
+                            "WHERE inbound_order.week <= ? AND inbound_order.status != 'canceled')\n" +
+                            "-\n" +
+                            "(SELECT COUNT(piece.id)\n" +
+                            "FROM piece\n" +
+                            "JOIN production_order ON piece.fk_production_order = production_order.id\n" +
+                            "WHERE piece.status != 'defective' AND production_order.week <= ? AND production_order.status != 'canceled')\n" +
+                        ")\n";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, week);
+            stmt.setInt(2, week-1);
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            sqlReturnValues.next();
+
+            int count = sqlReturnValues.getInt(1);
+
+            return count;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return -1;
+    }
 
 
     //Expedition orders methods

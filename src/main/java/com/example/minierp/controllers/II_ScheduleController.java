@@ -240,14 +240,15 @@ public class II_ScheduleController implements Initializable {
         int production_week = factory.getCurrent_week() + 1;
         while(pieces_scheduled != rawpieces_in_wh_allocated.size() ){
             int week_available_capacity = factory.getWeekly_production() - dbHandler.getProductionCountByWeek(production_week);
+            int week_available_storage = factory.getWarehouse_capacity() - dbHandler.getFinalWarehouseOccupation(production_week);
 
-            if(week_available_capacity == 0){
+            if(week_available_capacity == 0 || week_available_storage == 0){
                 production_week++;
                 continue;
             }
 
             ArrayList<Piece> po_pieces = new ArrayList<>();
-            for(int i=0; i<week_available_capacity; i++){
+            for(int i=0; i<week_available_capacity && i<week_available_storage; i++){
                 if(pieces_scheduled == rawpieces_in_wh_allocated.size()) break;
                 po_pieces.add( rawpieces_in_wh_allocated.get(pieces_scheduled) );
                 pieces_scheduled++;
@@ -291,14 +292,15 @@ public class II_ScheduleController implements Initializable {
 
         while(pieces_scheduled != rawpieces_arriving_allocated.size() ){
             int week_available_capacity = factory.getWeekly_production() - dbHandler.getProductionCountByWeek(production_week);
+            int week_available_storage = factory.getWarehouse_capacity() - dbHandler.getFinalWarehouseOccupation(production_week);
 
-            if(week_available_capacity == 0){
+            if(week_available_capacity == 0 || week_available_storage == 0){
                 production_week++;
                 continue;
             }
 
             ArrayList<Piece> po_pieces = new ArrayList<>();
-            for(int i=0; i<week_available_capacity; i++){
+            for(int i=0; i<week_available_capacity && i<week_available_storage; i++){
                 if(pieces_scheduled == rawpieces_arriving_allocated.size()) break;
                 po_pieces.add( rawpieces_arriving_allocated.get(pieces_scheduled) );
                 pieces_scheduled++;
@@ -375,8 +377,11 @@ public class II_ScheduleController implements Initializable {
             pieces_ordered.addAll(pieces_desired);
             pieces_ordered.addAll(pieces_extra);
 
-            //*** Calculate when materials arrive ***//
+            //*** Calculate when materials can arrive ***//
             int arriving_week = factory.getCurrent_week() + s.getDelivery_time();
+            while( (factory.getWarehouse_capacity() - dbHandler.getMaterialWarehouseOccupation(arriving_week)) < ordered_quantity){
+                arriving_week++;
+            }
 
             //*** Create supplier order ***//
             SupplierOrder SO = new SupplierOrder(null, s.getName(), s.getMaterial_type(), ordered_quantity, s.getUnit_price(), arriving_week, 0, "waiting_confirmation");
@@ -394,15 +399,16 @@ public class II_ScheduleController implements Initializable {
             pieces_scheduled = 0;
             while(pieces_scheduled != quantity_in_need ){
                 int week_available_capacity = factory.getWeekly_production() - dbHandler.getProductionCountByWeek(production_week);
+                int week_available_storage = factory.getWarehouse_capacity() - dbHandler.getFinalWarehouseOccupation(production_week);
 
-                if(week_available_capacity == 0){
+                if(week_available_capacity == 0 || week_available_storage == 0){
                     production_week++;
                     continue;
                 }
 
 
                 ArrayList<Piece> po_pieces = new ArrayList<>();
-                for(int i=0; i<week_available_capacity; i++){
+                for(int i=0; i<week_available_capacity && i<week_available_storage; i++){
                     if(pieces_scheduled == quantity_in_need) break;
                     po_pieces.add( pieces_desired.get(pieces_scheduled) );
                     pieces_scheduled++;
