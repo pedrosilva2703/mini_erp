@@ -94,8 +94,11 @@ public class II_ScheduleController implements Initializable {
 
         //MES simulation
         dbHandler.setInboundRunning(factory.getCurrent_week());
+        dbHandler.setInboundPiecesWaiting(factory.getCurrent_week());
         dbHandler.setProductionRunning(factory.getCurrent_week());
+        dbHandler.setProductionPiecesWaiting(factory.getCurrent_week());
         dbHandler.setExpeditionRunning(factory.getCurrent_week());
+        dbHandler.setExpeditionPiecesWaiting(factory.getCurrent_week());
         //End mes simulation
 
         updateUI();

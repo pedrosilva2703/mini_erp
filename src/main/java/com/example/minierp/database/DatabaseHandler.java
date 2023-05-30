@@ -2359,8 +2359,8 @@ public class DatabaseHandler {
     //MES simulation methods
     public void setInboundRunning(int week){
         String sql =    "UPDATE inbound_order\n" +
-                "SET status = ? \n" +
-                "WHERE week = ? \n";
+                        "SET status = ? \n" +
+                        "WHERE week = ? \n";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, "running");
@@ -2396,6 +2396,69 @@ public class DatabaseHandler {
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, "running");
+            stmt.setInt(2, week);
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return;
+        }
+        return;
+    }
+    public void setInboundPiecesWaiting(int week){
+        String sql =    "UPDATE piece\n" +
+                        "SET status = ? \n" +
+                        "WHERE piece.id IN\n" +
+                        " (SELECT piece.id\n" +
+                        "  FROM piece\n" +
+                        "  JOIN inbound_order ON inbound_order.id = piece.fk_inbound_order\n" +
+                        "  WHERE inbound_order.week = ? AND inbound_order.status != 'canceled'\n" +
+                        " )";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, "waiting");
+            stmt.setInt(2, week);
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return;
+        }
+        return;
+    }
+    public void setProductionPiecesWaiting(int week){
+        String sql =    "UPDATE piece\n" +
+                "SET status = ? \n" +
+                "WHERE piece.id IN\n" +
+                " (SELECT piece.id\n" +
+                "  FROM piece\n" +
+                "  JOIN production_order ON production_order.id = piece.fk_production_order\n" +
+                "  WHERE production_order.week = ? AND production_order.status != 'canceled'\n" +
+                " )";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, "waiting");
+            stmt.setInt(2, week);
+            stmt.execute();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return;
+        }
+        return;
+    }
+    public void setExpeditionPiecesWaiting(int week){
+        String sql =    "UPDATE piece\n" +
+                "SET status = ? \n" +
+                "WHERE piece.id IN\n" +
+                " (SELECT piece.id\n" +
+                "  FROM piece\n" +
+                "  JOIN expedition_order ON expedition_order.id = piece.fk_expedition_order\n" +
+                "  WHERE expedition_order.week = ? AND expedition_order.status != 'canceled'\n" +
+                " )";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, "waiting");
             stmt.setInt(2, week);
             stmt.execute();
 
