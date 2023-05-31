@@ -69,70 +69,16 @@ public class II_SuppliersController implements Initializable {
 
         ArrayList<Supplier> aux_supplier = new ArrayList<>();
         if( check_blue.isSelected() ){
-            if(!Verifier.isDouble(tf_price_blue)){
-                Alerts.showError("Invalid price value");
-                return;
-            }
-            if(!Verifier.isInteger(tf_minqty_blue) || !Verifier.isInteger(tf_time_blue)){
-                Alerts.showError("All values need to be integer");
-                return;
-            }
-            price_blue  = Double.parseDouble(tf_price_blue.getText());
-            minqty_blue = Integer.parseInt(tf_minqty_blue.getText());
-            time_blue   = Integer.parseInt(tf_time_blue.getText());
-            if(price_blue<1 || minqty_blue<1 || time_blue<1){
-                Alerts.showError("All values need to be higher than 0");
-                return;
-            }
-            if(minqty_blue > Factory.getInstance().getWarehouse_capacity()){
-                Alerts.showError("The factory can't accept a supplier that has a minimum quantity larger than the warehouse capacity");
-                return;
-            }
-            aux_supplier.add(new Supplier(null, name, "BlueRawMaterial", price_blue, minqty_blue, time_blue) );
+            boolean result = createSupplier(aux_supplier, name, tf_price_blue, tf_minqty_blue, tf_time_blue, "BlueRawMaterial");
+            if(!result) return;
         }
         if( check_green.isSelected() ){
-            if(!Verifier.isDouble(tf_price_green)){
-                Alerts.showError("Invalid price value");
-                return;
-            }
-            if(!Verifier.isInteger(tf_minqty_green) || !Verifier.isInteger(tf_time_green)){
-                Alerts.showError("All values need to be integer");
-                return;
-            }
-            price_green  = Double.parseDouble(tf_price_green.getText());
-            minqty_green = Integer.parseInt(tf_minqty_green.getText());
-            time_green   = Integer.parseInt(tf_time_green.getText());
-            if(price_green<1 || minqty_green<1 || time_green<1){
-                Alerts.showError("All values need to be higher than 0");
-                return;
-            }
-            if(minqty_green > Factory.getInstance().getWarehouse_capacity()){
-                Alerts.showError("The factory can't accept a supplier that has a minimum quantity larger than the warehouse capacity");
-                return;
-            }
-            aux_supplier.add(new Supplier(null, name, "GreenRawMaterial", price_green, minqty_green, time_green) );
+            boolean result = createSupplier(aux_supplier, name, tf_price_green, tf_minqty_green, tf_time_green, "GreenRawMaterial");
+            if(!result) return;
         }
         if( check_metal.isSelected() ){
-            if(!Verifier.isDouble(tf_price_metal)){
-                Alerts.showError("Invalid price value");
-                return;
-            }
-            if(!Verifier.isInteger(tf_minqty_metal) || !Verifier.isInteger(tf_time_metal)){
-                Alerts.showError("All values need to be integer");
-                return;
-            }
-            price_metal  = Double.parseDouble(tf_price_metal.getText());
-            minqty_metal = Integer.parseInt(tf_minqty_metal.getText());
-            time_metal   = Integer.parseInt(tf_time_metal.getText());
-            if(price_metal<1 || minqty_metal<1 || time_metal<1){
-                Alerts.showError("All values need to be higher than 0");
-                return;
-            }
-            if(minqty_metal > Factory.getInstance().getWarehouse_capacity()){
-                Alerts.showError("The factory can't accept a supplier that has a minimum quantity larger than the warehouse capacity");
-                return;
-            }
-            aux_supplier.add(new Supplier(null, name, "MetalRawMaterial", price_metal, minqty_metal, time_metal) );
+            boolean result = createSupplier(aux_supplier, name, tf_price_metal, tf_minqty_metal, tf_time_metal, "MetalRawMaterial");
+            if(!result) return;
         }
 
         if(!dbHandler.createSupplier(aux_supplier)){
@@ -142,6 +88,30 @@ public class II_SuppliersController implements Initializable {
         Alerts.showInfo("Supplier added successfully");
 
         updateUI();
+    }
+
+    private boolean createSupplier(ArrayList<Supplier> aux_supplier, String name, TextField tf_price, TextField tf_minqty, TextField tf_time, String type){
+        if(!Verifier.isDouble(tf_price)){
+            Alerts.showError("Invalid price value");
+            return false;
+        }
+        if(!Verifier.isInteger(tf_minqty) || !Verifier.isInteger(tf_time)){
+            Alerts.showError("All values need to be integer");
+            return false;
+        }
+        double price  = Double.parseDouble(tf_price.getText());
+        int minqty = Integer.parseInt(tf_minqty.getText());
+        int time   = Integer.parseInt(tf_time.getText());
+        if(price<1 || minqty<1 || time<1){
+            Alerts.showError("All values need to be higher than 0");
+            return false;
+        }
+        if(minqty > Factory.getInstance().getWarehouse_capacity()){
+            Alerts.showError("The factory can't accept a supplier that has a minimum quantity larger than the warehouse capacity");
+            return false;
+        }
+        aux_supplier.add(new Supplier(null, name, type, price, minqty, time) );
+        return true;
     }
 
     private void clearInputs(){
