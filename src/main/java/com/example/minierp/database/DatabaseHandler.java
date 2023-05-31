@@ -144,7 +144,8 @@ public class DatabaseHandler {
                         "DROP TABLE IF EXISTS production_order  CASCADE; " +
                         "DROP TABLE IF EXISTS expedition_order  CASCADE; " +
                         "DROP TABLE IF EXISTS client_order      CASCADE; " +
-                        "DROP TABLE IF EXISTS client            CASCADE;";
+                        "DROP TABLE IF EXISTS client            CASCADE;" +
+                        "DROP TABLE IF EXISTS machine           CASCADE;";
         try {
             PreparedStatement dropStatement = connection.prepareStatement(sql);
             dropStatement.execute();
@@ -207,6 +208,7 @@ public class DatabaseHandler {
                 "    FK_inbound_order    INT NOT NULL,\n" +
                 "    FK_production_order INT,\n" +
                 "    FK_expedition_order INT,\n" +
+                "    FK_machine          INT,\n" +
                 "\n" +
                 "    CONSTRAINT PK_piece PRIMARY KEY (id)\n" +
                 ");\n" +
@@ -215,7 +217,7 @@ public class DatabaseHandler {
                 "    id      SERIAL NOT NULL,\n" +
                 "    week    INT NOT NULL,\n" +
                 "    status  VARCHAR(50),\n" +
-                "    \n" +
+                "\n" +
                 "    FK_supplier_order   INT NOT NULL,\n" +
                 "\n" +
                 "    CONSTRAINT PK_inbound_order PRIMARY KEY (id)\n" +
@@ -260,6 +262,13 @@ public class DatabaseHandler {
                 "    name    VARCHAR(50) NOT NULL,\n" +
                 "\n" +
                 "    CONSTRAINT PK_client PRIMARY KEY (id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE machine (\n" +
+                "    id      INT NOT NULL,\n" +
+                "    type    VARCHAR(50),\n" +
+                "\n" +
+                "    CONSTRAINT PK_machine PRIMARY KEY (id)\n" +
                 ");";
         try {
             PreparedStatement dropStatement = connection.prepareStatement(sql);
@@ -271,47 +280,52 @@ public class DatabaseHandler {
         return true;
     }
     public boolean addForeignKeys(){
-        String sql =    "/*      supplier_material                           */\n" +
-                        "ALTER TABLE supplier_material ADD CONSTRAINT FK_supplier_material_id_material\n" +
-                        "    FOREIGN KEY (FK_material) REFERENCES material (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
-                        "ALTER TABLE supplier_material ADD CONSTRAINT FK_supplier_material_id_supplier\n" +
-                        "    FOREIGN KEY (FK_supplier) REFERENCES supplier (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
-                        "\n" +
-                        "/*      supplier(1) -- (*)supplier_order      */\n" +
-                        "ALTER TABLE supplier_order ADD CONSTRAINT FK_supplier_order_id_supplier\n" +
-                        "    FOREIGN KEY (FK_supplier) REFERENCES supplier (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
-                        "\n" +
-                        "/*      supplier_order(1) -- (1)inbound_order      */\n" +
-                        "ALTER TABLE inbound_order ADD CONSTRAINT FK_inbound_order_id_supplier_order\n" +
-                        "    FOREIGN KEY (FK_supplier_order) REFERENCES supplier_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
-                        "\n" +
-                        "/*      supplier_order(1) -- (*)piece      */\n" +
-                        "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_supplier_order\n" +
-                        "    FOREIGN KEY (FK_supplier_order) REFERENCES supplier_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
-                        "\n" +
-                        "/*      inbound_order(1) -- (*)piece      */\n" +
-                        "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_inbound_order\n" +
-                        "    FOREIGN KEY (FK_inbound_order) REFERENCES inbound_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
-                        "\n" +
-                        "/*      production_order(1) -- (*)piece      */\n" +
-                        "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_production_order\n" +
-                        "    FOREIGN KEY (FK_production_order) REFERENCES production_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
-                        "\n" +
-                        "/*      expedition_order(1) -- (*)piece      */\n" +
-                        "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_expedition_order\n" +
-                        "    FOREIGN KEY (FK_expedition_order) REFERENCES expedition_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
-                        "\n" +
-                        "/*      client_order(1) -- (*)piece      */\n" +
-                        "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_client_order\n" +
-                        "    FOREIGN KEY (FK_client_order) REFERENCES client_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
-                        "\n" +
-                        "/*      expedition_order(1) -- (1)client_order      */\n" +
-                        "ALTER TABLE expedition_order ADD CONSTRAINT FK_expedition_order_id_client_order\n" +
-                        "    FOREIGN KEY (FK_client_order) REFERENCES client_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
-                        "\n" +
-                        "/*      client(1) -- (*)client_order      */\n" +
-                        "ALTER TABLE client_order ADD CONSTRAINT FK_client_order_id_client\n" +
-                        "    FOREIGN KEY (FK_client) REFERENCES client (id) ON DELETE CASCADE ON UPDATE NO ACTION;";
+        String sql =    "\n" +
+                "/*      supplier_material                           */\n" +
+                "ALTER TABLE supplier_material ADD CONSTRAINT FK_supplier_material_id_material\n" +
+                "    FOREIGN KEY (FK_material) REFERENCES material (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "ALTER TABLE supplier_material ADD CONSTRAINT FK_supplier_material_id_supplier\n" +
+                "    FOREIGN KEY (FK_supplier) REFERENCES supplier (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "\n" +
+                "/*      supplier(1) -- (*)supplier_order      */\n" +
+                "ALTER TABLE supplier_order ADD CONSTRAINT FK_supplier_order_id_supplier\n" +
+                "    FOREIGN KEY (FK_supplier) REFERENCES supplier (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "\n" +
+                "/*      supplier_order(1) -- (1)inbound_order      */\n" +
+                "ALTER TABLE inbound_order ADD CONSTRAINT FK_inbound_order_id_supplier_order\n" +
+                "    FOREIGN KEY (FK_supplier_order) REFERENCES supplier_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "\n" +
+                "/*      supplier_order(1) -- (*)piece      */\n" +
+                "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_supplier_order\n" +
+                "    FOREIGN KEY (FK_supplier_order) REFERENCES supplier_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "\n" +
+                "/*      inbound_order(1) -- (*)piece      */\n" +
+                "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_inbound_order\n" +
+                "    FOREIGN KEY (FK_inbound_order) REFERENCES inbound_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "\n" +
+                "/*      production_order(1) -- (*)piece      */\n" +
+                "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_production_order\n" +
+                "    FOREIGN KEY (FK_production_order) REFERENCES production_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "\n" +
+                "/*      expedition_order(1) -- (*)piece      */\n" +
+                "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_expedition_order\n" +
+                "    FOREIGN KEY (FK_expedition_order) REFERENCES expedition_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "\n" +
+                "/*      client_order(1) -- (*)piece      */\n" +
+                "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_client_order\n" +
+                "    FOREIGN KEY (FK_client_order) REFERENCES client_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "\n" +
+                "/*      machine(1) -- (*)piece      */\n" +
+                "ALTER TABLE piece ADD CONSTRAINT FK_piece_id_machine\n" +
+                "    FOREIGN KEY (FK_machine) REFERENCES machine (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "    \n" +
+                "/*      expedition_order(1) -- (1)client_order      */\n" +
+                "ALTER TABLE expedition_order ADD CONSTRAINT FK_expedition_order_id_client_order\n" +
+                "    FOREIGN KEY (FK_client_order) REFERENCES client_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;\n" +
+                "\n" +
+                "/*      client(1) -- (*)client_order      */\n" +
+                "ALTER TABLE client_order ADD CONSTRAINT FK_client_order_id_client\n" +
+                "    FOREIGN KEY (FK_client) REFERENCES client (id) ON DELETE CASCADE ON UPDATE NO ACTION;";
         try {
             PreparedStatement alterStatement = connection.prepareStatement(sql);
             alterStatement.execute();

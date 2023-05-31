@@ -76,6 +76,7 @@ CREATE TABLE piece (
     FK_inbound_order    INT NOT NULL,
     FK_production_order INT,
     FK_expedition_order INT,
+    FK_machine          INT,
 
     CONSTRAINT PK_piece PRIMARY KEY (id)
 );
@@ -131,6 +132,13 @@ CREATE TABLE client (
     CONSTRAINT PK_client PRIMARY KEY (id)
 );
 
+CREATE TABLE machine (
+    id      INT NOT NULL,
+    type    VARCHAR(50),
+
+    CONSTRAINT PK_machine PRIMARY KEY (id)
+);
+
 /*******************************************************************************
    Create Foreign Keys (embedded in java)
 ********************************************************************************/
@@ -169,6 +177,10 @@ ALTER TABLE piece ADD CONSTRAINT FK_piece_id_expedition_order
 ALTER TABLE piece ADD CONSTRAINT FK_piece_id_client_order
     FOREIGN KEY (FK_client_order) REFERENCES client_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;
 
+/*      machine(1) -- (*)piece      */
+ALTER TABLE piece ADD CONSTRAINT FK_piece_id_machine
+    FOREIGN KEY (FK_machine) REFERENCES machine (id) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 /*      expedition_order(1) -- (1)client_order      */
 ALTER TABLE expedition_order ADD CONSTRAINT FK_expedition_order_id_client_order
     FOREIGN KEY (FK_client_order) REFERENCES client_order (id) ON DELETE CASCADE ON UPDATE NO ACTION;
@@ -192,6 +204,7 @@ DROP TABLE IF EXISTS product CASCADE;
 DROP TABLE IF EXISTS expedition_order CASCADE;
 DROP TABLE IF EXISTS client_order CASCADE;
 DROP TABLE IF EXISTS client CASCADE;
+DROP TABLE IF EXISTS machine CASCADE;
 
 
 

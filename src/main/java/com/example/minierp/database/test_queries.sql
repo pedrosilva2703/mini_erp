@@ -180,3 +180,14 @@ JOIN expedition_order ON piece.fk_expedition_order = expedition_order.id
 WHERE expedition_order.week <= 3)
 )
 
+
+SELECT  machine.id,
+        machine.type,
+        SUM(CASE WHEN production_order.week<2 AND piece.status!='defective' THEN 1 ELSE 0 END) as total_produced,
+        SUM(CASE WHEN production_order.week<2 AND piece.status='defective' THEN 1 ELSE 0 END) as total_defective,
+        SUM(CASE WHEN production_order.week=2 THEN 1 ELSE 0 END) as current_pieces
+FROM machine
+JOIN piece ON piece.fk_machine = machine.id
+JOIN production_order ON production_order.id = piece.fk_production_order
+GROUP BY machine.id,
+         machine.type
