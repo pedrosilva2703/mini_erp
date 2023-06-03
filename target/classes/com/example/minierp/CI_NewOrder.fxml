@@ -21,11 +21,7 @@
                         <Button layoutX="165.0" layoutY="296.0" mnemonicParsing="false" onMouseClicked="#createOrder" styleClass="regular-button" text="Create Order" />
                         <ComboBox fx:id="comboClient" layoutX="165.0" layoutY="144.0" prefWidth="150.0" />
                         <Text layoutX="40.0" layoutY="201.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Product Type" />
-                        <ComboBox fx:id="comboType" layoutX="165.0" layoutY="182.0" onAction="#onTypeSelected" prefWidth="150.0" />
-                        <Text fx:id="textBase" layoutX="375.0" layoutY="201.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Base" />
-                        <ComboBox fx:id="comboBase" layoutX="423.0" layoutY="182.0" prefWidth="150.0" />
-                        <Text fx:id="textLid" layoutX="633.0" layoutY="201.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Lid" />
-                        <ComboBox fx:id="comboLid" layoutX="666.0" layoutY="182.0" prefWidth="150.0" />
+                        <ComboBox fx:id="comboType" layoutX="165.0" layoutY="182.0" prefWidth="150.0" />
                         <Text layoutX="40.0" layoutY="239.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Quantity" />
                         <TextField fx:id="tf_qty" layoutX="165.0" layoutY="220.0" prefHeight="25.0" prefWidth="280.0" styleClass="number-field" />
                   <Text layoutX="40.0" layoutY="277.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Preference" />

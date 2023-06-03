@@ -13,9 +13,10 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class SI_LayoutController {
-    @FXML
-    private BorderPane mainPane;
+    SI_EditController editController;
+    SI_OrdersController ordersController;
 
+    @FXML private BorderPane mainPane;
     @FXML private Button ordersButton;
     @FXML private Button editParamsButton;
     @FXML private Button backButton;
@@ -42,13 +43,27 @@ public class SI_LayoutController {
         }
     }
 
+
+    private void interruptActiveThreads(){
+        if(editController!=null){
+            editController.interruptRefreshThread();
+        }
+        if(ordersController!=null){
+            ordersController.interruptRefreshThread();
+        }
+
+    }
+
+
     private void unselectButton(Button b){
         b.getStyleClass().remove("menu-app-button-selected");
         b.getStyleClass().add("menu-app-button");
+        b.setDisable(false);
     }
     private void selectButton(Button b){
         b.getStyleClass().remove("menu-app-button");
         b.getStyleClass().add("menu-app-button-selected");
+        b.setDisable(true);
     }
 
     private void refreshButtonStates(Button clickedButton){
@@ -66,6 +81,16 @@ public class SI_LayoutController {
             AnchorPane content = contentLoader.load();
             // Add the navigation menu to the left side of the BorderPane
             mainPane.setCenter(content);
+
+            if(page.equals("SI_Orders") ){
+                SI_OrdersController ordersController = contentLoader.getController();
+                this.ordersController = ordersController;
+            }
+            if(page.equals("SI_Edit") ){
+                SI_EditController editController = contentLoader.getController();
+                this.editController = editController;
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

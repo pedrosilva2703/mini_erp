@@ -4,6 +4,7 @@ import com.example.minierp.database.DatabaseHandler;
 import com.example.minierp.model.*;
 import com.example.minierp.utils.Alerts;
 import com.example.minierp.utils.Materials;
+import com.example.minierp.utils.RefreshPageManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -12,6 +13,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ public class II_ScheduleController implements Initializable {
     DatabaseHandler dbHandler = DatabaseHandler.getInstance();
     Factory factory = Factory.getInstance();
 
+    Stage currentStage;
     @FXML private Text statusText;
     @FXML private Text weekText;
 
@@ -53,14 +56,42 @@ public class II_ScheduleController implements Initializable {
     @FXML private TableView<InboundOrder> tv_IO;
     @FXML private TableView<ProductionOrder> tv_PO;
 
+
+    Thread refreshUI_Thread;
+
+    public void interruptRefreshThread(){
+        refreshUI_Thread.interrupt();
+    }
+
+    private void startRefreshUI_Thread(){
+        refreshUI_Thread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+
+                updateUI();
+                System.out.println("Schedule executing");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+
+        refreshUI_Thread.setDaemon(true);
+        refreshUI_Thread.start();
+    }
+
+
     @FXML
     void nextButtonClicked() {
+        currentStage = (Stage) tv_EO.getScene().getWindow();
+
         if(!dbHandler.hasClientOrders() ) {
-            Alerts.showError("Simulation cannot start without client orders in the system");
+            Alerts.showError(currentStage,"Simulation cannot start without client orders in the system");
             return;
         }
         if(dbHandler.hasPendingClientOrders()){
-            Alerts.showError("There are still pending client orders!");
+            Alerts.showError(currentStage,"There are still pending client orders!");
             return;
         }
 
@@ -102,6 +133,7 @@ public class II_ScheduleController implements Initializable {
         //End mes simulation
 
         updateUI();
+        RefreshPageManager.getInstance().sendRefreshRequest();
 
     }
 
@@ -142,12 +174,12 @@ public class II_ScheduleController implements Initializable {
         weekText.setText( Integer.toString(factory.getCurrent_week() ));
         statusText.setText( factory.getSim_status() );
 
-
-
+        ArrayList<InboundOrder> ioList = dbHandler.getInboundOrders();
+        ArrayList<ProductionOrder> poList = dbHandler.getProductionOrders();
+        ArrayList<ExpeditionOrder> eoList = dbHandler.getExpeditionOrders();
 
         //Inbound orders
         tv_IO.getItems().clear();
-        ArrayList<InboundOrder> ioList = dbHandler.getInboundOrders();
         if( ioList != null ){
             tv_IO.getItems().addAll( ioList );
             tv_IO.setPrefHeight( (tv_IO.getItems().size()+1.15) * tv_IO.getFixedCellSize() );
@@ -155,7 +187,6 @@ public class II_ScheduleController implements Initializable {
 
         //Production Orders
         tv_PO.getItems().clear();
-        ArrayList<ProductionOrder> poList = dbHandler.getProductionOrders();
         if( poList != null ){
             tv_PO.getItems().addAll( poList );
             tv_PO.setPrefHeight( (tv_PO.getItems().size()+1.15) * tv_PO.getFixedCellSize() );
@@ -166,7 +197,6 @@ public class II_ScheduleController implements Initializable {
 
         //Expedition Orders
         tv_EO.getItems().clear();
-        ArrayList<ExpeditionOrder> eoList = dbHandler.getExpeditionOrders();
         if( eoList != null ){
             tv_EO.getItems().addAll( eoList );
             tv_EO.setPrefHeight( (tv_EO.getItems().size()+1.15) * tv_EO.getFixedCellSize() );
@@ -339,7 +369,7 @@ public class II_ScheduleController implements Initializable {
                 supplierList = dbHandler.getSuppliersByExcessQty(raw_type, quantity_in_need, "earlier");
 
                 if(supplierList.size() == 0){
-                    Alerts.showError("There are still no suppliers for this type of product");
+                    Alerts.showError(currentStage,"There are still no suppliers for this type of product");
                     return;
                 }
             }
@@ -511,6 +541,7 @@ public class II_ScheduleController implements Initializable {
     // Initialize method
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         tc_IO_quantity.setCellValueFactory(new PropertyValueFactory<InboundOrder, Integer>("quantity") );
         tc_IO_status.setCellValueFactory(new PropertyValueFactory<InboundOrder, String>("status") );
         tc_IO_supplier.setCellValueFactory(new PropertyValueFactory<InboundOrder, String>("supplier") );;
@@ -531,6 +562,7 @@ public class II_ScheduleController implements Initializable {
 
         updateUI();
 
+        startRefreshUI_Thread();
     }
 
 }

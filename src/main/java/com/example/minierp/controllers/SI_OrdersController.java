@@ -4,7 +4,9 @@ import com.example.minierp.database.DatabaseHandler;
 import com.example.minierp.model.*;
 import com.example.minierp.utils.Alerts;
 import com.example.minierp.utils.Materials;
+import com.example.minierp.utils.RefreshPageManager;
 import com.example.minierp.utils.Verifier;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,6 +16,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ public class SI_OrdersController implements Initializable {
     DatabaseHandler dbHandler = DatabaseHandler.getInstance();
     Factory factory = Factory.getInstance();
 
+    Stage currentStage;
     @FXML private TextField tf_delay;
 
     @FXML private ComboBox<String> comboName;
@@ -36,11 +40,43 @@ public class SI_OrdersController implements Initializable {
     @FXML private TableColumn<SupplierOrder, Integer> tc_Delay;
     @FXML private TableColumn<SupplierOrder, String> tc_Status;
 
-    @FXML void filterSupplier(){
-        tv_SupplierOrders.getItems().clear();
-        String selected_name = comboName.getValue();
+    Thread refreshUI_Thread;
 
+    public void interruptRefreshThread(){
+        refreshUI_Thread.interrupt();
+    }
+
+    private void startRefreshUI_Thread(){
+        refreshUI_Thread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+
+                if(!RefreshPageManager.getInstance().isRefreshedSI()){
+                    Platform.runLater(() -> {
+                        fillNameFilter();
+                    });
+                    RefreshPageManager.getInstance().setSiRefreshed();
+                }
+
+                System.out.println("SI");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+
+        refreshUI_Thread.setDaemon(true);
+        refreshUI_Thread.start();
+    }
+
+
+    @FXML void filterSupplier(){
+        String selected_name = comboName.getValue();
         ArrayList<SupplierOrder> soList = dbHandler.getSupplierOrdersByName(selected_name);
+        if(selected_name==null) return;
+
+        tv_SupplierOrders.getItems().clear();
         if( soList != null ){
             tv_SupplierOrders.getItems().addAll( soList );
             tv_SupplierOrders.setPrefHeight( (tv_SupplierOrders.getItems().size()+1.15) * tv_SupplierOrders.getFixedCellSize() );
@@ -48,42 +84,43 @@ public class SI_OrdersController implements Initializable {
     }
 
     @FXML void delayButtonPressed() {
+        currentStage = (Stage) tv_SupplierOrders.getScene().getWindow();
 
         ObservableList<SupplierOrder> selectionList;
         selectionList               = tv_SupplierOrders.getSelectionModel().getSelectedItems();
         if(selectionList.isEmpty() ){
-            Alerts.showError("You need to select an order!");
+            Alerts.showError(currentStage,"You need to select an order!");
             return;
         }
         SupplierOrder selected_order  = selectionList.get(0);
         if(selected_order.getStatus().equals("waiting_confirmation") ){
-            Alerts.showError("This order is not even confirmed yet!");
+            Alerts.showError(currentStage,"This order is not even confirmed yet!");
             return;
         }
         if(selected_order.getStatus().equals("canceled") ){
-            Alerts.showError("You can't delay a canceled order!");
+            Alerts.showError(currentStage,"You can't delay a canceled order!");
             return;
         }
         if(selected_order.getStatus().equals("arriving") ){
-            Alerts.showError("This order is already arriving next week!");
+            Alerts.showError(currentStage,"This order is already arriving next week!");
             return;
         }
         if(selected_order.getStatus().equals("completed") ){
-            Alerts.showError("This order was already completed!");
+            Alerts.showError(currentStage,"This order was already completed!");
             return;
         }
         if(selected_order.getDelay()!=0){
-            Alerts.showError("This order was already delayed once!");
+            Alerts.showError(currentStage,"This order was already delayed once!");
             return;
         }
 
         if(!Verifier.isInteger(tf_delay)){
-            Alerts.showError("Invalid delay value");
+            Alerts.showError(currentStage,"Invalid delay value");
             return;
         }
         int delay = Integer.parseInt(tf_delay.getText());
         if(delay<1){
-            Alerts.showError("Invalid delay value");
+            Alerts.showError(currentStage,"Invalid delay value");
             return;
         }
 
@@ -170,18 +207,31 @@ public class SI_OrdersController implements Initializable {
 
         }
 
-        Alerts.showInfo("The system was informed about the delay successfully");
+        Alerts.showInfo(currentStage,"The system was informed about the delay successfully");
 
         filterSupplier();
+
+        RefreshPageManager.getInstance().sendRefreshRequest();
 
     }
 
     private void fillNameFilter(){
+        comboName.getItems().clear();
+        String previousSelected = comboName.getValue();
+
         ArrayList<String> nameList = dbHandler.getSupplierNames();
         if( nameList == null ) return;
         for( String s : nameList ){
             comboName.getItems().add(s);
         }
+
+        boolean stillExists = false;
+        if(previousSelected==null) return;
+        for( String s : nameList ){
+            if(s.equals(previousSelected) ) stillExists = true;
+        }
+        if(stillExists) comboName.setValue(previousSelected);
+
     }
 
     // Initialize method
@@ -197,6 +247,8 @@ public class SI_OrdersController implements Initializable {
         tc_InitDelEst.setCellValueFactory(new PropertyValueFactory<SupplierOrder, Integer>("delivery_week") );;
         tc_Delay.setCellValueFactory(new PropertyValueFactory<SupplierOrder, Integer>("delay") );
         tc_Status.setCellValueFactory(new PropertyValueFactory<SupplierOrder, String>("status") );
+
+        startRefreshUI_Thread();
     }
 
 }

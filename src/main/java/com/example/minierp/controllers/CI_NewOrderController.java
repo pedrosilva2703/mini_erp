@@ -5,13 +5,15 @@ import com.example.minierp.database.DatabaseHandler;
 import com.example.minierp.model.*;
 import com.example.minierp.utils.Alerts;
 import com.example.minierp.utils.Materials;
+import com.example.minierp.utils.RefreshPageManager;
 import com.example.minierp.utils.Verifier;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
-import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 
 import java.net.URL;
@@ -21,47 +23,45 @@ import java.util.ResourceBundle;
 public class CI_NewOrderController implements Initializable {
     Factory factory = Factory.getInstance();
     DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+    Thread refreshUI_Thread;
 
+    Stage currentStage;
     @FXML private ComboBox<String> comboClient;
     @FXML private ComboBox<String> comboType;
-    @FXML private ComboBox<String> comboBase;
-    @FXML private ComboBox<String> comboLid;
     @FXML private TextField tf_qty;
-    @FXML private Text textLid;
-    @FXML private Text textBase;
+
 
     @FXML private RadioButton earlierRadio;
     @FXML private RadioButton cheaperRadio;
 
-    @FXML void onTypeSelected(){
-        updateComboVisibility();
-    }
 
     @FXML void createOrder(){
+        currentStage = (Stage) comboClient.getScene().getWindow();
+
         String type = comboType.getValue();
         String client_name = comboClient.getValue();
         if( client_name == null){
-            Alerts.showError("Please select a client");
+            Alerts.showError(currentStage,"Please select a client");
             return;
         }
 
         if(!Verifier.isInteger(tf_qty) ){
-            Alerts.showError("The value introduced is not an integer");
+            Alerts.showError(currentStage,"The value introduced is not an integer");
             return;
         }
 
         int desired_quantity = Integer.parseInt(tf_qty.getText());
         if(desired_quantity<1){
-            Alerts.showError("The desired_quantity needs to be higher than 0");
+            Alerts.showError(currentStage,"The desired_quantity needs to be higher than 0");
             return;
         }
         if(desired_quantity> factory.getWarehouse_capacity()){
-            Alerts.showError("The factory can't accept an order that has a quantity larger than the warehouse capacity");
+            Alerts.showError(currentStage,"The factory can't accept an order that has a quantity larger than the warehouse capacity");
             return;
         }
 
         if(!earlierRadio.isSelected() && !cheaperRadio.isSelected() ){
-            Alerts.showError("Please select preference");
+            Alerts.showError(currentStage,"Please select preference");
             return;
         }
 
@@ -203,7 +203,7 @@ public class CI_NewOrderController implements Initializable {
                 supplierList = dbHandler.getSuppliersByExcessQty(raw_type, quantity_in_need, preference);
 
                 if(supplierList.size() == 0){
-                    Alerts.showError("There are still no suppliers for this type of product");
+                    Alerts.showError(currentStage,"There are still no suppliers for this type of product");
                     return;
                 }
             }
@@ -371,16 +371,43 @@ public class CI_NewOrderController implements Initializable {
 
         }
 
+        RefreshPageManager.getInstance().sendRefreshRequest();
 
-
-        Alerts.showInfo("Order was sent successfully. Please wait for our internal approval.");
-
-
+        Alerts.showInfo(currentStage,"Order was sent successfully. Please wait for our internal approval.");
     }
+
+    public void interruptRefreshThread(){
+        refreshUI_Thread.interrupt();
+    }
+    private void startRefreshUI_Thread(){
+        refreshUI_Thread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                if(!RefreshPageManager.getInstance().isRefreshedCI()){
+                    Platform.runLater(() -> {
+                        fillTypeCombos();
+                        fillClientCombo();
+                    });
+                    RefreshPageManager.getInstance().setCiRefreshed();
+                }
+
+                System.out.println("CI");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+
+        refreshUI_Thread.setDaemon(true);
+        refreshUI_Thread.start();
+    }
+
 
 
     // Combo box methods
     private void fillTypeCombos(){
+        comboType.getItems().clear();
         //Type combo
         comboType.getItems().add("BlueProductBase");
         comboType.getItems().add("GreenProductBase");
@@ -388,54 +415,25 @@ public class CI_NewOrderController implements Initializable {
         comboType.getItems().add("BlueProductLid");
         comboType.getItems().add("GreenProductLid");
         comboType.getItems().add("MetalProductLid");
-        comboType.getItems().add("Assembled");
-        //Base combo
-        comboBase.getItems().add("BlueProductBase");
-        comboBase.getItems().add("GreenProductBase");
-        comboBase.getItems().add("MetalProductBase");
-        //Lid combo
-        comboLid.getItems().add("BlueProductLid");
-        comboLid.getItems().add("GreenProductLid");
-        comboLid.getItems().add("MetalProductLid");
+
     }
-    private void updateComboVisibility(){
-        String type = comboType.getValue();
-        if(  type == null){
-            showAssembleCombos(false);
-            return;
+    private void fillClientCombo(){
+        ArrayList<Client> clientList = dbHandler.getClients();
+        comboClient.getItems().clear();
+        if( clientList == null ) return;
+        for( Client c : clientList ){
+            comboClient.getItems().add(c.getName());
         }
-        else if( !type.equals("Assembled") ){
-            showAssembleCombos(false);
-            return;
-        }
-
-        showAssembleCombos(true);
-
-
     }
-    private void showAssembleCombos(boolean b){
-        textLid.setVisible(b);
-        textBase.setVisible(b);
 
-        comboLid.getSelectionModel().clearSelection();
-        comboBase.getSelectionModel().clearSelection();
-        comboLid.setVisible(b);
-        comboBase.setVisible(b);
-    }
 
     // Initialize method
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         fillTypeCombos();
-        updateComboVisibility();
+        fillClientCombo();
 
-        ArrayList<Client> clientList = dbHandler.getClients();
-        if( clientList == null ) return;
-        for( Client c : clientList ){
-            comboClient.getItems().add(c.getName());
-        }
-
-
+        startRefreshUI_Thread();
     }
 
 }

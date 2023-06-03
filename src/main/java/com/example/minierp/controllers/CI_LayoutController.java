@@ -13,9 +13,11 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class CI_LayoutController {
-    @FXML
-    private BorderPane mainPane;
+    CI_ConfirmedOrdersController confirmedOrdersController;
+    CI_NewOrderController newOrderController;
+    CI_PendingOrdersController pendingOrdersController;
 
+    @FXML private BorderPane mainPane;
     @FXML private Button newOrderButton;
     @FXML private Button pendingButton;
     @FXML private Button confirmedButton;
@@ -24,16 +26,19 @@ public class CI_LayoutController {
 
     @FXML
     private void onNewOrderButtonClick(){
+        interruptActiveThreads();
         loadPage("CI_NewOrder");
         refreshButtonStates(newOrderButton);
     }
     @FXML
     private void onPendingButtonClick(){
+        interruptActiveThreads();
         loadPage("CI_PendingOrders");
         refreshButtonStates(pendingButton);
     }
     @FXML
     private void onConfirmedButtonClick(){
+        interruptActiveThreads();
         loadPage("CI_ConfirmedOrders");
         refreshButtonStates(confirmedButton);
     }
@@ -49,13 +54,25 @@ public class CI_LayoutController {
         }
     }
 
+    private void interruptActiveThreads(){
+        if(confirmedOrdersController!=null){
+            confirmedOrdersController.interruptRefreshThread();
+        }
+        if(newOrderController!=null){
+            newOrderController.interruptRefreshThread();
+        }
+
+    }
+
     private void unselectButton(Button b){
         b.getStyleClass().remove("menu-app-button-selected");
         b.getStyleClass().add("menu-app-button");
+        b.setDisable(false);
     }
     private void selectButton(Button b){
         b.getStyleClass().remove("menu-app-button");
         b.getStyleClass().add("menu-app-button-selected");
+        b.setDisable(true);
     }
 
     private void refreshButtonStates(Button clickedButton){
@@ -63,7 +80,6 @@ public class CI_LayoutController {
         unselectButton(newOrderButton);
         unselectButton(pendingButton);
         unselectButton(confirmedButton);
-
 
         // Select clicked button
         selectButton(clickedButton);
@@ -75,6 +91,20 @@ public class CI_LayoutController {
             AnchorPane content = contentLoader.load();
             // Add the navigation menu to the left side of the BorderPane
             mainPane.setCenter(content);
+
+            if(page.equals("CI_ConfirmedOrders") ){
+                CI_ConfirmedOrdersController confirmedOrdersController = contentLoader.getController();
+                this.confirmedOrdersController = confirmedOrdersController;
+            }
+            if(page.equals("CI_NewOrder") ){
+                CI_NewOrderController newOrderController = contentLoader.getController();
+                this.newOrderController = newOrderController;
+            }
+            if(page.equals("CI_PendingOrders") ){
+                CI_PendingOrdersController pendingOrdersController = contentLoader.getController();
+                this.pendingOrdersController = pendingOrdersController;
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

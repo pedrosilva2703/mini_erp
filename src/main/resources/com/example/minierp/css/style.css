@@ -146,6 +146,7 @@
     -fx-font-size: 14;
 }
 
+
 /*************** BUTTONS ***************/
 .regular-button{
     -fx-font-size: 20;
@@ -180,6 +181,9 @@
     -fx-opacity: 0.5;
 }
 
+.test-field{
+    -fx-opacity: 0;
+}
 
 /*************** TABLE VIEW ***************/
 //Style of entire tableView

@@ -3,6 +3,8 @@ package com.example.minierp.controllers;
 import com.example.minierp.database.DatabaseHandler;
 import com.example.minierp.model.*;
 import com.example.minierp.utils.Alerts;
+import com.example.minierp.utils.RefreshPageManager;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,16 +14,18 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 import java.net.URL;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class CI_ConfirmedOrdersController implements Initializable {
     DatabaseHandler dbHandler = DatabaseHandler.getInstance();
 
+    Stage currentStage;
     @FXML private ComboBox<String> comboName;
-
     @FXML private TableView<ClientOrder> tv_CO;
     @FXML private TableColumn<ClientOrder, String> tc_CO_name;
     @FXML private TableColumn<ClientOrder, String> tc_CO_type;
@@ -31,9 +35,43 @@ public class CI_ConfirmedOrdersController implements Initializable {
     @FXML private TableColumn<ClientOrder, Integer> tc_CO_currentEstimation;
     @FXML private TableColumn<ClientOrder, String> tc_CO_status;
 
+    Thread refreshUI_Thread;
+
+    public void interruptRefreshThread(){
+        refreshUI_Thread.interrupt();
+    }
+
+    private void startRefreshUI_Thread(){
+        refreshUI_Thread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+
+                if(!RefreshPageManager.getInstance().isRefreshedCI()){
+                    Platform.runLater(() -> {
+                        fillNameFilter();
+                        filterClient();
+                    });
+
+                    RefreshPageManager.getInstance().setCiRefreshed();
+                }
+
+                System.out.println("CI");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+
+        refreshUI_Thread.setDaemon(true);
+        refreshUI_Thread.start();
+    }
+
+
     @FXML void filterClient(){
         tv_CO.getItems().clear();
         String selected_name = comboName.getValue();
+        if(selected_name==null) return;
 
         ArrayList<ClientOrder> coList = dbHandler.getClientOrdersByName(selected_name, "confirmed");
         coList.addAll(dbHandler.getClientOrdersByName(selected_name, "canceled_client"));
@@ -45,16 +83,19 @@ public class CI_ConfirmedOrdersController implements Initializable {
     }
 
     @FXML void cancelButtonClicked() {
+        currentStage = (Stage) tv_CO.getScene().getWindow();
+
         ObservableList<ClientOrder> selectionList;
         selectionList = tv_CO.getSelectionModel().getSelectedItems();
         if (selectionList.isEmpty()) {
-            Alerts.showError("You need to select an order");
+            Alerts.showError(currentStage, "You need to select an order");
+
             return;
         }
 
         ClientOrder selected_order  = selectionList.get(0);
         if(!dbHandler.cancelPendingClientOrder(selected_order, "canceled_client") ){
-            Alerts.showError("An error occurred canceling client order.");
+            Alerts.showError(currentStage,"An error occurred canceling client order.");
             return;
         }
 
@@ -94,28 +135,43 @@ public class CI_ConfirmedOrdersController implements Initializable {
             if(         !dbHandler.updatePieceEO(p, -1)
                     ||  !dbHandler.updatePieceCO(p, -1)  ){
 
-                Alerts.showError("An error occurred updating piece data");
+                Alerts.showError(currentStage,"An error occurred updating piece data");
                 return;
             }
         }
 
         //Delete internal orders (when deleting Inbound, it also deletes pieces)
         if(!dbHandler.deleteCanceledInternalOrders()){
-            Alerts.showError("An error occurred deleting internal order");
+            Alerts.showError(currentStage,"An error occurred deleting internal order");
             return;
         }
 
-        Alerts.showInfo("Order was canceled successfully");
+        Alerts.showInfo(currentStage,"Order was canceled successfully");
+
         filterClient();
 
+        RefreshPageManager.getInstance().sendRefreshRequest();
     }
 
-    private void fillNameFilter(){
+    @FXML void fillNameFilter(){
         ArrayList<Client> clientList = dbHandler.getClients();
+
+        String previousSelected = comboName.getValue();
+
+        comboName.getItems().clear();
         if( clientList == null ) return;
         for( Client c : clientList ){
             comboName.getItems().add(c.getName() );
+
         }
+
+        boolean stillExists = false;
+        if(previousSelected==null) return;
+        for( Client c : clientList ){
+            if(c.getName().equals(previousSelected) ) stillExists = true;
+        }
+        if(stillExists) comboName.setValue(previousSelected);
+
     }
 
     // Initialize method
@@ -132,6 +188,7 @@ public class CI_ConfirmedOrdersController implements Initializable {
         tc_CO_currentEstimation.setCellValueFactory(new PropertyValueFactory<ClientOrder, Integer>("current_estimation") );
         tc_CO_status.setCellValueFactory(new PropertyValueFactory<ClientOrder, String>("status") );
 
+        startRefreshUI_Thread();
     }
 
 }

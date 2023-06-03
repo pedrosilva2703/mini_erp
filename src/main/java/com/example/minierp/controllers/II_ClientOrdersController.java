@@ -4,6 +4,8 @@ import com.example.minierp.database.DatabaseHandler;
 import com.example.minierp.model.Client;
 import com.example.minierp.model.ClientOrder;
 import com.example.minierp.model.SupplierOrder;
+import com.example.minierp.utils.RefreshPageManager;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,6 +14,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import java.util.ResourceBundle;
 public class II_ClientOrdersController implements Initializable {
     DatabaseHandler dbHandler = DatabaseHandler.getInstance();
 
+    Stage currentStage;
     @FXML private AnchorPane anchor_PO;
     @FXML private TableView<ClientOrder> tv_PO;
     @FXML private TableColumn<ClientOrder, String> tc_PO_name;
@@ -38,6 +42,35 @@ public class II_ClientOrdersController implements Initializable {
     @FXML private TableColumn<ClientOrder, Integer> tc_CO_currentEstimation;
     @FXML private TableColumn<ClientOrder, String> tc_CO_status;
 
+    Thread refreshUI_Thread;
+
+    public void interruptRefreshThread(){
+        refreshUI_Thread.interrupt();
+    }
+
+    private void startRefreshUI_Thread(){
+        refreshUI_Thread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+
+                if(!RefreshPageManager.getInstance().isRefreshedII()){
+                    Platform.runLater(() -> {
+                        updateUI();
+                    });
+                    RefreshPageManager.getInstance().setIiRefreshed();
+                }
+
+                System.out.println("II");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+
+        refreshUI_Thread.setDaemon(true);
+        refreshUI_Thread.start();
+    }
 
     private void updateUI(){
         tv_PO.getItems().clear();
@@ -83,8 +116,7 @@ public class II_ClientOrdersController implements Initializable {
         tc_CO_status.setCellValueFactory(new PropertyValueFactory<ClientOrder, String>("status") );
 
         updateUI();
-
-
+        startRefreshUI_Thread();
     }
 
 }

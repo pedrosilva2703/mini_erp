@@ -4,6 +4,7 @@ import com.example.minierp.Launcher;
 import com.example.minierp.database.DatabaseHandler;
 import com.example.minierp.model.Factory;
 import com.example.minierp.utils.Alerts;
+import com.example.minierp.utils.RefreshPageManager;
 import com.example.minierp.utils.Verifier;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -30,7 +31,6 @@ public class MainMenuController implements Initializable {
     @FXML private Button internalButton;
     @FXML private Button supplierButton;
     @FXML private Button clientButton;
-    @FXML private Button aboutButton;
 
     @FXML private TextField tf_url;
     @FXML private TextField tf_port;
@@ -50,18 +50,19 @@ public class MainMenuController implements Initializable {
 
 
     @FXML
-    private void goInternal(){changeScene(internalButton, "II_Layout", "Internal Interface");}
+    private void goInternal(){
+        changeScene(internalButton, "II_Layout", "Internal Interface");
+        internalButton.setDisable(true);
+    }
     @FXML
     private void goSupplier(){
         changeScene(supplierButton, "SI_Layout", "Supplier Interface");
+        supplierButton.setDisable(true);
     }
     @FXML
     private void goClient(){
         changeScene(clientButton, "CI_Layout", "Client Interface");
-    }
-    @FXML
-    private void goAbout(){
-        changeScene(aboutButton, "About", "About");
+        clientButton.setDisable(true);
     }
 
     @FXML
@@ -76,13 +77,13 @@ public class MainMenuController implements Initializable {
             port = Integer.parseInt(tf_port.getText());
         }
         catch (NumberFormatException e){
-            Alerts.showError("Port value is not an integer!");
+            Alerts.showErrorMainMenu("Port value is not an integer!");
             return;
         }
 
         dbHandler = DatabaseHandler.getInstance(url, port, databaseName, schema, username, password);
         if(!dbHandler.setConnection()){
-            Alerts.showError("Connection failed!");
+            Alerts.showErrorMainMenu("Connection failed!");
             return;
         }
 
@@ -94,18 +95,18 @@ public class MainMenuController implements Initializable {
     @FXML
     private void onFactorySaveButtonClicked(){
         if( !Verifier.isInteger(tf_wh) || !Verifier.isInteger(tf_prod) ){
-            Alerts.showError("The value introduced is not an integer");
+            Alerts.showErrorMainMenu("The value introduced is not an integer");
             return;
         }
 
         int capacity    =   Integer.parseInt(tf_wh.getText());
         int production  =   Integer.parseInt(tf_prod.getText());
         if( capacity < 1 || capacity > 54 ){
-            Alerts.showError("Warehouse capacity needs to be between 1 and 54!");
+            Alerts.showErrorMainMenu("Warehouse capacity needs to be between 1 and 54!");
             return;
         }
         if( production < 1 ){
-            Alerts.showError("The maximum production needs to be at least 1");
+            Alerts.showErrorMainMenu("The maximum production needs to be at least 1");
             return;
         }
 
@@ -118,6 +119,7 @@ public class MainMenuController implements Initializable {
         factory.setSetupDone();
 
         dbHandler.updateFactoryStatus();
+        RefreshPageManager.getInstance();
         updateInputsState();
     }
 
@@ -208,21 +210,21 @@ public class MainMenuController implements Initializable {
     // Navigation functions
     private void changeScene(Button button, String scene, String title) {
         try {
-            Stage stage = (Stage) internalButton.getScene().getWindow();
-            Parent root = FXMLLoader.load(Launcher.class.getResource(scene + ".fxml"));
-            stage.setScene(new Scene(root));
-
-
 //            Stage stage = (Stage) internalButton.getScene().getWindow();
-//            stage.setIconified(true);
-//
-//            Stage new_stage = new Stage();
 //            Parent root = FXMLLoader.load(Launcher.class.getResource(scene + ".fxml"));
-//            new_stage.setScene(new Scene(root));
-//
-//            new_stage.setTitle(title);
-//            new_stage.setResizable(false);
-//            new_stage.show();
+//            stage.setScene(new Scene(root));
+
+
+            Stage stage = (Stage) internalButton.getScene().getWindow();
+            stage.setIconified(true);
+
+            Stage new_stage = new Stage();
+            Parent root = FXMLLoader.load(Launcher.class.getResource(scene + ".fxml"));
+            new_stage.setScene(new Scene(root));
+
+            new_stage.setTitle(title);
+            new_stage.setResizable(false);
+            new_stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -242,6 +244,7 @@ public class MainMenuController implements Initializable {
     // Initialize method
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         loadDbPreferences();
         updateInputsState();
     }
