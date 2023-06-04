@@ -40,9 +40,6 @@ public class MainMenuController implements Initializable {
     @FXML private TextField tf_password;
     @FXML private Button btn_dbConn;
 
-    @FXML private RadioButton radio_single;
-    @FXML private RadioButton radio_interm;
-    @FXML private RadioButton radio_final;
     @FXML private TextField tf_wh;
     @FXML private TextField tf_prod;
     @FXML private Button btn_factorySave;
@@ -111,9 +108,6 @@ public class MainMenuController implements Initializable {
         }
 
         // Save values
-        if      ( radio_single.isSelected() )   factory.setWorking_mode("single");
-        else if ( radio_interm.isSelected() )   factory.setWorking_mode("intermediate");
-        else if ( radio_final.isSelected()  )   factory.setWorking_mode("final");
         factory.setWarehouse_capacity(  Integer.parseInt(tf_wh.getText())   );
         factory.setWeekly_production(   Integer.parseInt(tf_prod.getText()) );
         factory.setSetupDone();
@@ -164,9 +158,6 @@ public class MainMenuController implements Initializable {
         btn_dbConn.setDisable(true);
     }
     private void setFactoryInputs(boolean status){
-        radio_single.setDisable(status);
-        radio_interm.setDisable(status);
-        radio_final.setDisable(status);
         tf_wh.setDisable(status);
         tf_prod.setDisable(status);
         btn_factorySave.setDisable(status);
@@ -199,9 +190,6 @@ public class MainMenuController implements Initializable {
     // Write previous configuration on Factory fields
     private void loadFactoryParams(){
         dbHandler.retrieveFactoryPreviousConfig();
-        if      ( factory.getWorking_mode().equals("single")        )   radio_single.setSelected(true);
-        else if ( factory.getWorking_mode().equals("intermediate")  )   radio_interm.setSelected(true);
-        else if ( factory.getWorking_mode().equals("final")         )   radio_final.setSelected(true);
 
         tf_wh.setText(      Integer.toString(factory.getWarehouse_capacity())   );
         tf_prod.setText(    Integer.toString(factory.getWeekly_production())    );
