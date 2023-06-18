@@ -21,7 +21,6 @@ public class CI_LayoutController {
     @FXML private Button newOrderButton;
     @FXML private Button pendingButton;
     @FXML private Button confirmedButton;
-    @FXML private Button backButton;
 
 
     @FXML
@@ -43,16 +42,6 @@ public class CI_LayoutController {
         refreshButtonStates(confirmedButton);
     }
 
-    @FXML
-    private void onBackButtonClick(){
-        try {
-            Stage stage = (Stage) backButton.getScene().getWindow();
-            Parent root = FXMLLoader.load(Launcher.class.getResource("MainMenu.fxml"));
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void interruptActiveThreads(){
         if(confirmedOrdersController!=null){
@@ -61,7 +50,9 @@ public class CI_LayoutController {
         if(newOrderController!=null){
             newOrderController.interruptRefreshThread();
         }
-
+        if(pendingOrdersController!=null){
+            pendingOrdersController.interruptRefreshThread();
+        }
     }
 
     private void unselectButton(Button b){

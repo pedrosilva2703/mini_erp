@@ -5,7 +5,6 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.TextField?>
 
 <BorderPane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.minierp.controllers.SI_LayoutController">
    <left>
@@ -25,7 +24,6 @@
             <Pane prefHeight="51.0" prefWidth="242.0" />
             <Pane prefHeight="51.0" prefWidth="242.0" />
             <Pane prefHeight="51.0" prefWidth="242.0" />
-            <Button fx:id="backButton" mnemonicParsing="false" onMouseClicked="#onBackButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-back-button" text="← Main Menu" />
          </children></VBox>
    </left>
 </BorderPane>

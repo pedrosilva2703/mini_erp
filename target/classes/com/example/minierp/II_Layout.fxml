@@ -25,7 +25,6 @@
             <Button fx:id="clientsButton" mnemonicParsing="false" onMouseClicked="#onClientsButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Add Client" />
             <Button fx:id="suppliersButton" mnemonicParsing="false" onMouseClicked="#onSuppliersButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-app-button" text="Add Supplier" />
             <Pane prefHeight="62.0" prefWidth="260.0" />
-            <Button fx:id="backButton" mnemonicParsing="false" onMouseClicked="#onBackButtonClick" prefHeight="23.0" prefWidth="260.0" styleClass="menu-back-button" text="← Main Menu" />
          </children></VBox>
    </left>
 </BorderPane>

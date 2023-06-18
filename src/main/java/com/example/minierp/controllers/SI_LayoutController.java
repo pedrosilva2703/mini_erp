@@ -19,28 +19,19 @@ public class SI_LayoutController {
     @FXML private BorderPane mainPane;
     @FXML private Button ordersButton;
     @FXML private Button editParamsButton;
-    @FXML private Button backButton;
 
 
     @FXML
     private void onOrdersButtonClick(){
+        interruptActiveThreads();
         loadPage("SI_Orders");
         refreshButtonStates(ordersButton);
     }
     @FXML
     private void onEditParamsButtonClick(){
+        interruptActiveThreads();
         loadPage("SI_Edit");
         refreshButtonStates(editParamsButton);
-    }
-    @FXML
-    private void onBackButtonClick(){
-        try {
-            Stage stage = (Stage) backButton.getScene().getWindow();
-            Parent root = FXMLLoader.load(Launcher.class.getResource("MainMenu.fxml"));
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 

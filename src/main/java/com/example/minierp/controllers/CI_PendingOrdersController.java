@@ -209,6 +209,7 @@ public class CI_PendingOrdersController implements Initializable {
         tc_PO_deliveryWeek.setCellValueFactory(new PropertyValueFactory<ClientOrder, Integer>("delivery_week") );
 
         startRefreshUI_Thread();
+
     }
 
 }

@@ -111,13 +111,13 @@
                   <Text layoutX="40.0" layoutY="442.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Supplier list" />
                   <AnchorPane layoutX="40.0" layoutY="472.0" prefHeight="101.0" prefWidth="504.0">
                      <children>
-                        <TableView fx:id="tv_Suppliers" fixedCellSize="30.0" prefHeight="51.0" prefWidth="952.0" AnchorPane.bottomAnchor="50.0">
+                        <TableView fx:id="tv_Suppliers" fixedCellSize="30.0" prefHeight="51.0" prefWidth="772.0" AnchorPane.bottomAnchor="50.0">
                           <columns>
-                            <TableColumn fx:id="tc_Name" prefWidth="150.00" text="Name" />
+                            <TableColumn fx:id="tc_Name" prefWidth="156.0" text="Name" />
                             <TableColumn fx:id="tc_MaterialType" minWidth="0.0" prefWidth="150.00" text="Material Type" />
-                              <TableColumn fx:id="tc_UPrice" minWidth="0.0" prefWidth="81.0" text="Unit Price" />
-                              <TableColumn fx:id="tc_MinQty" minWidth="0.0" prefWidth="109.60003662109375" text="Min. Quantity" />
-                              <TableColumn fx:id="tc_DeliveryTime" minWidth="0.0" prefWidth="158.39996337890625" text="Delivery Time" />
+                              <TableColumn fx:id="tc_UPrice" minWidth="0.0" prefWidth="150.0" text="Unit Price" />
+                              <TableColumn fx:id="tc_MinQty" minWidth="0.0" prefWidth="150.0" text="Minimum Quantity" />
+                              <TableColumn fx:id="tc_DeliveryTime" minWidth="0.0" prefWidth="150.0" text="Delivery Time" />
                           </columns>
                         </TableView>
                      </children>

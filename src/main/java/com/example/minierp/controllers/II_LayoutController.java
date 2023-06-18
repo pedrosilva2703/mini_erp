@@ -29,7 +29,6 @@ public class II_LayoutController {
     @FXML private Button clientOrdersButton;
     @FXML private Button suppliersButton;
     @FXML private Button supplierOrdersButton;
-    @FXML private Button backButton;
 
 
     @FXML
@@ -67,16 +66,6 @@ public class II_LayoutController {
         interruptActiveThreads();
         loadPage("II_SupplierOrders");
         refreshButtonStates(supplierOrdersButton);
-    }
-    @FXML
-    private void onBackButtonClick(){
-        try {
-            Stage stage = (Stage) backButton.getScene().getWindow();
-            Parent root = FXMLLoader.load(Launcher.class.getResource("MainMenu.fxml"));
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 

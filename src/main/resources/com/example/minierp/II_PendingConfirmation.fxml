@@ -21,11 +21,11 @@
                      <children>
                               <TableView fx:id="tv_PO" fixedCellSize="30.0" prefHeight="52.0" prefWidth="665.0" AnchorPane.bottomAnchor="50.0">
                                   <columns>
-                                      <TableColumn fx:id="tc_PO_name" prefWidth="150.0" text="Name" />
+                                      <TableColumn fx:id="tc_PO_name" prefWidth="156.0" text="Name" />
                                       <TableColumn fx:id="tc_PO_type" minWidth="0.0" prefWidth="150.0" text="Type" />
-                                      <TableColumn fx:id="tc_PO_quantity" minWidth="0.0" prefWidth="81.0" text="Quantity" />
-                                      <TableColumn fx:id="tc_PO_price" minWidth="0.0" prefWidth="81.0" text="Price" />
-                                      <TableColumn fx:id="tc_PO_deliveryWeek" minWidth="0.0" prefWidth="186.0" text="Delivery Week" />
+                                      <TableColumn fx:id="tc_PO_quantity" minWidth="0.0" prefWidth="90.0" text="Quantity" />
+                                      <TableColumn fx:id="tc_PO_price" minWidth="0.0" prefWidth="90.0" text="Price" />
+                                      <TableColumn fx:id="tc_PO_deliveryWeek" minWidth="0.0" prefWidth="164.0" text="Delivery Week" />
                                   </columns>
                               </TableView>
                      </children>

@@ -177,7 +177,7 @@ public class II_ScheduleController implements Initializable {
         ArrayList<InboundOrder> ioList = dbHandler.getInboundOrders();
         ArrayList<ProductionOrder> poList = dbHandler.getProductionOrders();
         ArrayList<ExpeditionOrder> eoList = dbHandler.getExpeditionOrders();
-
+        
         //Inbound orders
         tv_IO.getItems().clear();
         if( ioList != null ){

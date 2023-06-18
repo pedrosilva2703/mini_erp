@@ -176,6 +176,7 @@ public class II_SuppliersController implements Initializable {
 
         tv_Suppliers.getItems().clear();
         ArrayList<Supplier> supplierList = dbHandler.getSuppliers();
+
         if( supplierList != null ){
             tv_Suppliers.getItems().addAll( supplierList );
             tv_Suppliers.setPrefHeight( (tv_Suppliers.getItems().size()+1.15) * tv_Suppliers.getFixedCellSize() );

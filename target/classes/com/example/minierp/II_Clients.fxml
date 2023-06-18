@@ -24,10 +24,10 @@
                      <children>
                         <AnchorPane prefHeight="69.0" prefWidth="500.0" AnchorPane.bottomAnchor="50.0">
                            <children>
-                              <TableView fx:id="tv_Clients" fixedCellSize="30.0" prefHeight="42.0" prefWidth="501.0">
+                              <TableView fx:id="tv_Clients" fixedCellSize="30.0" prefHeight="42.0" prefWidth="365.0">
                                 <columns>
-                                  <TableColumn fx:id="tc_Name" prefWidth="400.0" text="Name" />
-                                  <TableColumn fx:id="tc_Orders" minWidth="0.0" prefWidth="85.0" text="Orders" />
+                                  <TableColumn fx:id="tc_Name" prefWidth="200.0" text="Name" />
+                                  <TableColumn fx:id="tc_Orders" minWidth="0.0" prefWidth="150.0" text="Total Orders" />
                                 </columns>
                               </TableView>
                            </children>
