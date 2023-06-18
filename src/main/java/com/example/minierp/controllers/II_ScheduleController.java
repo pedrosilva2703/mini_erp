@@ -177,7 +177,7 @@ public class II_ScheduleController implements Initializable {
         ArrayList<InboundOrder> ioList = dbHandler.getInboundOrders();
         ArrayList<ProductionOrder> poList = dbHandler.getProductionOrders();
         ArrayList<ExpeditionOrder> eoList = dbHandler.getExpeditionOrders();
-        
+
         //Inbound orders
         tv_IO.getItems().clear();
         if( ioList != null ){
@@ -192,7 +192,7 @@ public class II_ScheduleController implements Initializable {
             tv_PO.setPrefHeight( (tv_PO.getItems().size()+1.15) * tv_PO.getFixedCellSize() );
         }
         // Constraint the TOP of the 2nd table to the Height of the first table
-        double io_height = anchor_IO.getPrefHeight()+tv_IO.getPrefHeight();
+        double io_height = anchor_IO.getPrefHeight()*0.75+tv_IO.getPrefHeight();
         AnchorPane.setTopAnchor(anchor_PO, io_height);
 
         //Expedition Orders
@@ -202,7 +202,7 @@ public class II_ScheduleController implements Initializable {
             tv_EO.setPrefHeight( (tv_EO.getItems().size()+1.15) * tv_EO.getFixedCellSize() );
         }
         // Constraint the TOP of the 3nd table to the Height of the 2nd table
-        double po_height = anchor_PO.getPrefHeight()+tv_PO.getPrefHeight() + io_height;
+        double po_height = anchor_PO.getPrefHeight()*0.75+tv_PO.getPrefHeight() + io_height;
         AnchorPane.setTopAnchor(anchor_EO, po_height);
 
     }

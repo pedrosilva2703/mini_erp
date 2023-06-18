@@ -30,7 +30,7 @@
                                     </TableView>
                            </children>
                         </AnchorPane>
-                        <AnchorPane fx:id="anchor_PO" layoutY="168.0" prefHeight="135.0" prefWidth="948.0">
+                        <AnchorPane fx:id="anchor_PO" prefHeight="100.0" prefWidth="948.0">
                            <children>
                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Production Orders" AnchorPane.topAnchor="0.0" />
                                     <TableView fx:id="tv_PO" fixedCellSize="30.0" layoutY="50.0" prefHeight="52.0" prefWidth="726.0">
