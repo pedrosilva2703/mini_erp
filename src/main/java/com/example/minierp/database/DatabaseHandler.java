@@ -389,7 +389,8 @@ public class DatabaseHandler {
                         "        COUNT(client_order.id) AS orders_qty\n" +
                         "FROM client\n" +
                         "LEFT JOIN client_order ON client.id = client_order.FK_client\n" +
-                        "GROUP BY client.id";
+                        "GROUP BY client.id\n" +
+                        "ORDER BY client.id";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet sqlReturnValues = stmt.executeQuery();
