@@ -53,6 +53,7 @@ public class SI_OrdersController implements Initializable {
                 if(!RefreshPageManager.getInstance().isRefreshedSI()){
                     Platform.runLater(() -> {
                         fillNameFilter();
+                        tf_delay.clear();
                     });
                     RefreshPageManager.getInstance().setSiRefreshed();
                 }

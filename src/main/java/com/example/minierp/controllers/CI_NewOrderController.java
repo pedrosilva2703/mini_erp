@@ -386,6 +386,9 @@ public class CI_NewOrderController implements Initializable {
                     Platform.runLater(() -> {
                         fillTypeCombos();
                         fillClientCombo();
+                        tf_qty.clear();
+                        cheaperRadio.setSelected(false);
+                        earlierRadio.setSelected(false);
                     });
                     RefreshPageManager.getInstance().setCiRefreshed();
                 }

@@ -28,7 +28,6 @@ public class II_ScheduleController implements Initializable {
     @FXML private Text weekText;
 
     @FXML private Button nextButton;
-    @FXML private Button mesButton;
 
     @FXML private AnchorPane anchor_EO;
     @FXML private AnchorPane anchor_IO;
@@ -125,11 +124,11 @@ public class II_ScheduleController implements Initializable {
 
         //MES simulation
         dbHandler.setInboundRunning(factory.getCurrent_week());
-        dbHandler.setInboundPiecesWaiting(factory.getCurrent_week());
+        //dbHandler.setInboundPiecesWaiting(factory.getCurrent_week());
         dbHandler.setProductionRunning(factory.getCurrent_week());
-        dbHandler.setProductionPiecesWaiting(factory.getCurrent_week());
+        //dbHandler.setProductionPiecesWaiting(factory.getCurrent_week());
         dbHandler.setExpeditionRunning(factory.getCurrent_week());
-        dbHandler.setExpeditionPiecesWaiting(factory.getCurrent_week());
+        //dbHandler.setExpeditionPiecesWaiting(factory.getCurrent_week());
         //End mes simulation
 
         updateUI();
@@ -137,38 +136,36 @@ public class II_ScheduleController implements Initializable {
 
     }
 
-    @FXML
-    void mesButtonClicked() {
-        dbHandler.retrieveFactoryStatus();
-
-        int week = factory.getCurrent_week();
-
-        //set internal orders as completed
-        dbHandler.setInboundCompleted(week);
-        dbHandler.setPiecesInbound(week);
-        dbHandler.setProductionCompleted(week);
-        dbHandler.setPiecesProduction(week);
-        dbHandler.setExpeditionCompleted(week);
-        dbHandler.setPiecesExpedition(week);
-
-
-        factory.setSim_status("waiting_week_start");
-        dbHandler.updateFactoryStatus();
-
-        updateUI();
-
-    }
+//    @FXML
+//    void mesButtonClicked() {
+//        dbHandler.retrieveFactoryStatus();
+//
+//        int week = factory.getCurrent_week();
+//
+//        //set internal orders as completed
+//        dbHandler.setInboundCompleted(week);
+//        dbHandler.setPiecesInbound(week);
+//        dbHandler.setProductionCompleted(week);
+//        dbHandler.setPiecesProduction(week);
+//        dbHandler.setExpeditionCompleted(week);
+//        dbHandler.setPiecesExpedition(week);
+//
+//
+//        factory.setSim_status("waiting_week_start");
+//        dbHandler.updateFactoryStatus();
+//
+//        updateUI();
+//
+//    }
 
     private void updateUI(){
         //Factory status
         dbHandler.retrieveFactoryStatus();
         if(factory.isOngoingWeek()){
             nextButton.setDisable(true);
-            mesButton.setDisable(false);
         }
         else if(factory.isWaitingSimStart() || factory.isWaitingWeekStart() ){
             nextButton.setDisable(false);
-            mesButton.setDisable(true);
         }
 
         weekText.setText( Integer.toString(factory.getCurrent_week() ));
