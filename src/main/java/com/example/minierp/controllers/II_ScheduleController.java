@@ -462,7 +462,7 @@ public class II_ScheduleController implements Initializable {
             if(production_week > expedition_week) expedition_week = production_week;
 
             //*** Update client order***//
-            dbHandler.updateClientOrderDelay(co, expedition_week - co.getCurrent_estimation() );
+            dbHandler.updateClientOrderDelay(co, expedition_week - co.getDelivery_week() );
             co.setCurrent_estimation(expedition_week);
 
             //*** Update expedition order ***//
@@ -507,7 +507,7 @@ public class II_ScheduleController implements Initializable {
             //If there is no need for supplier ordering:
 
             //*** Update client order***//
-            dbHandler.updateClientOrderDelay(co, expedition_week - co.getCurrent_estimation() );
+            dbHandler.updateClientOrderDelay(co, expedition_week - co.getDelivery_week() );
             co.setCurrent_estimation(expedition_week);
 
             //*** Update expedition order ***//

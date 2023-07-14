@@ -618,6 +618,7 @@ public class DatabaseHandler {
             stmt.setInt(1, new_delay);
             stmt.setInt(2, co.getId());
             stmt.execute();
+            System.out.println(stmt);
 
         } catch (SQLException throwable) {
             throwable.printStackTrace();
