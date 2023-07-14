@@ -67,7 +67,7 @@ public class II_ScheduleController implements Initializable {
             while (!Thread.currentThread().isInterrupted()) {
 
                 updateUI();
-                System.out.println("Schedule executing");
+                //System.out.println("Schedule executing");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -307,10 +307,15 @@ public class II_ScheduleController implements Initializable {
         ArrayList<Piece> rawpieces_arriving_allocated = new ArrayList<>();
         ArrayList<Piece> rawpieces_arriving_free = dbHandler.getAvailablePiecesArriving(raw_type);
 
-        //Allocate necessary pieces in WH and gets their costs
+        production_week = 0;
         for(Piece p : rawpieces_arriving_free){
             if(rawpieces_arriving_allocated.size()== desired_quantity - CO_all_pieces.size() ) break;
-            production_week = factory.getCurrent_week() + 2; //+1 for arriving, +1 for inbound
+
+            int piece_arriving_week = dbHandler.getPieceWeek(p);
+            int piece_production_week = piece_arriving_week+1;
+            if(piece_production_week > production_week) production_week = piece_production_week;
+            //production_week = factory.getCurrent_week() + 2; //+1 for arriving, +1 for inbound
+
             final_price += dbHandler.getPieceCost(p);
             p.setFinal_type(type);
             rawpieces_arriving_allocated.add(p);
@@ -415,7 +420,7 @@ public class II_ScheduleController implements Initializable {
 
             //*** Create supplier order ***//
             SupplierOrder SO = new SupplierOrder(null, s.getName(), s.getMaterial_type(), ordered_quantity, s.getUnit_price(), arriving_week, 0, "waiting_confirmation");
-            int SO_id = dbHandler.createSupplierOrder(s, ordered_quantity, arriving_week);
+            int SO_id = dbHandler.createConfirmedSupplierOrder(s, ordered_quantity, arriving_week);
 
             //*** Create inbound order ***//
             InboundOrder io = new InboundOrder(null, arriving_week, "confirmed", pieces_ordered, SO);

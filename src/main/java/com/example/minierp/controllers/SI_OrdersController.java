@@ -58,7 +58,7 @@ public class SI_OrdersController implements Initializable {
                     RefreshPageManager.getInstance().setSiRefreshed();
                 }
 
-                System.out.println("SI");
+                //System.out.println("SI");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

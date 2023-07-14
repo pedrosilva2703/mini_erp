@@ -1044,6 +1044,31 @@ public class DatabaseHandler {
         }
         return id;
     }
+    public int createConfirmedSupplierOrder(Supplier s, int quantity, int week_est_delivery){
+        int id = -1;
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "INSERT INTO supplier_order (type, quantity, unit_price, week_est_delivery, delay, status, FK_supplier)\n" +
+                            "VALUES  (?, ?, ?, ?, ?, ?, ?)" +
+                            "", Statement.RETURN_GENERATED_KEYS);
+            insertStatement.setString(1, s.getMaterial_type());
+            insertStatement.setInt(2, quantity);
+            insertStatement.setDouble(3, s.getUnit_price());
+            insertStatement.setInt(4, week_est_delivery);
+            insertStatement.setInt(5, 0);
+            insertStatement.setString(6, "confirmed");
+            insertStatement.setInt(7, s.getId());
+            insertStatement.executeUpdate();
+
+            ResultSet rs_id = insertStatement.getGeneratedKeys();
+            rs_id.next();
+            id = rs_id.getInt(1);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+            return id;
+        }
+        return id;
+    }
     public ArrayList<SupplierOrder> getSupplierOrders(){
         String sql =    "SELECT  supplier.name,\n" +
                         "        supplier_order.id,\n" +
@@ -2321,6 +2346,26 @@ public class DatabaseHandler {
             double count = sqlReturnValues.getDouble(1);
 
             return count;
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        return 0;
+    }
+    public int getPieceWeek(Piece p){
+        String sql =    "SELECT week_est_delivery+delay\n" +
+                "FROM supplier_order\n" +
+                "JOIN piece ON supplier_order.id = piece.fk_supplier_order\n" +
+                "WHERE piece.id = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, p.getId());
+            ResultSet sqlReturnValues = stmt.executeQuery();
+
+            sqlReturnValues.next();
+
+            int week = sqlReturnValues.getInt(1);
+
+            return week;
         } catch (SQLException throwable) {
             throwable.printStackTrace();
         }

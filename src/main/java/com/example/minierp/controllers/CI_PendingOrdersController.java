@@ -56,7 +56,7 @@ public class CI_PendingOrdersController implements Initializable {
                     RefreshPageManager.getInstance().setCiRefreshed();
                 }
 
-                System.out.println("CI");
+               // System.out.println("CI");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -95,7 +95,7 @@ public class CI_PendingOrdersController implements Initializable {
 
         ClientOrder selected_order  = selectionList.get(0);
         if(     !dbHandler.updateClientOrderStatus(selected_order, "confirmed")
-            ||  !dbHandler.updatePendingSupplierOrderStatusByClientOrder(selected_order, "ordered")
+            ||  !dbHandler.updatePendingSupplierOrderStatusByClientOrder(selected_order, "confirmed")
             ||  !dbHandler.updateInboundStatusByClientOrder(selected_order, "confirmed")
             ||  !dbHandler.updateProductionStatusByClientOrder(selected_order, "confirmed")
             ||  !dbHandler.updateExpeditionStatusByClientOrder(selected_order, "confirmed") ){

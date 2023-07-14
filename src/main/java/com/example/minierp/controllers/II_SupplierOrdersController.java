@@ -48,7 +48,7 @@ public class II_SupplierOrdersController implements Initializable {
                     RefreshPageManager.getInstance().setIiRefreshed();
                 }
 
-                System.out.println("II");
+                //System.out.println("II");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

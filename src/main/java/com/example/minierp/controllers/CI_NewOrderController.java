@@ -147,9 +147,15 @@ public class CI_NewOrderController implements Initializable {
         ArrayList<Piece> rawpieces_arriving_free = dbHandler.getAvailablePiecesArriving(raw_type);
 
         //Allocate necessary pieces in WH and gets their costs
+        production_week = 0;
         for(Piece p : rawpieces_arriving_free){
             if(rawpieces_arriving_allocated.size()== desired_quantity - CO_all_pieces.size() ) break;
-            production_week = factory.getCurrent_week() + 2; //+1 for arriving, +1 for inbound
+
+            int piece_arriving_week = dbHandler.getPieceWeek(p);
+            int piece_production_week = piece_arriving_week+1;
+            if(piece_production_week > production_week) production_week = piece_production_week;
+            //production_week = factory.getCurrent_week() + 2; //+1 for arriving, +1 for inbound
+
             final_price += dbHandler.getPieceCost(p);
             p.setFinal_type(type);
             rawpieces_arriving_allocated.add(p);
@@ -393,7 +399,7 @@ public class CI_NewOrderController implements Initializable {
                     RefreshPageManager.getInstance().setCiRefreshed();
                 }
 
-                System.out.println("CI");
+                //System.out.println("CI");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

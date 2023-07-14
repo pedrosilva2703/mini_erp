@@ -54,7 +54,7 @@ public class CI_ConfirmedOrdersController implements Initializable {
                     RefreshPageManager.getInstance().setCiRefreshed();
                 }
 
-                System.out.println("CI");
+                //System.out.println("CI");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
