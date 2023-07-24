@@ -24,7 +24,7 @@
                   <Button fx:id="internalButton" mnemonicParsing="false" onMouseClicked="#goInternal" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-button" text="Internal Interface" AnchorPane.leftAnchor="0.0" />
                   <Button fx:id="supplierButton" layoutX="240.0" mnemonicParsing="false" onMouseClicked="#goSupplier" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-button" text="Supplier Interface" />
                   <Button fx:id="clientButton" layoutX="480.0" mnemonicParsing="false" onMouseClicked="#goClient" prefHeight="0.0" prefWidth="0.0" styleClass="main-menu-button" text="Client Interface" />
-               </children>
+                 </children>
             </AnchorPane>
          </children>
       </VBox>
@@ -54,6 +54,11 @@
             <TextField fx:id="tf_schema" layoutX="112.0" layoutY="252.0" prefHeight="25.0" prefWidth="280.0" />
             <Button fx:id="btn_factorySave" layoutX="471.0" layoutY="226.0" mnemonicParsing="false" onMouseClicked="#onFactorySaveButtonClicked" styleClass="regular-button" text="Save" />
             <Button layoutX="1224.0" layoutY="478.0" mnemonicParsing="false" styleClass="test-field" text="Save" />
+            <Text layoutX="810.0" layoutY="84.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="page-title" text="About" />
+            <Text layoutX="810.0" layoutY="146.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Masters Dissertation" />
+            <Text layoutX="810.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Application developed as part of a MSc thesis in Electrical and Computer Engineering @FEUP" wrappingWidth="415.0" />
+            <Text layoutX="810.0" layoutY="260.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="sub-title" text="Author" />
+            <Text layoutX="810.0" layoutY="295.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="normal-text" text="Pedro Miguel Pinto Silva" wrappingWidth="415.0" />
          </children>
       </AnchorPane>
    </center>
