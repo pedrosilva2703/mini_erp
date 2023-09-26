@@ -6,4 +6,4 @@ mini-ERP is one of the two Java applications that I developed during my Master's
  * 18/20
  
 ### Short version video showcase 
-https://youtu.be/yImJrbtUlog
+https://youtu.be/Bge9sg86pLM
