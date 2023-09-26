@@ -7,5 +7,5 @@ You can find the full document [here](https://sigarra.up.pt/feup/pt/pub_geral.pu
 ### Dissertation Evaluation
  * 18/20
  
-### Short version video showcase 
+### Short version of the video showcasing both applications controlling the simulation tool that was used.
 https://youtu.be/Bge9sg86pLM
